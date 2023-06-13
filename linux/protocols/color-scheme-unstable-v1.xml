@@ -117,7 +117,7 @@
       </description>
 
       <entry name="primary" value="0x1" summary="Primary color" />
-      <entry name="secondary" value="0x2" summary="Primary color" />
+      <entry name="secondary" value="0x2" summary="Secondary color" />
       <entry name="background" value="0x3" summary="Background color" />
       <entry name="foreground" value="0x4" summary="Foreground color" />
       <entry name="surface" value="0x5" summary="Surface color" />
