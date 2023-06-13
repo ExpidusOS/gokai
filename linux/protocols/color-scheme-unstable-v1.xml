@@ -55,13 +55,33 @@
       <arg name="value" type="uint" />
     </event>
 
-    <event name="done">
-      <description summary="done">
-        Event triggered when reading a color is done.
-      </description>
-    </event>
+    <request name="set_channel">
+      <description summary="color channel">
+        Changes one of the channel's value in the color.
 
-    <request name="destroy" type="destructor" />
+        This will fail if the color is not owned by the client.
+      </description>
+
+      <arg name="channel" type="uint" enum="channel" />
+      <arg name="value" type="uint" />
+    </request>
+
+    <request name="release" type="destructor">
+      <description summary="release access">
+        Releases access from the client.
+
+        This is the preferred way to give up a color.
+      </description>
+    </request>
+
+    <request name="destroy" type="destructor">
+      <description summary="release access">
+        Destroys the color completely.
+
+        If the color is not owned by the client, it will then
+        be released instead.
+      </description>
+    </request>
   </interface>
 
   <interface name="zwp_color_scheme_v1" version="1">
@@ -109,15 +129,26 @@
       <entry name="white" value="0xA" summary="Indexable white colors" />
     </enum>
 
-    <event name="color">
+    <request name="get_color">
       <description summary="color scheme's pallet color">
-        A notification which broadcasts when announcing the color in the scheme.
+        Get a specific color from the color scheme.
       </description>
 
       <arg name="id" type="new_id" interface="zwp_color_v1" />
       <arg name="type" type="uint" enum="color" />
       <arg name="index" type="uint" />
-    </event>
+    </request>
+
+    <request name="create_color">
+      <description summary="color scheme's pallet color">
+        Creates a new color, will return an existing color if
+        the color scheme is not owned by the client.
+      </description>
+
+      <arg name="id" type="new_id" interface="zwp_color_v1" />
+      <arg name="type" type="uint" enum="color" />
+      <arg name="index" type="uint" />
+    </request>
 
     <event name="done">
       <description summary="color scheme definition events done">
@@ -125,7 +156,22 @@
       </description>
     </event>
 
-    <request name="destroy" type="destructor" />
+    <request name="release" type="destructor">
+      <description summary="release access">
+        Releases access from the client.
+
+        This is the preferred way to give up a color scheme.
+      </description>
+    </request>
+
+    <request name="destroy" type="destructor">
+      <description summary="release access">
+        Destroys the color completely.
+
+        If the color scheme is not owned by the client, it will then
+        be released instead.
+      </description>
+    </request>
   </interface>
 
   <interface name="zwp_color_scheme_manager_v1" version="1">
@@ -138,7 +184,7 @@
         The active color scheme has been changed
       </description>
 
-      <arg name="id" type="new_id" interface="zwp_color_scheme_v1" />
+      <arg name="value" type="object" interface="zwp_color_scheme_v1" />
     </event>
 
     <event name="scheme_added">
@@ -146,7 +192,7 @@
         A new color scheme was added.
       </description>
 
-      <arg name="id" type="new_id" interface="zwp_color_scheme_v1" />
+      <arg name="value" type="object" interface="zwp_color_scheme_v1" />
     </event>
 
     <event name="scheme_removed">
@@ -154,7 +200,45 @@
         A color scheme was removed.
       </description>
 
-      <arg name="id" type="new_id" interface="zwp_color_scheme_v1" />
+      <arg name="value" type="object" interface="zwp_color_scheme_v1" />
     </event>
+
+    <enum name="brightness">
+      <description summary="color scheme brightness">
+        Defines whether or not the color scheme is a dark or a light theme.
+      </description>
+
+      <entry name="light" value="0x1" summary="Light" />
+      <entry name="dark" value="0x2" summary="Dark" />
+    </enum>
+
+    <request name="create">
+      <description summary="create color scheme">
+        Creates a new color scheme on the seat.
+      </description>
+
+      <arg name="colorscheme" type="object" interface="zwp_color_scheme_v1" />
+      <arg name="seat" type="object" interface="wl_seat" />
+      <arg name="name" type="string" />
+      <arg name="brightness" type="uint" enum="brightness" />
+    </request>
+
+    <request name="get_preferred">
+      <description summary="retrieve preferred color scheme">
+        Get the preferred color scheme for a seat
+      </description>
+
+      <arg name="id" type="new_id" interface="zwp_color_scheme_v1" />
+      <arg name="seat" type="object" interface="wl_seat" />
+    </request>
+
+    <request name="set_preferred">
+      <description summary="set preferred color scheme">
+        Sets the preferred color scheme for a seat
+      </description>
+
+      <arg name="colorscheme" type="object" interface="zwp_color_scheme_v1" />
+      <arg name="seat" type="object" interface="wl_seat" />
+    </request>
   </interface>
 </protocol>
