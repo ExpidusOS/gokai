@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="color_scheme_unstable_v1">
+  <copyright>
+    Copyright © 2023 Midstall Software
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+
+  <description summary="Protocol for common client color schemes">
+    This protocol allows applications to retrieve the color scheme set by the compositor.
+
+    A color scheme includes a pallet of colors such as the primary, secondary, error, warning,
+    and many other names.
+  </description>
+
+  <interface name="zwp_color_v1" version="1">
+    <description summary="color">
+      A color object which defines a color represented using RGBA.
+    </description>
+
+    <enum name="channel">
+      <description summary="a color channel">
+        A single color channel out of an RGBA color.
+      </description>
+
+      <entry name="red" value="0x1" summary="Red" />
+      <entry name="green" value="0x2" summary="Green" />
+      <entry name="blue" value="0x3" summary="Blue" />
+      <entry name="alpha" value="0x4" summary="Alpha" />
+    </enum>
+
+    <event name="channel">
+      <description summary="color channel">
+        Event triggered per-color channel
+      </description>
+
+      <arg name="channel" type="uint" enum="channel" />
+      <arg name="value" type="uint" />
+    </event>
+
+    <event name="done">
+      <description summary="done">
+        Event triggered when reading a color is done.
+      </description>
+    </event>
+
+    <request name="destroy" type="destructor" />
+  </interface>
+
+  <interface name="zwp_color_scheme_v1" version="1">
+    <description summary="color scheme">
+      A color scheme object which contains the current colors
+      and the name of said color scheme.
+    </description>
+
+    <enum name="brightness">
+      <description summary="color scheme brightness">
+        Defines whether or not the color scheme is a dark or a light theme.
+      </description>
+
+      <entry name="light" value="0x1" summary="Light" />
+      <entry name="dark" value="0x2" summary="Dark" />
+    </enum>
+
+    <event name="begin">
+      <description summary="color scheme event sequence begin">
+        This event is sent to begin definining the color scheme.
+      </description>
+
+      <arg name="name" type="string" />
+      <arg name="color_count" type="uint" />
+    </event>
+
+    <enum name="color">
+      <description summary="a named color in the pallet">
+        Describes valid colors which are in the pallet.
+
+        The first set of colors will always be a non-indexable kind.
+        The last set will always be indexable colors.
+      </description>
+
+      <entry name="primary" value="0x1" summary="Primary color" />
+      <entry name="secondary" value="0x2" summary="Primary color" />
+      <entry name="background" value="0x3" summary="Background color" />
+      <entry name="foreground" value="0x4" summary="Foreground color" />
+      <entry name="surface" value="0x5" summary="Surface color" />
+
+      <entry name="blue" value="0x6" summary="Indexable blue colors" />
+      <entry name="green" value="0x7" summary="Indexable green colors" />
+      <entry name="red" value="0x8" summary="Indexable red colors" />
+      <entry name="black" value="0x9" summary="Indexable black colors" />
+      <entry name="white" value="0xA" summary="Indexable white colors" />
+    </enum>
+
+    <event name="color">
+      <description summary="color scheme's pallet color">
+        A notification which broadcasts when announcing the color in the scheme.
+      </description>
+
+      <arg name="id" type="new_id" interface="zwp_color_v1" />
+      <arg name="type" type="uint" enum="color" />
+      <arg name="index" type="uint" />
+    </event>
+
+    <event name="done">
+      <description summary="color scheme definition events done">
+        This is sent when the color scheme's initial definition is done being sent.
+      </description>
+    </event>
+
+    <request name="destroy" type="destructor" />
+  </interface>
+
+  <interface name="zwp_color_scheme_manager_v1" version="1">
+    <description summary="color scheme management">
+      Manages the color scheme for a particular seat.
+    </description>
+
+    <event name="changed">
+      <description summary="active color scheme changed">
+        The active color scheme has been changed
+      </description>
+
+      <arg name="id" type="new_id" interface="zwp_color_scheme_v1" />
+    </event>
+
+    <event name="scheme_added">
+      <description summary="color scheme added">
+        A new color scheme was added.
+      </description>
+
+      <arg name="id" type="new_id" interface="zwp_color_scheme_v1" />
+    </event>
+
+    <event name="scheme_removed">
+      <description summary="color scheme removed">
+        A color scheme was removed.
+      </description>
+
+      <arg name="id" type="new_id" interface="zwp_color_scheme_v1" />
+    </event>
+  </interface>
+</protocol>
