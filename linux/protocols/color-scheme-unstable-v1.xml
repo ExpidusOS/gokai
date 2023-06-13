@@ -116,17 +116,23 @@
         The last set will always be indexable colors.
       </description>
 
-      <entry name="primary" value="0x1" summary="Primary color" />
-      <entry name="secondary" value="0x2" summary="Secondary color" />
-      <entry name="background" value="0x3" summary="Background color" />
-      <entry name="foreground" value="0x4" summary="Foreground color" />
-      <entry name="surface" value="0x5" summary="Surface color" />
+      <entry name="primary" value="1" summary="Primary color" />
+      <entry name="secondary" value="2" summary="Secondary color" />
+      <entry name="tertiary" value="3" summary="Tertiary color" />
+      <entry name="background" value="4" summary="Background color" />
+      <entry name="foreground" value="5" summary="Foreground color" />
+      <entry name="surface" value="6" summary="Surface color" />
+      <entry name="accent" value="7" summary="Accent color" />
+      <entry name="warning" value="8" summary="Warning color" />
+      <entry name="error" value="9" summary="Error color" />
+      <entry name="info" value="10" summary="Info color" />
+      <entry name="shadow" value="11" summary="Shadow color" />
 
-      <entry name="blue" value="0x6" summary="Indexable blue colors" />
-      <entry name="green" value="0x7" summary="Indexable green colors" />
-      <entry name="red" value="0x8" summary="Indexable red colors" />
-      <entry name="black" value="0x9" summary="Indexable black colors" />
-      <entry name="white" value="0xA" summary="Indexable white colors" />
+      <entry name="blue" value="12" summary="Indexable blue colors" />
+      <entry name="green" value="13" summary="Indexable green colors" />
+      <entry name="red" value="14" summary="Indexable red colors" />
+      <entry name="black" value="15" summary="Indexable black colors" />
+      <entry name="white" value="16" summary="Indexable white colors" />
     </enum>
 
     <request name="get_color">
