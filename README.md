@@ -7,6 +7,9 @@
 These are the several components which can be found in this repository under `packages`:
 
 **gokai**: Main Flutter library
+
 **gokai_compositor**: Wayland compositor
+
 **gokai_protocols**: Wayland protocols
+
 **libgokai**: Native library
