@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="gokai_shell_v1">
+  <copyright>
+    Copyright © 2023 Midstall Software
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+
+  <description summary="Protocol for ExpidusOS Gokai">
+    This protocol provides Wayland applications a level of basic control
+    to develop a shell for ExpidusOS.
+  </description>
+
+  <interface name="zwp_gokai_shell_client_surface_v1" version="1">
+    <description summary="client surface">
+      An interface which represents a client's surface on the compositor.
+    </description>
+
+    <event name="frame">
+      <description summary="frame">
+        An event which is triggered when the client surface is updated.
+      </description>
+
+      <arg name="fd" type="fd" />
+      <arg name="width" type="int" />
+      <arg name="height" type="int" />
+      <arg name="stride" type="int" />
+      <arg name="format" type="uint" enum="wl_shm.format" />
+    </event>
+
+    <request name="destroy" type="destructor" />
+  </interface>
+
+  <interface name="zwp_gokai_shell_surface_v1" version="1">
+    <description summary="client surface">
+      An interface which represents one of the shell's surface on the compositor.
+    </description>
+
+    <request name="destroy" type="destructor" />
+  </interface>
+
+  <interface name="zwp_gokai_shell_v1" version="1">
+    <description summary="shell">
+      An interface which represents an entire shell for Gokai.
+    </description>
+
+    <event name="activate">
+      <description summary="activate">
+        The event which is triggered when the shell instance gains access.
+      </description>
+    </event>
+
+    <event name="deactivate">
+      <description summary="deactivate">
+        The event which is triggered when the shell instance looses access.
+      </description>
+    </event>
+
+    <event name="unavailable">
+      <description summary="unavailable">
+        The event which is triggered if the shell instance was dennied access.
+        If this event is triggered then all other requests and events will not function.
+      </description>
+    </event>
+
+    <event name="new_client_surface">
+      <description summary="new client surface">
+        An event which is triggered when a client surface is added.
+      </description>
+
+      <arg name="surface" type="object" interface="zwp_gokai_shell_client_surface_v1" />
+    </event>
+
+    <request name="get_shell_surface">
+      <description summary="get shell surface">
+        Gets the shell surface for a wl_surface.
+      </description>
+
+      <arg name="id" type="new_id" interface="zwp_gokai_shell_surface_v1" />
+      <arg name="surface" type="object" interface="wl_surface" />
+    </request>
+
+    <request name="destroy" type="destructor" />
+  </interface>
+
+  <interface name="zwp_gokai_shell_manager_v1" version="1">
+    <description summary="shell manager">
+      An interface to request and manage the desktop shell.
+    </description>
+
+    <request name="get_shell">
+      <description summary="retrieve the shell">
+        Gets a Gokai Shell instance for the seat.
+      </description>
+
+      <arg name="id" type="new_id" interface="zwp_gokai_shell_v1" />
+      <arg name="seat" type="object" interface="wl_seat" />
+    </request>
+  </interface>
+</protocol>
