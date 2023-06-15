@@ -1,0 +1,10 @@
+*~
+bazel-*
+.idea
+.vscode
+# Eclipse
+.project
+.classpath
+.settings/
+# Maven
+target/

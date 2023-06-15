@@ -10,6 +10,6 @@ These are the several components which can be found in this repository under `pa
 
 **gokai_compositor**: Wayland compositor
 
-**gokai_framework**: Native library
-
 **gokai_protocols**: Wayland protocols
+
+**gokai_sdk**: Native libraries
