@@ -31,59 +31,29 @@
     flake = false;
   };
 
-  outputs = { self, expidus-sdk, nixpkgs, expat, libffi, wayland, }@inputs:
+  outputs = { self, expidus-sdk, nixpkgs, expat, libffi, wayland }@inputs:
     with expidus-sdk.lib;
     flake-utils.eachSystem flake-utils.allSystems (system:
       let
         pkgs = expidus-sdk.legacyPackages.${system};
 
-        expat = pkgs.stdenvNoCC.mkDerivation {
-          name = "expat-2.5.0";
+        deps = mapAttrs (name: src: pkgs.stdenvNoCC.mkDerivation {
+            inherit name src;
 
-          src = inputs.expat;
+            dontConfigure = true;
+            dontBuild = true;
 
-          dontConfigure = true;
-          dontBuild = true;
+            installPhase = ''
+              cp -r --no-preserve=ownership,mode ${src.outPath} $out
+              cp ${cleanSource self}/packages/gokai_sdk/third_party/${name}/BUILD $out/BUILD
+              cp ${cleanSource self}/packages/gokai_sdk/third_party/${name}/WORKSPACE $out/WORKSPACE
 
-          installPhase = ''
-            cp -r --no-preserve=ownership,mode ${inputs.expat.outPath} $out
-            cp ${cleanSource self}/packages/gokai_sdk/third_party/expat/BUILD $out/BUILD
-            cp ${cleanSource self}/packages/gokai_sdk/third_party/expat/WORKSPACE $out/WORKSPACE
-          '';
-        };
-
-        libffi = pkgs.stdenvNoCC.mkDerivation {
-          name = "libffi-3.4.4";
-
-          src = inputs.libffi;
-
-          dontConfigure = true;
-          dontBuild = true;
-
-          installPhase = ''
-            cp -r --no-preserve=ownership,mode ${inputs.libffi.outPath} $out
-            cp ${cleanSource self}/packages/gokai_sdk/third_party/libffi/BUILD $out/BUILD
-            cp ${cleanSource self}/packages/gokai_sdk/third_party/libffi/WORKSPACE $out/WORKSPACE
-          '';
-        };
-
-        wayland = pkgs.stdenvNoCC.mkDerivation {
-          name = "wayland-1.22.0";
-
-          src = inputs.wayland;
-
-          dontConfigure = true;
-          dontBuild = true;
-
-          installPhase = ''
-            cp -r --no-preserve=ownership,mode ${inputs.wayland.outPath} $out
-            cp ${cleanSource self}/packages/gokai_sdk/third_party/wayland/BUILD $out/BUILD
-            cp ${cleanSource self}/packages/gokai_sdk/third_party/wayland/WORKSPACE $out/WORKSPACE
-            cd $out
-            patch -p0 -i ${cleanSource self}/packages/gokai_sdk/third_party/wayland/remove-config-os.patch
-            patch -p0 -i ${cleanSource self}/packages/gokai_sdk/third_party/wayland/remove-config-shm.patch
-          '';
-        };
+              cd $out
+              for p in ${cleanSource self}/packages/gokai_sdk/third_party/${name}/*.patch; do
+                patch -p0 -i $p
+              done
+            '';
+          }) (removeAttrs inputs [ "nixpkgs" "expidus-sdk" "self" ]);
       in {
         packages = {
           sdk = pkgs.buildBazelPackage {
@@ -99,11 +69,7 @@
               "//framework:gokai-framework"
             ];
 
-            bazelFlags = [
-              "--override_repository=expat=${expat}"
-              "--override_repository=libffi=${libffi}"
-              "--override_repository=wayland=${wayland}"
-            ];
+            bazelFlags = attrValues (mapAttrs (name: pkg: "--override_repository=${name}=${pkg}") deps);
 
             fetchAttrs = {
               sha256 = "sha256-c6vLNiK54I8b0/K9/ikxp8VQfeZdOjCjlM60lS71l30=";
