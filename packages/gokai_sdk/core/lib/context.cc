@@ -15,3 +15,15 @@ template<class T> T* Context::getSystemService() {
   }
   return nullptr;
 }
+
+Service* Context::getSystemService(std::string serviceName) {
+  return nullptr;
+}
+
+std::string Context::getPackageName() {
+  return nullptr;
+}
+
+std::string Context::getPackageDir() {
+  return nullptr;
+}

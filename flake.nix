@@ -36,52 +36,19 @@
     flake-utils.eachSystem flake-utils.allSystems (system:
       let
         pkgs = expidus-sdk.legacyPackages.${system};
-
-        deps = mapAttrs (name: src: pkgs.stdenvNoCC.mkDerivation {
-            inherit name src;
-
-            dontConfigure = true;
-            dontBuild = true;
-
-            installPhase = ''
-              cp -r --no-preserve=ownership,mode ${src.outPath} $out
-              cp ${cleanSource self}/packages/gokai_sdk/third_party/${name}/BUILD $out/BUILD
-              cp ${cleanSource self}/packages/gokai_sdk/third_party/${name}/WORKSPACE $out/WORKSPACE
-
-              cd $out
-              for p in ${cleanSource self}/packages/gokai_sdk/third_party/${name}/*.patch; do
-                patch -p0 -i $p
-              done
-            '';
-          }) (removeAttrs inputs [ "nixpkgs" "expidus-sdk" "self" ]);
       in {
         packages = {
-          sdk = pkgs.buildBazelPackage {
+          sdk = pkgs.stdenv.mkDerivation {
             pname = "gokai-sdk";
             version = "0.1.0-git+${self.shortRev or "dirty"}";
 
             src = "${cleanSource self}/packages/gokai_sdk";
 
-            bazel = pkgs.bazel;
-
-            bazelTargets = [
-              "//core:gokai-core"
-              "//framework:gokai-framework"
+            nativeBuildInputs = with pkgs; [
+              wayland-scanner
+              meson
+              ninja
             ];
-
-            bazelFlags = attrValues (mapAttrs (name: pkg: "--override_repository=${name}=${pkg}") deps);
-
-            fetchAttrs = {
-              sha256 = "sha256-c6vLNiK54I8b0/K9/ikxp8VQfeZdOjCjlM60lS71l30=";
-            };
-
-            buildAttrs = {
-              installPhase = ''
-                install -Dm755 bazel-bin/core/libgokai-core.a $out/lib/libgokai-core.a
-                install -Dm755 bazel-bin/core/libgokai-core.so $out/lib/libgokai-core.so
-                install -Dm755 bazel-bin/framework/linux/libgokai-framework.so $out/lib/libgokai-framework.so
-              '';
-            };
           };
         };
 
@@ -100,8 +67,9 @@
             name = "gokai-sdk";
 
             packages = with pkgs; [
-              bazel
+              meson
               pkg-config
+              ninja
             ];
           };
         };
