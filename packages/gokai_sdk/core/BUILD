@@ -1,10 +1,16 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_test", "cc_library")
 
 cc_library(
     name = "gokai-core",
-    srcs = glob(["lib/*.c"]) + glob(["lib/*-priv.h"]),
-    hdrs = glob(["include/gokai/*.h"]),
+    srcs = glob([
+      "lib/**/*.cc",
+      "lib/**/*-priv.h"
+    ]),
+    hdrs = glob([
+      "include/gokai/**/*.h"
+    ]),
     copts = ["-Icore/include/"],
+    visibility = ["//visibility:public"]
 )
 
 cc_test(
@@ -14,6 +20,6 @@ cc_test(
   copts = ["-Icore/include/"],
   deps = [
     "@com_google_googletest//:gtest_main",
-    "//core:gokai-core"
+    ":gokai-core"
   ],
 )

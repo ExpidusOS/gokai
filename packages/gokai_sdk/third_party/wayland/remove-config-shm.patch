@@ -1,0 +1,10 @@
+--- src/wayland-shm.c	2023-06-16 13:38:44.677792776 -0700
++++ src/wayland-shm.c	2023-06-16 13:38:58.272464717 -0700
+@@ -30,7 +30,6 @@
+
+ #define _GNU_SOURCE
+
+-#include "config.h"
+
+ #include <stdbool.h>
+ #include <stdio.h>
