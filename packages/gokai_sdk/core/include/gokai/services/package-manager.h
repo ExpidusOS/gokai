@@ -7,9 +7,10 @@
 
 namespace Gokai {
   namespace Services {
-    class DisplayManager : public Gokai::Service {
+    class PackageManager : public Gokai::Service {
       public:
-        DisplayManager(Gokai::ObjectArguments arguments);
+        PackageManager(Gokai::ObjectArguments arguments);
+
         static const std::string SERVICE_NAME;
     };
   }

@@ -2,6 +2,6 @@
 
 using namespace Gokai::Services;
 
-WindowManager::WindowManager(Gokai::Context* context) : Service(context) {}
+WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Service(arguments) {}
 
 const std::string WindowManager::SERVICE_NAME = "WindowManager";

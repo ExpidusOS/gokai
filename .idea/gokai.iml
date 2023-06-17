@@ -6,6 +6,10 @@
       <sourceFolder url="file://$MODULE_DIR$/packages/gokai_sdk/core/include" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/packages/gokai_sdk/core/lib" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/packages/gokai_sdk/core/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/gokai_sdk/api/include" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/gokai_sdk/api/lib" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/gokai_sdk/framework/include" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/gokai_sdk/framework/lib" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/build" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/.dart_tool" />

@@ -34,6 +34,14 @@
               meson
               ninja
             ];
+
+            buildInputs = with pkgs; [
+              libxdg_basedir
+              libuv
+              appstream
+              glib
+              packagekit
+            ];
           };
         };
 
@@ -55,6 +63,11 @@
               meson
               pkg-config
               ninja
+              libxdg_basedir
+              libuv
+              appstream
+              glib
+              packagekit
             ];
           };
         };

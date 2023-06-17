@@ -2,6 +2,6 @@
 
 using namespace Gokai::Services;
 
-DisplayManager::DisplayManager(Gokai::Context* context) : Service(context) {}
+DisplayManager::DisplayManager(Gokai::ObjectArguments arguments) : Service(arguments) {}
 
 const std::string DisplayManager::SERVICE_NAME = "DisplayManager";

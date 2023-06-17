@@ -1,11 +1,16 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <gokai/object.h>
+#include <gokai/service-channel.h>
+
 namespace Gokai {
   class Context;
-  class Service {
+  class Service : public Object {
     public:
-      Service(Gokai::Context* context);
+      Service(ObjectArguments arguments);
+
+      virtual ServiceChannel* getServiceChannel();
     protected:
       Gokai::Context* context;
   };
