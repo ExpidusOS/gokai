@@ -91,7 +91,7 @@
 
             packages = with pkgs; [
               flutter
-              wayland
+              pkgs.wayland
               pkg-config
             ];
           };
