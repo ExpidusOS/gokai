@@ -16,22 +16,7 @@
 
   inputs.nixpkgs.url = github:ExpidusOS/nixpkgs;
 
-  inputs.expat = {
-    url = "https://github.com/libexpat/libexpat/releases/download/R_2_5_0/expat-2.5.0.tar.gz";
-    flake = false;
-  };
-
-  inputs.libffi = {
-    url = "https://github.com/libffi/libffi/releases/download/v3.4.4/libffi-3.4.4.tar.gz";
-    flake = false;
-  };
-
-  inputs.wayland = {
-    url = "https://gitlab.freedesktop.org/wayland/wayland/-/archive/1.22.0/wayland-1.22.0.tar.gz";
-    flake = false;
-  };
-
-  outputs = { self, expidus-sdk, nixpkgs, expat, libffi, wayland }@inputs:
+  outputs = { self, expidus-sdk, nixpkgs }@inputs:
     with expidus-sdk.lib;
     flake-utils.eachSystem flake-utils.allSystems (system:
       let
