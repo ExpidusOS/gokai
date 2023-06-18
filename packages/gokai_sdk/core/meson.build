@@ -28,3 +28,5 @@ gokai_core = declare_dependency(
   link_with: libgokai_core,
   include_directories: libgokai_core_inc,
   dependencies: libgokai_core_deps)
+
+pkg.generate(libgokai_core)

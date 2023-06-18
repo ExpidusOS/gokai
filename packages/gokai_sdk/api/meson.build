@@ -28,3 +28,6 @@ gokai_api = declare_dependency(
   link_with: libgokai_api,
   include_directories: libgokai_api_inc,
   dependencies: libgokai_api_deps)
+
+pkg.generate(libgokai_api,
+  requires: ['gokai-core', 'libuv'])
