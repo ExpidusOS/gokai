@@ -33,6 +33,7 @@
               wayland-scanner
               meson
               ninja
+              pkg-config
             ];
 
             buildInputs = with pkgs; [
