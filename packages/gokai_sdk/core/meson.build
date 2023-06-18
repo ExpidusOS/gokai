@@ -10,6 +10,7 @@ libgokai_core_src = [
   'lib/services/display-manager.cc',
   'lib/services/package-manager.cc',
   'lib/services/window-manager.cc',
+  'lib/values/bool.cc',
   'lib/values/int.cc',
   'lib/values/pointer.cc',
   'lib/values/string.cc',

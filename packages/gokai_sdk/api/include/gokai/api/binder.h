@@ -2,15 +2,18 @@
 
 #ifdef __cplusplus
 #include <gokai/object.h>
+#include <gokai/object-factory.h>
 #include <gokai/value.h>
 #include <string>
 
 namespace Gokai {
   namespace API {
-    class Binder {
+    class Binder : public Gokai::Object {
       public:
-        Binder(std::string libpath);
-        ~Binder();
+        Binder(ObjectArguments arguments);
+
+        virtual Gokai::ObjectFactory* getObjectFactory();
+        virtual std::string getPath();
     };
   }
 }

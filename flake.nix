@@ -57,6 +57,7 @@
               flutter
               pkgs.wayland
               pkg-config
+              self.packages.${system}.sdk
             ];
           };
 

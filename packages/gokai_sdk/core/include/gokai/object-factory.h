@@ -11,5 +11,7 @@ namespace Gokai {
       virtual Object create(std::string name, ObjectArguments arguments);
       virtual Object* createPointer(std::string name, ObjectArguments arguments);
   };
+
+  typedef ObjectFactory* (*GetObjectFactoryDefaultFunc)();
 }
 #endif

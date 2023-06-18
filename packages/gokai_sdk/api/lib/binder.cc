@@ -2,5 +2,12 @@
 
 using namespace Gokai::API;
 
-Binder::Binder(std::string libname) {}
-Binder::~Binder() {}
+Binder::Binder(Gokai::ObjectArguments arguments) : Object(arguments) {}
+
+Gokai::ObjectFactory* Binder::getObjectFactory() {
+  return nullptr;
+}
+
+std::string Binder::getPath() {
+  return "";
+}
