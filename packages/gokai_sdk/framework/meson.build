@@ -22,10 +22,12 @@ if target_machine.system() == 'linux'
   ]
 endif
 
-libgokai_framework = library('gokai-framework', libgokai_framework_src,
+libgokai_framework = shared_library('gokai-framework-v1', libgokai_framework_src,
+  name_prefix: '',
   include_directories: libgokai_framework_inc,
   dependencies: libgokai_framework_deps,
-  install: true)
+  install: true,
+  install_dir: libdir / 'gokai' / 'frameworks')
 gokai_framework = declare_dependency(
   link_with: libgokai_framework,
   include_directories: libgokai_framework_inc,

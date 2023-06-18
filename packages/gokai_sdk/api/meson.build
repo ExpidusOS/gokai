@@ -7,12 +7,15 @@ libgokai_api_src = [
 ]
 libgokai_api_deps = [gokai_core]
 libgokai_api_inc = include_directories('include')
+libgokai_api_headers_exclude = []
 
 if target_machine.system() == 'linux'
   libgokai_api_src += [
     'lib/os/linux/binder.cc',
     'lib/os/linux/binder-manager.cc'
   ]
+else
+  libgokai_api_headers_exclude += 'include/gokai/api/os/linux'
 endif
 
 libgokai_api_build_h = configure_file(
@@ -28,6 +31,11 @@ gokai_api = declare_dependency(
   link_with: libgokai_api,
   include_directories: libgokai_api_inc,
   dependencies: libgokai_api_deps)
+
+install_subdir('include/gokai',
+  exclude_directories: libgokai_api_headers_exclude,
+  strip_directory: true,
+  install_dir: includedir / 'gokai')
 
 pkg.generate(libgokai_api,
   requires: ['gokai-core', 'libuv'])

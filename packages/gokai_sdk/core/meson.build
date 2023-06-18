@@ -19,6 +19,7 @@ libgokai_core_inc = include_directories('include')
 libgokai_core_deps = [
   dependency('libuv')
 ]
+libgokai_core_headers_exclude = []
 
 libgokai_core = library('gokai-core', libgokai_core_src,
   include_directories: libgokai_core_inc,
@@ -28,5 +29,10 @@ gokai_core = declare_dependency(
   link_with: libgokai_core,
   include_directories: libgokai_core_inc,
   dependencies: libgokai_core_deps)
+
+install_subdir('include/gokai',
+  exclude_directories: libgokai_core_headers_exclude,
+  strip_directory: true,
+  install_dir: includedir / 'gokai')
 
 pkg.generate(libgokai_core)
