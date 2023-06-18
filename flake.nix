@@ -44,7 +44,6 @@
               wlroots
               wayland
               gtk3
-              libuv
             ];
           };
         };
