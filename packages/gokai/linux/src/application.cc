@@ -4,6 +4,7 @@
 
 typedef struct _GokaiApplicationPrivate {
   Gokai::API::BinderManager* binder_mngr;
+  Gokai::API::Binder* binder;
 } GokaiApplicationPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(GokaiApplication, gokai_application, GTK_TYPE_APPLICATION);
@@ -15,6 +16,16 @@ static void gokai_application_constructed(GObject* obj) {
   GokaiApplicationPrivate* priv = reinterpret_cast<GokaiApplicationPrivate*>(gokai_application_get_instance_private(self));
 
   priv->binder_mngr = Gokai::API::BinderManager::create(Gokai::ObjectArguments({}));
+  priv->binder = priv->binder_mngr->getDefault();
+
+  if (priv->binder == nullptr) {
+    auto all = priv->binder_mngr->getAll();
+    auto first = all.begin();
+    if (first == all.end()) g_critical("Failed to bind to Gokai.");
+    priv->binder = first->second;
+  }
+
+  g_message("Loaded Gokai API: %s", priv->binder->getPath().c_str());
 }
 
 static void gokai_application_dispose(GObject* obj) {
