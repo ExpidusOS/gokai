@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "include/gokai/gokai_plugin.h"
+#include <gokai/gokai_plugin.h>
 #include "gokai_plugin_private.h"
 
 // This demonstrates a simple unit test of the C portion of this plugin's
