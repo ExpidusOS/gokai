@@ -2,6 +2,7 @@ libgokai_core_src = [
   'lib/context.cc',
   'lib/object.cc',
   'lib/object-arguments.cc',
+  'lib/object-factory.cc',
   'lib/service.cc',
   'lib/service-channel.cc',
   'lib/value.cc',
