@@ -5,9 +5,11 @@ libgokai_core_src = [
   'lib/service.cc',
   'lib/service-channel.cc',
   'lib/value.cc',
+  'lib/services/compositor.cc',
   'lib/services/display-manager.cc',
   'lib/services/package-manager.cc',
   'lib/services/window-manager.cc',
+  'lib/values/int.cc',
   'lib/values/pointer.cc',
 ]
 libgokai_core_inc = include_directories('include')

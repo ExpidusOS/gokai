@@ -15,7 +15,8 @@ namespace Gokai {
       template<class T> T* getSystemService();
       virtual Service* getSystemService(std::string serviceName);
       virtual std::string getPackageName();
-      virtual std::string getPackageDir();
+      virtual std::string getPackageDataDir();
+      virtual std::string getPackageConfigDir();
     private:
       uv_loop_t* loop;
   };

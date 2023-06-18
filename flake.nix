@@ -41,6 +41,9 @@
               appstream
               glib
               packagekit
+              wlroots
+              wayland
+              gtk3
             ];
           };
         };
@@ -68,6 +71,9 @@
               appstream
               glib
               packagekit
+              wlroots
+              gtk3
+              wayland
             ];
           };
         };

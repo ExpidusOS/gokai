@@ -18,6 +18,11 @@ namespace Gokai {
       Value getAssert(std::string name);
       Value getException(std::string name);
       Value getUnsafe(std::string name);
+
+      Value* getPointed(std::string name);
+      Value* getPointedAssert(std::string name);
+      Value* getPointedException(std::string name);
+      Value* getPointedUnsafe(std::string name);
     private:
       std::map<std::string, Value> arguments;
       TypeSafePolicy policy;

@@ -46,3 +46,35 @@ Value ObjectArguments::getException(std::string name) {
 Value ObjectArguments::getUnsafe(std::string name) {
   return this->arguments.find(name)->second;
 }
+
+Value* ObjectArguments::getPointed(std::string name) {
+  switch (this->policy) {
+    case GOKAI_TYPE_SAFE_POLICY_ASSERT:
+      return this->getPointedAssert(name);
+    case GOKAI_TYPE_SAFE_POLICY_EXCEPTION:
+      return this->getPointedException(name);
+    case GOKAI_TYPE_SAFE_POLICY_NONE:
+      return this->getPointedUnsafe(name);
+  }
+
+  throw std::runtime_error("An invalid type-safe policy was set");
+}
+
+Value* ObjectArguments::getPointedAssert(std::string name) {
+  auto pair = this->arguments.find(name);
+  assert(pair != this->arguments.end());
+  return &pair->second;
+}
+
+Value* ObjectArguments::getPointedException(std::string name) {
+  auto pair = this->arguments.find(name);
+  if (pair == this->arguments.end()) {
+    throw std::invalid_argument("Argument does not exist");
+  }
+
+  return &pair->second;
+}
+
+Value* ObjectArguments::getPointedUnsafe(std::string name) {
+  return &this->arguments.find(name)->second;
+}

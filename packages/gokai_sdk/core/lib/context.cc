@@ -41,6 +41,10 @@ std::string Context::getPackageName() {
   return nullptr;
 }
 
-std::string Context::getPackageDir() {
+std::string Context::getPackageConfigDir() {
+  return nullptr;
+}
+
+std::string Context::getPackageDataDir() {
   return nullptr;
 }
