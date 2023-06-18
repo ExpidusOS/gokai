@@ -11,6 +11,7 @@ libgokai_core_src = [
   'lib/services/window-manager.cc',
   'lib/values/int.cc',
   'lib/values/pointer.cc',
+  'lib/values/string.cc',
 ]
 libgokai_core_inc = include_directories('include')
 libgokai_core_deps = [

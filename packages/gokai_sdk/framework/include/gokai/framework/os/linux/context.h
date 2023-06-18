@@ -12,12 +12,23 @@ namespace Gokai {
   namespace Framework {
     namespace os {
       namespace Linux {
-        enum ContextType {
-          GOKAI_FRAMEWORK_LINUX_CONTEXT_TYPE_AUTO = (0 << 0),
-          GOKAI_FRAMEWORK_LINUX_CONTEXT_TYPE_CLIENT = (1 << 0),
-          GOKAI_FRAMEWORK_LINUX_CONTEXT_TYPE_COMPOSITOR = (2 << 0),
-          GOKAI_FRAMEWORK_LINUX_CONTEXT_TYPE_WAYLAND = (0 << 3),
-          GOKAI_FRAMEWORK_LINUX_CONTEXT_TYPE_X11 = (1 << 3),
+        class ContextDisplayBackend {
+          public:
+            ContextDisplayBackend();
+            ContextDisplayBackend(uint8_t id, std::string name);
+
+            bool operator!=(ContextDisplayBackend b);
+            bool operator==(ContextDisplayBackend b);
+
+            static ContextDisplayBackend fromValue(Value* value);
+
+            static const ContextDisplayBackend try_auto;
+            static const ContextDisplayBackend wayland;
+            static const ContextDisplayBackend x11;
+            static const ContextDisplayBackend values[3];
+          private:
+            uint8_t id;
+            std::string name;
         };
 
         class Context : public Gokai::Context {
@@ -25,16 +36,17 @@ namespace Gokai {
             Context(Gokai::ObjectArguments arguments);
             ~Context();
 
+            ContextDisplayBackend getDisplayBackend();
             Service* getSystemService(std::string serviceName) override;
             std::string getPackageName() override;
             std::string getPackageConfigDir() override;
             std::string getPackageDataDir() override;
           private:
+            ContextDisplayBackend display_backend;
             AsMetadata* metadata;
             xdgHandle xdg_handle;
             Services::PackageManager* package_manager;
             std::map<std::string, Gokai::Service*> services;
-            ContextType type;
         };
       }
     }

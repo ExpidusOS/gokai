@@ -16,6 +16,7 @@ if target_machine.system() == 'linux'
     dependency('libxdg-basedir'),
     dependency('packagekit-glib2'),
     dependency('gtk+-wayland-3.0'),
+    dependency('gtk+-x11-3.0'),
     dependency('wlroots'),
   ]
 endif
