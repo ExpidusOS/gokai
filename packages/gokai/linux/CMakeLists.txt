@@ -30,13 +30,12 @@ function(ADD_PLUGIN_SYM TARGET)
   return(PROPAGATE GOKAI_LIBRARIES)
 endfunction()
 
-pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
+find_package(PkgConfig REQUIRED)
 pkg_check_modules(GOKAI_API REQUIRED IMPORTED_TARGET gokai-core gokai-api)
 
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
   "gokai_plugin.cc"
-  "src/application.cc"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
@@ -62,8 +61,6 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 message("${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_include_directories(${PLUGIN_NAME} PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
-target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GOKAI_API)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
@@ -112,8 +109,6 @@ add_executable(${TEST_RUNNER}
 apply_standard_settings(${TEST_RUNNER})
 target_include_directories(${TEST_RUNNER} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${TEST_RUNNER} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${TEST_RUNNER} PRIVATE flutter)
-target_link_libraries(${TEST_RUNNER} PRIVATE PkgConfig::GTK)
 target_link_libraries(${TEST_RUNNER} PRIVATE PkgConfig::GOKAI_API)
 target_link_libraries(${TEST_RUNNER} PRIVATE gtest_main gmock)
 
