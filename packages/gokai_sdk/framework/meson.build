@@ -9,11 +9,11 @@ if target_machine.system() == 'linux'
     'lib/os/linux/services/wayland/server/window-manager.cc',
     'lib/os/linux/services/package-manager.cc',
     'lib/os/linux/context.cc',
+    'lib/os/linux/logging.cc',
     'lib/os/linux/object-factory.cc',
   ]
 
   libgokai_framework_deps += [
-    dependency('appstream'),
     dependency('libxdg-basedir'),
     dependency('packagekit-glib2'),
     dependency('wlroots'),

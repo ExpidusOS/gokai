@@ -32,8 +32,8 @@ static std::filesystem::path get_runtime_libdir() {
 }
 
 BinderManager::BinderManager(Gokai::ObjectArguments arguments) : Gokai::API::BinderManager(arguments) {
-  if (this->binder_default == nullptr && this->is_portable) {
-    spdlog::debug("Portable Gokai framework requested");
+  if (this->binder_default == nullptr) {
+    spdlog::debug("Trying to load from application's runtime directory");
 
     auto runtime_dir = get_runtime_libdir();
     struct stat info;
@@ -66,7 +66,7 @@ Gokai::API::Binder* BinderManager::load(std::string name) {
   if (this->isCached(name)) return this->getCached(name);
 
   auto value = new Binder(Gokai::ObjectArguments({
-    { "path", std::any(name) },
+    { "path", name },
   }));
   this->binder_cache[name] = value;
   return value;

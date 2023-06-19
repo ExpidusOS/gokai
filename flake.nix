@@ -49,12 +49,12 @@
             buildInputs = with pkgs; [
               libxdg_basedir
               libuv
-              appstream
               glib
               packagekit
               wlroots
               wayland
               spdlog
+              yaml-cpp
             ];
           };
         };
@@ -71,6 +71,7 @@
               libuv
               gdb
               spdlog
+              yaml-cpp
             ];
           };
 

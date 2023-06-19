@@ -1,4 +1,5 @@
 #include <gokai/framework/os/linux/context.h>
+#include <gokai/framework/os/linux/logging.h>
 #include <gokai/framework/os/linux/object-factory.h>
 #include <stdexcept>
 
@@ -10,12 +11,20 @@ Gokai::Object ObjectFactory::create(std::string name, Gokai::ObjectArguments arg
   if (std::string(typeid(Gokai::Context).name()).compare(name) == 0) {
     return Context(arguments);
   }
+
+  if (std::string(typeid(Gokai::Logger).name()).compare(name) == 0) {
+    return Logger(arguments);
+  }
   throw std::runtime_error("Invalid object type");
 }
 
 Gokai::Object* ObjectFactory::createPointer(std::string name, Gokai::ObjectArguments arguments) {
   if (std::string(typeid(Gokai::Context).name()).compare(name) == 0) {
     return new Context(arguments);
+  }
+
+  if (std::string(typeid(Gokai::Logger).name()).compare(name) == 0) {
+    return new Logger(arguments);
   }
   return nullptr;
 }

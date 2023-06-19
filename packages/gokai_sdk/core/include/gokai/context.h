@@ -1,41 +1,44 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <gokai/application-manifest.h>
+#include <gokai/logging.h>
 #include <gokai/object.h>
 #include <stdint.h>
 #include <string>
 #include <uv.h>
 
 namespace Gokai {
-  class ContextMode {
-    public:
-      ContextMode();
-      ContextMode(uint8_t id, std::string name);
+  struct ContextMode {
+    uint8_t id;
+    std::string name;
 
-      bool operator!=(ContextMode b);
-      bool operator==(ContextMode b);
+    ContextMode();
+    ContextMode(uint8_t id, std::string name);
 
-      static ContextMode fromValue(std::any value);
+    bool operator!=(ContextMode b);
+    bool operator==(ContextMode b);
 
-      static const ContextMode invalid;
-      static const ContextMode compositor;
-      static const ContextMode client;
-      static const ContextMode values[3];
-    private:
-      uint8_t id;
-      std::string name;
+    static ContextMode fromValue(std::any value);
+
+    static const ContextMode invalid;
+    static const ContextMode compositor;
+    static const ContextMode client;
+    static const ContextMode values[3];
   };
 
   class Service;
-  class Context : public Object {
+  class Context : public Loggable {
     public:
       Context(ObjectArguments arguments);
       ~Context();
 
+      ApplicationManifest getManifest();
       ContextMode getMode();
       template<class T> T* getSystemService();
       virtual Service* getSystemService(std::string serviceName);
       virtual std::string getPackageName();
+      virtual std::string getPackageDir();
       virtual std::string getPackageDataDir();
       virtual std::string getPackageConfigDir();
     private:

@@ -22,7 +22,6 @@ namespace Gokai {
       protected:
         Binder* binder_default;
         std::map<std::string, Binder*> binder_cache;
-        bool is_portable;
     };
   }
 }

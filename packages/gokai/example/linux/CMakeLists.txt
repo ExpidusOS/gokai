@@ -78,13 +78,10 @@ set_target_properties(${BINARY_NAME}
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/intermediates_do_not_run"
 )
 
-# Enable the test target.
-set(include_gokai_tests TRUE)
-
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
 include(flutter/generated_plugins.cmake)
-
+target_link_libraries(${BINARY_NAME} PRIVATE gokai_plugin)
 
 # === Installation ===
 # By default, "installing" just makes a relocatable bundle in the build
@@ -131,3 +128,6 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+install(FILES "../data/manifest.yaml"
+  DESTINATION "${BUILD_BUNDLE_DIR}/data")

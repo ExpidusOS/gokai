@@ -1,0 +1,4 @@
+id: com.expidusos.gokai
+overrides:
+  Gokai::Context::mode: compositor
+  Gokai::Context::display-backend: wayland

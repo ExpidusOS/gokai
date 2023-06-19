@@ -2,18 +2,19 @@
 #include <gokai/services/display-manager.h>
 #include <gokai/services/package-manager.h>
 #include <gokai/services/window-manager.h>
+#include <spdlog/spdlog.h>
 #include <assert.h>
+#include <filesystem>
 #include <stdexcept>
 #include <type_traits>
+
+#define TAG "Gokai::Context"
 
 using namespace Gokai;
 
 ContextMode::ContextMode() : ContextMode(-1, "") {}
 
-ContextMode::ContextMode(uint8_t id, std::string name) {
-  this->id = id;
-  this->name = name;
-}
+ContextMode::ContextMode(uint8_t id, std::string name) : id{id}, name{name} {}
 
 bool ContextMode::operator==(ContextMode b) {
   return this->id == b.id && this->name.compare(b.name) == 0;
@@ -58,9 +59,25 @@ const ContextMode ContextMode::values[3] = {
   ContextMode::compositor,
 };
 
-Context::Context(ObjectArguments arguments) : Object(arguments) {
-  this->mode = arguments.has("mode") ? ContextMode::fromValue(arguments.get("mode"))
-    : ContextMode::client;
+Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments) {
+  auto manifest = this->getManifest();
+  this->logger->debug("Manifest loaded with ID {}", manifest.id);
+
+  auto find = manifest.defaults.find("Gokai::Context::mode");
+
+  if (find != manifest.defaults.end()) {
+    this->mode = ContextMode::fromValue(find->second);
+  } else {
+    this->mode = arguments.has("mode") ? ContextMode::fromValue(arguments.get("mode"))
+      : ContextMode::client;
+  }
+
+  find = manifest.overrides.find("Gokai::Context::mode");
+  if (find != manifest.overrides.end()) {
+    this->mode = ContextMode::fromValue(find->second);
+  }
+
+  this->logger->debug("Creating context in mode \"{}\"", this->mode.name);
 
   this->loop = reinterpret_cast<uv_loop_t*>(malloc(sizeof (uv_loop_t)));
   assert(this->loop != nullptr);
@@ -70,6 +87,10 @@ Context::Context(ObjectArguments arguments) : Object(arguments) {
 Context::~Context() {
   uv_loop_close(this->loop);
   free(this->loop);
+}
+
+ApplicationManifest Context::getManifest() {
+  return ApplicationManifest(YAML::LoadFile(std::filesystem::path(this->getPackageDir()) / "data" / "manifest.yaml"));
 }
 
 ContextMode Context::getMode() {
@@ -96,13 +117,17 @@ Service* Context::getSystemService(std::string serviceName) {
 }
 
 std::string Context::getPackageName() {
-  return nullptr;
+  return std::string();
+}
+
+std::string Context::getPackageDir() {
+  return std::string();
 }
 
 std::string Context::getPackageConfigDir() {
-  return nullptr;
+  return std::filesystem::path(this->getPackageDir()) / "config";
 }
 
 std::string Context::getPackageDataDir() {
-  return nullptr;
+  return std::filesystem::path(this->getPackageDir()) / "data";
 }

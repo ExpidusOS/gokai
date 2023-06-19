@@ -2,12 +2,13 @@
 
 #ifdef __cplusplus
 #include <gokai/context.h>
+#include <gokai/logging.h>
 #include <gokai/service.h>
 #include <string>
 
 namespace Gokai {
   namespace Services {
-    class WindowManager : public Gokai::Service {
+    class WindowManager : public Gokai::Service, public Gokai::Loggable {
       public:
         WindowManager(Gokai::ObjectArguments arguments);
         static const std::string SERVICE_NAME;

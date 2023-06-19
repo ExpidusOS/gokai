@@ -1,5 +1,8 @@
 libgokai_core_src = [
+  'lib/application.cc',
+  'lib/application-manifest.cc',
   'lib/context.cc',
+  'lib/logging.cc',
   'lib/object.cc',
   'lib/object-arguments.cc',
   'lib/object-factory.cc',
@@ -11,7 +14,7 @@ libgokai_core_src = [
   'lib/services/window-manager.cc',
 ]
 libgokai_core_inc = include_directories('include')
-libgokai_core_deps = [libuv, spdlog]
+libgokai_core_deps = [libuv, spdlog, yaml_cpp]
 libgokai_core_headers_exclude = []
 
 libgokai_core = library('gokai-core', libgokai_core_src,

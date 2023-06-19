@@ -56,21 +56,22 @@ const ContextDisplayBackend ContextDisplayBackend::values[3] = {
 };
 
 Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
-  this->display_backend = arguments.has("display-backend") ? ContextDisplayBackend::fromValue(arguments.get("display-backend"))
-    : (this->getMode() == Gokai::ContextMode::compositor ? ContextDisplayBackend::wayland : ContextDisplayBackend::try_auto);
+  auto manifest = this->getManifest();
+  auto find = manifest.defaults.find("Gokai::Context::display-backend");
 
-#if 0
-  AsMetadata* metadata = AS_METADATA(std::any_cast<void*>(arguments.get("metadata")));
-  assert(metadata != nullptr);
-
-  this->metadata = AS_METADATA(g_object_ref(G_OBJECT(metadata)));
-  assert(this->metadata != nullptr);
-
-  AsFormatStyle style = as_metadata_get_format_style(this->metadata);
-  if (style != AS_FORMAT_STYLE_METAINFO) {
-    throw std::invalid_argument("Expected metainfo AppStream style metadata.");
+  if (find != manifest.defaults.end()) {
+    this->display_backend = ContextDisplayBackend::fromValue(find->second);
+  } else {
+    this->display_backend = arguments.has("display-backend") ? ContextDisplayBackend::fromValue(arguments.get("display-backend"))
+      : (this->getMode() == Gokai::ContextMode::compositor ? ContextDisplayBackend::wayland : ContextDisplayBackend::try_auto);
   }
-#endif
+
+  find = manifest.overrides.find("Gokai::Context::display-backend");
+  if (find != manifest.overrides.end()) {
+    this->display_backend = ContextDisplayBackend::fromValue(find->second);
+  }
+
+  this->logger->debug("Using the display backend: {}", this->display_backend.name);
 
   assert(xdgInitHandle(&this->xdg_handle) != nullptr);
 
@@ -78,6 +79,7 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
 
   this->package_manager = new Services::PackageManager(Gokai::ObjectArguments({
     { "context", static_cast<Gokai::Context*>(this) },
+    { "logger", this->getLogger() },
   }));
 
   if (this->getMode() == Gokai::ContextMode::client) {
@@ -92,14 +94,17 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
     if (this->getDisplayBackend() == ContextDisplayBackend::wayland) {
       this->services[Gokai::Services::Compositor::SERVICE_NAME] = new Services::Wayland::Server::Compositor(Gokai::ObjectArguments({
         { "context", static_cast<Gokai::Context*>(this) },
+        { "logger", this->getLogger() },
       }));
 
       this->services[Gokai::Services::DisplayManager::SERVICE_NAME] = new Services::Wayland::Server::DisplayManager(Gokai::ObjectArguments({
         { "context", static_cast<Gokai::Context*>(this) },
+        { "logger", this->getLogger() },
       }));
 
       this->services[Gokai::Services::WindowManager::SERVICE_NAME] = new Services::Wayland::Server::WindowManager(Gokai::ObjectArguments({
         { "context", static_cast<Gokai::Context*>(this) },
+        { "logger", this->getLogger() },
       }));
     } else {
       throw std::runtime_error("Unsupported display backend");
@@ -113,7 +118,6 @@ Context::~Context() {
   delete this->package_manager;
   for (auto service : this->services) delete service.second;
 
-  // g_object_unref(G_OBJECT(this->metadata));
   xdgWipeHandle(&this->xdg_handle);
 }
 
@@ -131,16 +135,23 @@ Gokai::Service* Context::getSystemService(std::string serviceName) {
   return nullptr;
 }
 
-std::string Context::getPackageName() {
-  AsComponent* comp = as_metadata_get_component(this->metadata);
-  assert(comp != nullptr);
-  return std::string(as_component_get_pkgname(comp));
+std::string Context::getPackageDir() {
+  struct stat sb;
+  lstat("/proc/self/exe", &sb);
+
+  size_t linksize = sb.st_size + 1;
+  if (linksize == 1) linksize = PATH_MAX;
+
+  char* link_path = reinterpret_cast<char*>(malloc(linksize));
+  assert(link_path != nullptr);
+
+  size_t read_size = readlink("/proc/self/exe", link_path, linksize);
+  if (read_size < 0) {
+    throw std::runtime_error("Failed to readlink /proc/self/exe");
+  }
+  return std::filesystem::path(link_path).parent_path();
 }
 
 std::string Context::getPackageConfigDir() {
   return std::filesystem::path(xdgConfigHome(&this->xdg_handle)) / this->getPackageName();
-}
-
-std::string Context::getPackageDataDir() {
-  return std::filesystem::path(xdgDataHome(&this->xdg_handle)) / this->getPackageName();
 }
