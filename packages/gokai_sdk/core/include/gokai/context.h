@@ -33,6 +33,7 @@ namespace Gokai {
       Context(ObjectArguments arguments);
       ~Context();
 
+      uv_loop_t* getLoop();
       ApplicationManifest getManifest();
       ContextMode getMode();
       template<class T> T* getSystemService();

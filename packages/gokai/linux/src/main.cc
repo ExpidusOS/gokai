@@ -32,6 +32,7 @@ extern "C" FLUTTER_PLUGIN_EXPORT int main(int argc, char** argv) {
 
     // TODO: use context to set up application
 
+    uv_run(context->getLoop(), UV_RUN_DEFAULT);
     delete context;
   } catch (const std::exception& ex) {
     spdlog::critical("Caught exception: {}", ex.what());

@@ -20,8 +20,9 @@ namespace Gokai {
                 public:
                   Compositor(Gokai::ObjectArguments arguments);
                   ~Compositor();
-                private:
                   struct wl_display* display;
+                  uv_poll_t event_poll;
+                private:
                   struct wlr_backend* backend;
               };
             }

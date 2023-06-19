@@ -95,6 +95,10 @@ Context::~Context() {
   free(this->loop);
 }
 
+uv_loop_t* Context::getLoop() {
+  return this->loop;
+}
+
 ApplicationManifest Context::getManifest() {
   return ApplicationManifest(YAML::LoadFile(std::filesystem::path(this->getPackageDir()) / "data" / "manifest.yaml"));
 }
