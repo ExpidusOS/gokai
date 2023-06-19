@@ -1,6 +1,3 @@
-#include <gdk/gdk.h>
-#include <gdk/gdkwayland.h>
-#include <gdk/gdkx.h>
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
@@ -84,24 +81,13 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   }));
 
   if (this->getMode() == Gokai::ContextMode::client) {
-    GdkDisplayManager* display_manager = gdk_display_manager_get();
-
     if (this->getDisplayBackend() == ContextDisplayBackend::try_auto) {
-      GdkDisplay* display = gdk_display_manager_get_default_display(display_manager);
-
-      if (GDK_IS_X11_DISPLAY(display)) {
-      } else if (GDK_IS_WAYLAND_DISPLAY(display)) {
-      } else {
-        throw std::runtime_error("Unsupported GDK display.");
-      }
+      // TODO: discover with environmental variables
     } else if (this->getDisplayBackend() == ContextDisplayBackend::x11) {
     } else if (this->getDisplayBackend() == ContextDisplayBackend::wayland) {
     } else {
-      g_object_unref(display_manager);
       throw std::runtime_error("Unsupported display backend");
     }
-
-    g_object_unref(display_manager);
   } else if (this->getMode() == Gokai::ContextMode::compositor) {
     if (this->getDisplayBackend() == ContextDisplayBackend::wayland) {
       this->services[Gokai::Services::Compositor::SERVICE_NAME] = new Services::Wayland::Server::Compositor(Gokai::ObjectArguments({

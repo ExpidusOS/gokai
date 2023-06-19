@@ -21,6 +21,12 @@
     flake-utils.eachSystem flake-utils.allSystems (system:
       let
         pkgs = expidus-sdk.legacyPackages.${system};
+
+        flutter-engine = pkgs.fetchzip {
+          url = "https://storage.googleapis.com/flutter_infra_release/flutter/45f6e009110df4f34ec2cf99f63cf73b71b7a420/linux-x64/linux-x64-embedder.zip";
+          stripRoot = false;
+          sha256 = "sha256-WjCJzoTUF/Po2JMS4T2Z/SGQA/c/AZDik5kg4KHFGHM=";
+        };
       in {
         packages = {
           sdk = pkgs.stdenv.mkDerivation {
@@ -28,6 +34,10 @@
             version = "0.1.0-git+${self.shortRev or "dirty"}";
 
             src = "${cleanSource self}/packages/gokai_sdk";
+
+            mesonFlags = [
+              "-Dflutter-engine=${flutter-engine}"
+            ];
 
             nativeBuildInputs = with pkgs; [
               wayland-scanner
@@ -44,7 +54,6 @@
               packagekit
               wlroots
               wayland
-              gtk3
               spdlog
             ];
           };
@@ -67,6 +76,8 @@
 
           sdk = pkgs.mkShell {
             name = "gokai-sdk";
+
+            inherit (self.packages.${system}.sdk) mesonFlags;
 
             packages = self.packages.${system}.sdk.nativeBuildInputs
               ++ self.packages.${system}.sdk.buildInputs;
