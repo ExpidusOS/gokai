@@ -5,7 +5,7 @@
 using namespace Gokai;
 
 Service::Service(ObjectArguments arguments) : Object(arguments) {
-  Context* context = std::any_cast<Context*>(arguments.get("context").getValue());
+  Context* context = std::any_cast<Context*>(arguments.get("context"));
   assert(context != nullptr);
   this->context = context;
 }

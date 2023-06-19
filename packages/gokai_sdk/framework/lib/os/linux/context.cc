@@ -27,20 +27,20 @@ bool ContextDisplayBackend::operator!=(ContextDisplayBackend b) {
   return this->id != b.id || this->name.compare(b.name) != 0;
 }
 
-ContextDisplayBackend ContextDisplayBackend::fromValue(Value<std::any> value) {
-  if (typeid(value) == typeid(Value<int>)) {
-    auto num = std::any_cast<Value<int>>(value);
+ContextDisplayBackend ContextDisplayBackend::fromValue(std::any value) {
+  if (value.type() == typeid(int)) {
+    auto num = std::any_cast<int>(value);
 
     for (auto value : ContextDisplayBackend::values) {
-      if (value.id == num.getValue()) return value;
+      if (value.id == num) return value;
     }
 
     throw std::invalid_argument("Invalid value provided");
-  } else if (typeid(value) == typeid(Value<std::string>)) {
-    auto str = std::any_cast<Value<std::string>>(value);
+  } else if (value.type() == typeid(std::string)) {
+    auto str = std::any_cast<std::string>(value);
 
     for (auto value : ContextDisplayBackend::values) {
-      if (value.name.compare(str.getValue()) == 0) return value;
+      if (value.name.compare(str) == 0) return value;
     }
 
     throw std::invalid_argument("Invalid value provided");
@@ -62,7 +62,7 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   this->display_backend = arguments.has("display-backend") ? ContextDisplayBackend::fromValue(arguments.get("display-backend"))
     : (this->getMode() == Gokai::ContextMode::compositor ? ContextDisplayBackend::wayland : ContextDisplayBackend::try_auto);
 
-  AsMetadata* metadata = AS_METADATA(arguments.get("metadata").toPointer());
+  AsMetadata* metadata = AS_METADATA(std::any_cast<void*>(arguments.get("metadata")));
   assert(metadata != nullptr);
 
   this->metadata = AS_METADATA(g_object_ref(G_OBJECT(metadata)));
@@ -78,7 +78,7 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   this->services = std::map<std::string, Gokai::Service*>();
 
   this->package_manager = new Services::PackageManager(Gokai::ObjectArguments({
-    { "context", Gokai::Value(std::any(this)) },
+    { "context", std::any(this) },
   }));
 
   if (this->getMode() == Gokai::ContextMode::client) {
@@ -103,15 +103,15 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   } else if (this->getMode() == Gokai::ContextMode::compositor) {
     if (this->getDisplayBackend() == ContextDisplayBackend::wayland) {
       this->services[Gokai::Services::Compositor::SERVICE_NAME] = new Services::Wayland::Server::Compositor(Gokai::ObjectArguments({
-        { "context", Gokai::Value(std::any(this)) },
+        { "context", std::any(this) },
       }));
 
       this->services[Gokai::Services::DisplayManager::SERVICE_NAME] = new Services::Wayland::Server::DisplayManager(Gokai::ObjectArguments({
-        { "context", Gokai::Value(std::any(this)) },
+        { "context", std::any(this) },
       }));
 
       this->services[Gokai::Services::WindowManager::SERVICE_NAME] = new Services::Wayland::Server::WindowManager(Gokai::ObjectArguments({
-        { "context", Gokai::Value(std::any(this)) },
+        { "context", std::any(this) },
       }));
     } else {
       throw std::runtime_error("Unsupported display backend");

@@ -3,7 +3,6 @@
 #ifdef __cplusplus
 #include <gokai/object.h>
 #include <gokai/object-factory.h>
-#include <gokai/value.h>
 #include <string>
 
 namespace Gokai {

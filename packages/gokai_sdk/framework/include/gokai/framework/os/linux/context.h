@@ -20,7 +20,7 @@ namespace Gokai {
             bool operator!=(ContextDisplayBackend b);
             bool operator==(ContextDisplayBackend b);
 
-            static ContextDisplayBackend fromValue(Value<std::any> value);
+            static ContextDisplayBackend fromValue(std::any value);
 
             static const ContextDisplayBackend try_auto;
             static const ContextDisplayBackend wayland;

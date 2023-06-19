@@ -5,7 +5,6 @@ libgokai_core_src = [
   'lib/object-factory.cc',
   'lib/service.cc',
   'lib/service-channel.cc',
-  'lib/value.cc',
   'lib/services/compositor.cc',
   'lib/services/display-manager.cc',
   'lib/services/package-manager.cc',

@@ -66,7 +66,7 @@ Gokai::API::Binder* BinderManager::load(std::string name) {
   if (this->isCached(name)) return this->getCached(name);
 
   auto value = new Binder(Gokai::ObjectArguments({
-// FIXME: { "path", Gokai::Value(std::any(name)) },
+    { "path", std::any(name) },
   }));
   this->binder_cache[name] = value;
   return value;
@@ -87,7 +87,7 @@ std::map<std::string, Gokai::API::Binder*> BinderManager::getAll() {
       if (this->isCached(entry.path())) continue;
 
       auto value = new Binder(Gokai::ObjectArguments({
-// FIXME: { "path", Gokai::Value(std::any(entry.path())) },
+        { "path", std::make_any<std::string>(entry.path()) },
       }));
       this->binder_cache[entry.path()] = value;
     }

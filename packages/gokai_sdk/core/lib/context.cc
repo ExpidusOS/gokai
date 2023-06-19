@@ -23,23 +23,23 @@ bool ContextMode::operator!=(ContextMode b) {
   return this->id != b.id || this->name.compare(b.name) != 0;
 }
 
-ContextMode ContextMode::fromValue(Value<std::any> value) {
-  if (typeid(value) == typeid(Value<int>)) {
-    auto num = std::any_cast<Value<int>>(value);
+ContextMode ContextMode::fromValue(std::any value) {
+  if (value.type() == typeid(int)) {
+    auto num = std::any_cast<int>(value);
 
     for (auto value : ContextMode::values) {
       if (value != ContextMode::invalid) {
-        if (value.id == num.getValue()) return value;
+        if (value.id == num) return value;
       }
     }
 
     throw std::invalid_argument("Invalid value provided");
-  } else if (typeid(value) == typeid(Value<std::string>)) {
-    auto str = std::any_cast<Value<std::string>>(value);
+  } else if (value.type() == typeid(std::string)) {
+    auto str = std::any_cast<std::string>(value);
 
     for (auto value : ContextMode::values) {
       if (value != ContextMode::invalid) {
-        if (value.name.compare(str.getValue()) == 0) return value;
+        if (value.name.compare(str) == 0) return value;
       }
     }
 

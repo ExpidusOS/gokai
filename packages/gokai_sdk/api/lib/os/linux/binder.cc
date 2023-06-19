@@ -5,12 +5,12 @@
 using namespace Gokai::API::os::Linux;
 
 Binder::Binder(Gokai::ObjectArguments arguments) : Gokai::API::Binder(arguments) {
-  this->path = std::any_cast<std::string>(arguments.get("path").getValue());
+  this->path = std::any_cast<std::string>(arguments.get("path"));
 
-  spdlog::debug("Loading framework from {}", this->path);
-
-  if ((this->handle = dlopen(this->path.c_str(), 0)) == nullptr) {
-    throw std::runtime_error("Failed to open shared library");
+  if ((this->handle = dlopen(this->path.c_str(), RTLD_NOW)) == nullptr) {
+    auto message = std::string("Failed to open shared library: ") + dlerror();
+    spdlog::error(message);
+    throw std::runtime_error(message);
   }
 }
 

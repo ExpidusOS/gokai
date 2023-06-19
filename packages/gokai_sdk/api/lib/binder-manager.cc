@@ -4,11 +4,11 @@ using namespace Gokai::API;
 
 BinderManager::BinderManager(Gokai::ObjectArguments arguments) : Object(arguments) {
   if (arguments.has("portable")) {
-    this->is_portable = std::any_cast<bool>(arguments.get("portable").getValue());
+    this->is_portable = std::any_cast<bool>(arguments.get("portable"));
   }
 
   if (arguments.has("default")) {
-    this->binder_default = this->load(std::any_cast<std::string>(arguments.get("default").getValue()));
+    this->binder_default = this->load(std::any_cast<std::string>(arguments.get("default")));
   }
 }
 

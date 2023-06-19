@@ -15,7 +15,7 @@ namespace Gokai {
       bool operator!=(ContextMode b);
       bool operator==(ContextMode b);
 
-      static ContextMode fromValue(Value<std::any> value);
+      static ContextMode fromValue(std::any value);
 
       static const ContextMode invalid;
       static const ContextMode compositor;
