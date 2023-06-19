@@ -7,14 +7,14 @@ using namespace Gokai::Framework::os::Linux;
 ObjectFactory::ObjectFactory(Gokai::ObjectArguments arguments) : Gokai::ObjectFactory(arguments) {}
 
 Gokai::Object ObjectFactory::create(std::string name, Gokai::ObjectArguments arguments) {
-  if (std::string(typeid(Context).name()).compare(name) == 0) {
+  if (std::string(typeid(Gokai::Context).name()).compare(name) == 0) {
     return Context(arguments);
   }
   throw std::runtime_error("Invalid object type");
 }
 
 Gokai::Object* ObjectFactory::createPointer(std::string name, Gokai::ObjectArguments arguments) {
-  if (std::string(typeid(Context).name()).compare(name) == 0) {
+  if (std::string(typeid(Gokai::Context).name()).compare(name) == 0) {
     return new Context(arguments);
   }
   return nullptr;

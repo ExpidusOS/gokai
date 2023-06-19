@@ -62,6 +62,7 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   this->display_backend = arguments.has("display-backend") ? ContextDisplayBackend::fromValue(arguments.get("display-backend"))
     : (this->getMode() == Gokai::ContextMode::compositor ? ContextDisplayBackend::wayland : ContextDisplayBackend::try_auto);
 
+#if 0
   AsMetadata* metadata = AS_METADATA(std::any_cast<void*>(arguments.get("metadata")));
   assert(metadata != nullptr);
 
@@ -72,13 +73,14 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   if (style != AS_FORMAT_STYLE_METAINFO) {
     throw std::invalid_argument("Expected metainfo AppStream style metadata.");
   }
+#endif
 
   assert(xdgInitHandle(&this->xdg_handle) != nullptr);
 
   this->services = std::map<std::string, Gokai::Service*>();
 
   this->package_manager = new Services::PackageManager(Gokai::ObjectArguments({
-    { "context", std::any(this) },
+    { "context", static_cast<Gokai::Context*>(this) },
   }));
 
   if (this->getMode() == Gokai::ContextMode::client) {
@@ -103,15 +105,15 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   } else if (this->getMode() == Gokai::ContextMode::compositor) {
     if (this->getDisplayBackend() == ContextDisplayBackend::wayland) {
       this->services[Gokai::Services::Compositor::SERVICE_NAME] = new Services::Wayland::Server::Compositor(Gokai::ObjectArguments({
-        { "context", std::any(this) },
+        { "context", static_cast<Gokai::Context*>(this) },
       }));
 
       this->services[Gokai::Services::DisplayManager::SERVICE_NAME] = new Services::Wayland::Server::DisplayManager(Gokai::ObjectArguments({
-        { "context", std::any(this) },
+        { "context", static_cast<Gokai::Context*>(this) },
       }));
 
       this->services[Gokai::Services::WindowManager::SERVICE_NAME] = new Services::Wayland::Server::WindowManager(Gokai::ObjectArguments({
-        { "context", std::any(this) },
+        { "context", static_cast<Gokai::Context*>(this) },
       }));
     } else {
       throw std::runtime_error("Unsupported display backend");
@@ -125,7 +127,7 @@ Context::~Context() {
   delete this->package_manager;
   for (auto service : this->services) delete service.second;
 
-  g_object_unref(G_OBJECT(this->metadata));
+  // g_object_unref(G_OBJECT(this->metadata));
   xdgWipeHandle(&this->xdg_handle);
 }
 

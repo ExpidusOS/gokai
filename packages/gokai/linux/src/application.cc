@@ -2,6 +2,7 @@
 #include <any>
 #include <gokai/api/os/linux/binder-manager.h>
 #include <gokai/api/binder.h>
+#include <gokai/context.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/cfg/env.h>
 
@@ -9,6 +10,7 @@ typedef struct _GokaiApplicationPrivate {
   Gokai::API::BinderManager* binder_mngr;
   Gokai::API::Binder* binder;
   Gokai::ObjectFactory* obj_factory;
+  Gokai::Context* context;
 } GokaiApplicationPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(GokaiApplication, gokai_application, GTK_TYPE_APPLICATION);
@@ -31,12 +33,26 @@ static void gokai_application_constructed(GObject* obj) {
 
   priv->obj_factory = priv->binder->getObjectFactory();
   spdlog::info("Loaded Gokai framework: {}", priv->binder->getPath());
+
+  // TODO: get the arguments from the command line
+  try {
+    priv->context = reinterpret_cast<Gokai::Context*>(priv->obj_factory->createPointer(typeid(Gokai::Context).name(), Gokai::ObjectArguments({
+      { "mode", std::string("compositor") },
+      { "display-backend", std::string("wayland") },
+    })));
+  } catch (const std::exception& ex) {
+    spdlog::critical("Failed to create a context: {}", ex.what());
+    abort();
+  }
+
+  spdlog::debug("Created the Gokai::Context: {}", reinterpret_cast<void*>(priv->context));
 }
 
 static void gokai_application_dispose(GObject* obj) {
   GokaiApplication* self = GOKAI_APPLICATION(obj);
   GokaiApplicationPrivate* priv = reinterpret_cast<GokaiApplicationPrivate*>(gokai_application_get_instance_private(self));
 
+  delete priv->context;
   delete priv->binder_mngr;
 
   G_OBJECT_CLASS(gokai_application_parent_class)->dispose(obj);
