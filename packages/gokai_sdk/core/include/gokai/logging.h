@@ -9,10 +9,10 @@ namespace Gokai {
     public:
       Logger(ObjectArguments arguments);
 
-      virtual std::shared_ptr<spdlog::logger> get(const char* tag);
+      virtual std::shared_ptr<spdlog::logger> get(const char* tag, ObjectArguments arguments);
 #ifdef TAG
       inline std::shared_ptr<spdlog::logger> get() {
-        return get(TAG);
+        return get(TAG, ObjectArguments({}));
       }
 #endif
     protected:

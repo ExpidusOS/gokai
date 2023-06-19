@@ -7,13 +7,13 @@ Logger::Logger(ObjectArguments arguments) : Object(arguments) {
   this->logger = nullptr;
 }
 
-std::shared_ptr<spdlog::logger> Logger::get(const char* tag) {
+std::shared_ptr<spdlog::logger> Logger::get(const char* tag, ObjectArguments arguments) {
   throw std::runtime_error("Logger::get(TAG) has not been implemented.");
 }
 
 Loggable::Loggable(const char* tag, ObjectArguments arguments) : Object(arguments),
   obj{std::any_cast<Logger*>(arguments.get("logger"))},
-  logger{std::any_cast<Logger*>(arguments.get("logger"))->get(tag)} {}
+  logger{std::any_cast<Logger*>(arguments.get("logger"))->get(tag, arguments)} {}
 
 Logger* Loggable::getLogger() {
   return this->obj;

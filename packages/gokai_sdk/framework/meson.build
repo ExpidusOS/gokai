@@ -19,6 +19,7 @@ if target_machine.system() == 'linux'
     dependency('packagekit-glib2'),
     dependency('wlroots'),
     dependency('wayland-server'),
+    dependency('libsystemd'),
   ]
 
   libgokai_framework_cppflags += [

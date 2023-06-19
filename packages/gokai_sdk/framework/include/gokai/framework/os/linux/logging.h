@@ -11,7 +11,9 @@ namespace Gokai {
           public:
             Logger(Gokai::ObjectArguments arguments);
 
-            std::shared_ptr<spdlog::logger> get(const char* tag) override;
+            std::shared_ptr<spdlog::logger> get(const char* tag, Gokai::ObjectArguments arguments) override;
+          private:
+            std::shared_ptr<spdlog::logger> get(const char* tag, std::string type);
         };
       }
     }
