@@ -8,6 +8,7 @@
 typedef struct _GokaiApplicationPrivate {
   Gokai::API::BinderManager* binder_mngr;
   Gokai::API::Binder* binder;
+  Gokai::ObjectFactory* obj_factory;
 } GokaiApplicationPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(GokaiApplication, gokai_application, GTK_TYPE_APPLICATION);
@@ -18,21 +19,18 @@ static void gokai_application_constructed(GObject* obj) {
   GokaiApplication* self = GOKAI_APPLICATION(obj);
   GokaiApplicationPrivate* priv = reinterpret_cast<GokaiApplicationPrivate*>(gokai_application_get_instance_private(self));
 
-  try {
-    priv->binder_mngr = new Gokai::API::os::Linux::BinderManager(Gokai::ObjectArguments({}));
-    priv->binder = priv->binder_mngr->getDefault();
+  priv->binder_mngr = new Gokai::API::os::Linux::BinderManager(Gokai::ObjectArguments({}));
+  priv->binder = priv->binder_mngr->getDefault();
 
-    if (priv->binder == nullptr) {
-      auto all = priv->binder_mngr->getAll();
-      auto first = all.begin();
-      if (first == all.end()) g_critical("Failed to bind to Gokai.");
-      priv->binder = first->second;
-    }
-
-    spdlog::info("Loaded Gokai framework: {}", priv->binder->getPath());
-  } catch (const std::exception& ex) {
-    spdlog::critical("Failed to initialize Gokai: {}", ex.what());
+  if (priv->binder == nullptr) {
+    auto all = priv->binder_mngr->getAll();
+    auto first = all.begin();
+    if (first == all.end()) g_critical("Failed to bind to Gokai.");
+    priv->binder = first->second;
   }
+
+  priv->obj_factory = priv->binder->getObjectFactory();
+  spdlog::info("Loaded Gokai framework: {}", priv->binder->getPath());
 }
 
 static void gokai_application_dispose(GObject* obj) {
