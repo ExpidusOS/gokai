@@ -6,6 +6,7 @@
 #include <basedir.h>
 #include <filesystem>
 #include <stdexcept>
+#include <stdlib.h>
 
 using namespace Gokai::Framework::os::Linux;
 
@@ -64,6 +65,11 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   } else {
     this->display_backend = arguments.has("display-backend") ? ContextDisplayBackend::fromValue(arguments.get("display-backend"))
       : (this->getMode() == Gokai::ContextMode::compositor ? ContextDisplayBackend::wayland : ContextDisplayBackend::try_auto);
+  }
+
+  auto env = getenv("GOKAI_CONTEXT_DISPLAY_BACKEND");
+  if (env != nullptr) {
+    this->display_backend = ContextDisplayBackend::fromValue(std::string(env));
   }
 
   find = manifest.overrides.find("Gokai::Context::display-backend");

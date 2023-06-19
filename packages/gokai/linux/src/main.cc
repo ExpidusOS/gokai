@@ -25,13 +25,21 @@ extern "C" FLUTTER_PLUGIN_EXPORT int main(int argc, char** argv) {
   auto factory = binder->getObjectFactory();
   auto logger = reinterpret_cast<Gokai::Logger*>(factory->createPointer(typeid(Gokai::Logger).name(), Gokai::ObjectArguments({})));
 
-  auto context = static_cast<Gokai::Context*>(factory->createPointer(typeid(Gokai::Context).name(), Gokai::ObjectArguments({
-    { "logger", logger },
-  })));
+  try {
+    auto context = static_cast<Gokai::Context*>(factory->createPointer(typeid(Gokai::Context).name(), Gokai::ObjectArguments({
+      { "logger", logger },
+    })));
 
-  // TODO: use context to set up application
+    // TODO: use context to set up application
 
-  delete context;
+    delete context;
+  } catch (const std::exception& ex) {
+    spdlog::critical("Caught exception: {}", ex.what());
+    delete manager;
+    spdlog::shutdown();
+    return EXIT_FAILURE;
+  }
+
   delete manager;
   spdlog::shutdown();
   return EXIT_SUCCESS;

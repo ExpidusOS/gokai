@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <filesystem>
 #include <stdexcept>
+#include <stdlib.h>
 #include <type_traits>
 
 #define TAG "Gokai::Context"
@@ -70,6 +71,11 @@ Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments) {
   } else {
     this->mode = arguments.has("mode") ? ContextMode::fromValue(arguments.get("mode"))
       : ContextMode::client;
+  }
+
+  auto env = getenv("GOKAI_CONTEXT_MODE");
+  if (env != nullptr) {
+    this->mode = ContextMode::fromValue(std::string(env));
   }
 
   find = manifest.overrides.find("Gokai::Context::mode");
