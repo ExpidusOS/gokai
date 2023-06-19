@@ -98,10 +98,12 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
     }
   } else if (this->getMode() == Gokai::ContextMode::compositor) {
     if (this->getDisplayBackend() == ContextDisplayBackend::wayland) {
-      this->services[Gokai::Services::Compositor::SERVICE_NAME] = new Services::Wayland::Server::Compositor(Gokai::ObjectArguments({
+      auto compositor = new Services::Wayland::Server::Compositor(Gokai::ObjectArguments({
         { "context", static_cast<Gokai::Context*>(this) },
         { "logger", this->getLogger() },
       }));
+
+      this->services[Gokai::Services::Compositor::SERVICE_NAME] = compositor;
 
       this->services[Gokai::Services::DisplayManager::SERVICE_NAME] = new Services::Wayland::Server::DisplayManager(Gokai::ObjectArguments({
         { "context", static_cast<Gokai::Context*>(this) },
@@ -112,6 +114,8 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
         { "context", static_cast<Gokai::Context*>(this) },
         { "logger", this->getLogger() },
       }));
+
+      compositor->start();
     } else {
       throw std::runtime_error("Unsupported display backend");
     }

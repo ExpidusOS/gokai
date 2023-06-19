@@ -4,9 +4,13 @@
 #include <gokai/services/compositor.h>
 
 extern "C" {
+#define static
 #include <wlr/backend.h>
+#include <wlr/render/allocator.h>
+#include <wlr/render/wlr_renderer.h>
 #include <wlr/util/log.h>
 #include <wayland-server.h>
+#undef static
 }
 
 namespace Gokai {
@@ -20,10 +24,17 @@ namespace Gokai {
                 public:
                   Compositor(Gokai::ObjectArguments arguments);
                   ~Compositor();
-                  struct wl_display* display;
-                  uv_poll_t event_poll;
+
+                  void start();
+                  struct wlr_backend* getBackend();
                 private:
+                  static void poll_event_handle(uv_poll_t* event_poll, int status, int events);
+
+                  struct wl_display* display;
                   struct wlr_backend* backend;
+                  struct wlr_renderer* renderer;
+                  struct wlr_allocator* allocator;
+                  uv_poll_t event_poll;
               };
             }
           }

@@ -51,7 +51,7 @@ static void spdlog4wlr(enum wlr_log_importance importance, const char* fmt, va_l
   free(msg);
 }
 
-static void poll_event_handle(uv_poll_t* event_poll, int status, int events) {
+void Compositor::poll_event_handle(uv_poll_t* event_poll, int status, int events) {
   Compositor* self = wl_container_of(event_poll, self, event_poll);
 
   auto event_loop = wl_display_get_event_loop(self->display);
@@ -68,17 +68,25 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
     throw std::runtime_error("Failed to create wlroots backend");
   }
 
+  this->renderer = wlr_renderer_autocreate(this->backend);
+
   this->logger->debug("Attaching Wayland Event loop to context event loop");
   auto event_loop = wl_display_get_event_loop(this->display);
   uv_poll_init(this->context->getLoop(), &this->event_poll, wl_event_loop_get_fd(event_loop));
-  uv_poll_start(&this->event_poll, UV_READABLE, poll_event_handle);
-
-  if (!wlr_backend_start(this->backend)) {
-    throw std::runtime_error("Failed to start backend");
-  }
+  uv_poll_start(&this->event_poll, UV_READABLE, Compositor::poll_event_handle);
 }
 
 Compositor::~Compositor() {
   uv_poll_stop(&this->event_poll);
   wl_display_destroy(this->display);
+}
+
+void Compositor::start() {
+  if (!wlr_backend_start(this->backend)) {
+    throw std::runtime_error("Failed to start backend");
+  }
+}
+
+struct wlr_backend* Compositor::getBackend() {
+  return this->backend;
 }
