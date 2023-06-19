@@ -45,6 +45,7 @@
               wlroots
               wayland
               gtk3
+              spdlog
             ];
           };
         };
@@ -60,25 +61,15 @@
               self.packages.${system}.sdk
               libuv
               gdb
+              spdlog
             ];
           };
 
           sdk = pkgs.mkShell {
             name = "gokai-sdk";
 
-            packages = with pkgs; [
-              meson
-              pkg-config
-              ninja
-              libxdg_basedir
-              libuv
-              appstream
-              glib
-              packagekit
-              wlroots
-              gtk3
-              wayland
-            ];
+            packages = self.packages.${system}.sdk.nativeBuildInputs
+              ++ self.packages.${system}.sdk.buildInputs;
           };
         };
       });

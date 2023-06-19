@@ -2,8 +2,6 @@
 #include <gokai/services/display-manager.h>
 #include <gokai/services/package-manager.h>
 #include <gokai/services/window-manager.h>
-#include <gokai/values/int.h>
-#include <gokai/values/string.h>
 #include <assert.h>
 #include <stdexcept>
 #include <type_traits>
@@ -25,23 +23,23 @@ bool ContextMode::operator!=(ContextMode b) {
   return this->id != b.id || this->name.compare(b.name) != 0;
 }
 
-ContextMode ContextMode::fromValue(Value* value) {
-  if (dynamic_cast<Values::Integer*>(value)) {
-    auto num = dynamic_cast<Values::Integer*>(value);
+ContextMode ContextMode::fromValue(Value<std::any> value) {
+  if (typeid(value) == typeid(Value<int>)) {
+    auto num = std::any_cast<Value<int>>(value);
 
     for (auto value : ContextMode::values) {
       if (value != ContextMode::invalid) {
-        if (value.id == num->getValue()) return value;
+        if (value.id == num.getValue()) return value;
       }
     }
 
     throw std::invalid_argument("Invalid value provided");
-  } else if (dynamic_cast<Values::String*>(value)) {
-    auto str = dynamic_cast<Values::String*>(value);
+  } else if (typeid(value) == typeid(Value<std::string>)) {
+    auto str = std::any_cast<Value<std::string>>(value);
 
     for (auto value : ContextMode::values) {
       if (value != ContextMode::invalid) {
-        if (value.name.compare(str->getValue()) == 0) return value;
+        if (value.name.compare(str.getValue()) == 0) return value;
       }
     }
 
@@ -61,7 +59,7 @@ const ContextMode ContextMode::values[3] = {
 };
 
 Context::Context(ObjectArguments arguments) : Object(arguments) {
-  this->mode = arguments.has("mode") ? ContextMode::fromValue(arguments.getPointed("mode"))
+  this->mode = arguments.has("mode") ? ContextMode::fromValue(arguments.get("mode"))
     : ContextMode::client;
 
   this->loop = reinterpret_cast<uv_loop_t*>(malloc(sizeof (uv_loop_t)));

@@ -1,6 +1,8 @@
 #include <gokai/flutter/application.h>
+#include <gokai/api/os/linux/binder-manager.h>
 #include <gokai/api/binder.h>
-#include <gokai/api/binder-manager.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/cfg/env.h>
 
 typedef struct _GokaiApplicationPrivate {
   Gokai::API::BinderManager* binder_mngr;
@@ -15,7 +17,7 @@ static void gokai_application_constructed(GObject* obj) {
   GokaiApplication* self = GOKAI_APPLICATION(obj);
   GokaiApplicationPrivate* priv = reinterpret_cast<GokaiApplicationPrivate*>(gokai_application_get_instance_private(self));
 
-  priv->binder_mngr = Gokai::API::BinderManager::create(Gokai::ObjectArguments({}));
+  priv->binder_mngr = new Gokai::API::os::Linux::BinderManager(Gokai::ObjectArguments({}));
   priv->binder = priv->binder_mngr->getDefault();
 
   if (priv->binder == nullptr) {
@@ -47,6 +49,7 @@ static void gokai_application_class_init(GokaiApplicationClass* klass) {
 static void gokai_application_init(GokaiApplication* self) {}
 
 GokaiApplication* gokai_application_new(const char* application_id) {
+  spdlog::cfg::load_env_levels();
   return GOKAI_APPLICATION(g_object_new(gokai_application_get_type(),
     "application-id", application_id,
     "flags", G_APPLICATION_NON_UNIQUE,

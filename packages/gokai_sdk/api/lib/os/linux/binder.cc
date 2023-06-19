@@ -1,11 +1,14 @@
 #include <gokai/api/os/linux/binder.h>
-#include <gokai/values/string.h>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 
 using namespace Gokai::API::os::Linux;
 
 Binder::Binder(Gokai::ObjectArguments arguments) : Gokai::API::Binder(arguments) {
-  this->path = static_cast<Gokai::Values::String*>(arguments.getPointed("path"))->getValue();
+  this->path = std::any_cast<std::string>(arguments.get("path").getValue());
+
+  spdlog::debug("Loading framework from {}", this->path);
+
   if ((this->handle = dlopen(this->path.c_str(), 0)) == nullptr) {
     throw std::runtime_error("Failed to open shared library");
   }

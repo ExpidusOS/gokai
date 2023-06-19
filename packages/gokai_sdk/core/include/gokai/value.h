@@ -1,12 +1,21 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <any>
+
 namespace Gokai {
-  class Value {
+  template<typename T> class Value {
     public:
-      virtual bool isSet();
-      virtual bool isEmpty();
-      virtual void* toPointer();
+      Value(T value);
+
+      bool isSet();
+      bool isEmpty();
+      void* toPointer();
+      T getValue();
+    private:
+      T value;
   };
+
+  template class Value<std::any>;
 }
 #endif

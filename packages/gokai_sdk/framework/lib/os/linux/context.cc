@@ -5,9 +5,6 @@
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
 #include <gokai/framework/os/linux/context.h>
-#include <gokai/values/int.h>
-#include <gokai/values/pointer.h>
-#include <gokai/values/string.h>
 #include <assert.h>
 #include <basedir.h>
 #include <filesystem>
@@ -30,20 +27,20 @@ bool ContextDisplayBackend::operator!=(ContextDisplayBackend b) {
   return this->id != b.id || this->name.compare(b.name) != 0;
 }
 
-ContextDisplayBackend ContextDisplayBackend::fromValue(Value* value) {
-  if (dynamic_cast<Values::Integer*>(value)) {
-    auto num = dynamic_cast<Values::Integer*>(value);
+ContextDisplayBackend ContextDisplayBackend::fromValue(Value<std::any> value) {
+  if (typeid(value) == typeid(Value<int>)) {
+    auto num = std::any_cast<Value<int>>(value);
 
     for (auto value : ContextDisplayBackend::values) {
-      if (value.id == num->getValue()) return value;
+      if (value.id == num.getValue()) return value;
     }
 
     throw std::invalid_argument("Invalid value provided");
-  } else if (dynamic_cast<Values::String*>(value)) {
-    auto str = dynamic_cast<Values::String*>(value);
+  } else if (typeid(value) == typeid(Value<std::string>)) {
+    auto str = std::any_cast<Value<std::string>>(value);
 
     for (auto value : ContextDisplayBackend::values) {
-      if (value.name.compare(str->getValue()) == 0) return value;
+      if (value.name.compare(str.getValue()) == 0) return value;
     }
 
     throw std::invalid_argument("Invalid value provided");
@@ -62,7 +59,7 @@ const ContextDisplayBackend ContextDisplayBackend::values[3] = {
 };
 
 Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
-  this->display_backend = arguments.has("display-backend") ? ContextDisplayBackend::fromValue(arguments.getPointed("display-backend"))
+  this->display_backend = arguments.has("display-backend") ? ContextDisplayBackend::fromValue(arguments.get("display-backend"))
     : (this->getMode() == Gokai::ContextMode::compositor ? ContextDisplayBackend::wayland : ContextDisplayBackend::try_auto);
 
   AsMetadata* metadata = AS_METADATA(arguments.get("metadata").toPointer());
@@ -81,7 +78,7 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   this->services = std::map<std::string, Gokai::Service*>();
 
   this->package_manager = new Services::PackageManager(Gokai::ObjectArguments({
-    { "context", Gokai::Values::Pointer(this) },
+    { "context", Gokai::Value(std::any(this)) },
   }));
 
   if (this->getMode() == Gokai::ContextMode::client) {
@@ -106,15 +103,15 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   } else if (this->getMode() == Gokai::ContextMode::compositor) {
     if (this->getDisplayBackend() == ContextDisplayBackend::wayland) {
       this->services[Gokai::Services::Compositor::SERVICE_NAME] = new Services::Wayland::Server::Compositor(Gokai::ObjectArguments({
-        { "context", Gokai::Values::Pointer(this) },
+        { "context", Gokai::Value(std::any(this)) },
       }));
 
       this->services[Gokai::Services::DisplayManager::SERVICE_NAME] = new Services::Wayland::Server::DisplayManager(Gokai::ObjectArguments({
-        { "context", Gokai::Values::Pointer(this) },
+        { "context", Gokai::Value(std::any(this)) },
       }));
 
       this->services[Gokai::Services::WindowManager::SERVICE_NAME] = new Services::Wayland::Server::WindowManager(Gokai::ObjectArguments({
-        { "context", Gokai::Values::Pointer(this) },
+        { "context", Gokai::Value(std::any(this)) },
       }));
     } else {
       throw std::runtime_error("Unsupported display backend");

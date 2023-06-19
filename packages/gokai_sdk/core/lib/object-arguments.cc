@@ -4,18 +4,18 @@
 
 using namespace Gokai;
 
-ObjectArguments::ObjectArguments(std::map<std::string, Value> arguments, TypeSafePolicy policy) {
+ObjectArguments::ObjectArguments(std::map<std::string, Value<std::any>> arguments, TypeSafePolicy policy) {
   this->arguments = arguments;
   this->policy = policy;
 }
 
-ObjectArguments::ObjectArguments(std::map<std::string, Value> arguments) : ObjectArguments(arguments, GOKAI_TYPE_SAFE_POLICY_EXCEPTION) {}
+ObjectArguments::ObjectArguments(std::map<std::string, Value<std::any>> arguments) : ObjectArguments(arguments, GOKAI_TYPE_SAFE_POLICY_EXCEPTION) {}
 
 bool ObjectArguments::has(std::string name) {
   return this->arguments.count(name) > 0;
 }
 
-Value ObjectArguments::get(std::string name) {
+Value<std::any> ObjectArguments::get(std::string name) {
   switch (this->policy) {
     case GOKAI_TYPE_SAFE_POLICY_ASSERT:
       return this->getAssert(name);
@@ -28,13 +28,13 @@ Value ObjectArguments::get(std::string name) {
   throw std::runtime_error("An invalid type-safe policy was set");
 }
 
-Value ObjectArguments::getAssert(std::string name) {
+Value<std::any> ObjectArguments::getAssert(std::string name) {
   auto pair = this->arguments.find(name);
   assert(pair != this->arguments.end());
   return pair->second;
 }
 
-Value ObjectArguments::getException(std::string name) {
+Value<std::any> ObjectArguments::getException(std::string name) {
   auto pair = this->arguments.find(name);
   if (pair == this->arguments.end()) {
     throw std::invalid_argument("Argument does not exist");
@@ -43,38 +43,6 @@ Value ObjectArguments::getException(std::string name) {
   return pair->second;
 }
 
-Value ObjectArguments::getUnsafe(std::string name) {
+Value<std::any> ObjectArguments::getUnsafe(std::string name) {
   return this->arguments.find(name)->second;
-}
-
-Value* ObjectArguments::getPointed(std::string name) {
-  switch (this->policy) {
-    case GOKAI_TYPE_SAFE_POLICY_ASSERT:
-      return this->getPointedAssert(name);
-    case GOKAI_TYPE_SAFE_POLICY_EXCEPTION:
-      return this->getPointedException(name);
-    case GOKAI_TYPE_SAFE_POLICY_NONE:
-      return this->getPointedUnsafe(name);
-  }
-
-  throw std::runtime_error("An invalid type-safe policy was set");
-}
-
-Value* ObjectArguments::getPointedAssert(std::string name) {
-  auto pair = this->arguments.find(name);
-  assert(pair != this->arguments.end());
-  return &pair->second;
-}
-
-Value* ObjectArguments::getPointedException(std::string name) {
-  auto pair = this->arguments.find(name);
-  if (pair == this->arguments.end()) {
-    throw std::invalid_argument("Argument does not exist");
-  }
-
-  return &pair->second;
-}
-
-Value* ObjectArguments::getPointedUnsafe(std::string name) {
-  return &this->arguments.find(name)->second;
 }

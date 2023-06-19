@@ -1,16 +1,14 @@
 #include <gokai/api/binder-manager.h>
-#include <gokai/values/bool.h>
-#include <gokai/values/string.h>
 
 using namespace Gokai::API;
 
 BinderManager::BinderManager(Gokai::ObjectArguments arguments) : Object(arguments) {
   if (arguments.has("portable")) {
-    this->is_portable = static_cast<Gokai::Values::Boolean*>(arguments.getPointed("portable"))->getValue();
+    this->is_portable = std::any_cast<bool>(arguments.get("portable").getValue());
   }
 
   if (arguments.has("default")) {
-    this->binder_default = this->load(static_cast<Gokai::Values::String*>(arguments.getPointed("default"))->getValue());
+    this->binder_default = this->load(std::any_cast<std::string>(arguments.get("default").getValue()));
   }
 }
 

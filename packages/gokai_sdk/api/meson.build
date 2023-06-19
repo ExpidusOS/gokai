@@ -5,7 +5,7 @@ libgokai_api_src = [
   'lib/binder.cc',
   'lib/binder-manager.cc'
 ]
-libgokai_api_deps = [gokai_core]
+libgokai_api_deps = [gokai_core, spdlog]
 libgokai_api_inc = include_directories('include')
 libgokai_api_headers_exclude = []
 

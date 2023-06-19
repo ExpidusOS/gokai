@@ -12,6 +12,9 @@ includedir = prefix / get_option('includedir')
 conf_data = configuration_data()
 conf_data.set('LIBDIR', libdir)
 
+spdlog = dependency('spdlog')
+libuv = dependency('libuv')
+
 subdir('core')
 subdir('framework')
 subdir('api')
