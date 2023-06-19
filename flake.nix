@@ -55,6 +55,7 @@
               wayland
               spdlog
               yaml-cpp
+              udev
             ];
           };
         };

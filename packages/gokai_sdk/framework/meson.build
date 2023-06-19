@@ -1,6 +1,7 @@
 libgokai_framework_src = []
 libgokai_framework_deps = [gokai_core]
 libgokai_framework_inc = include_directories('include')
+libgokai_framework_cppflags = []
 
 if target_machine.system() == 'linux'
   libgokai_framework_src += [
@@ -17,10 +18,16 @@ if target_machine.system() == 'linux'
     dependency('libxdg-basedir'),
     dependency('packagekit-glib2'),
     dependency('wlroots'),
+    dependency('wayland-server'),
+  ]
+
+  libgokai_framework_cppflags += [
+    '-DWLR_USE_UNSTABLE=1'
   ]
 endif
 
 libgokai_framework = shared_library('gokai-framework-v1', libgokai_framework_src,
+  cpp_args: libgokai_framework_cppflags,
   name_prefix: '',
   include_directories: libgokai_framework_inc,
   dependencies: libgokai_framework_deps,
