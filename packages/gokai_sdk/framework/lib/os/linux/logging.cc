@@ -25,7 +25,9 @@ std::shared_ptr<spdlog::logger> Logger::get(const char* tag, std::string type) {
     auto err_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
     err_sink->set_level(spdlog::level::err);
 
-    return std::shared_ptr<spdlog::logger>(new spdlog::logger(tag, { out_sink, err_sink }));
+    auto value = std::shared_ptr<spdlog::logger>(new spdlog::logger(tag, { out_sink, err_sink }));
+    spdlog::register_logger(value);
+    return value;
   }
 
   throw std::runtime_error("Unsupported logger type: " + type);
@@ -52,7 +54,6 @@ std::shared_ptr<spdlog::logger> Logger::get(const char* tag, Gokai::ObjectArgume
 
   value = this->get(tag, type);
   assert(value != nullptr);
-  //spdlog::register_logger(value);
   spdlog::cfg::load_env_levels();
 
   if (this->logger != nullptr) {

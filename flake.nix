@@ -70,6 +70,7 @@
               pkgs.wayland
               pkg-config
               self.packages.${system}.sdk
+              gdb
             ] ++ self.packages.${system}.sdk.buildInputs;
           };
 

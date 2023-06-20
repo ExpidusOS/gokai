@@ -16,6 +16,13 @@ namespace Gokai {
       bottom_left,
       bottom_right,
     };
+
+    enum HDRType {
+      dolby_vision,
+      hdr10,
+      hdr10_plus,
+      hlg,
+    };
   }
 }
 #endif
