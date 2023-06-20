@@ -12,9 +12,10 @@ libgokai_core_src = [
   'lib/services/display-manager.cc',
   'lib/services/package-manager.cc',
   'lib/services/window-manager.cc',
+  'lib/view/rect.cc',
 ]
 libgokai_core_inc = include_directories('include')
-libgokai_core_deps = [libuv, spdlog, yaml_cpp]
+libgokai_core_deps = [libuv, spdlog, yaml_cpp, glm]
 libgokai_core_headers_exclude = []
 
 libgokai_core = library('gokai-core', libgokai_core_src,

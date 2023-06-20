@@ -29,6 +29,7 @@ flutter_engine = cpp.find_library('flutter_engine',
 spdlog = dependency('spdlog')
 libuv = dependency('libuv')
 yaml_cpp = dependency('yaml-cpp')
+glm = dependency('glm')
 
 subdir('core')
 subdir('framework')

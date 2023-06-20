@@ -56,6 +56,7 @@
               spdlog
               yaml-cpp
               udev
+              glm
             ];
           };
         };
@@ -69,11 +70,7 @@
               pkgs.wayland
               pkg-config
               self.packages.${system}.sdk
-              libuv
-              gdb
-              spdlog
-              yaml-cpp
-            ];
+            ] ++ self.packages.${system}.sdk.buildInputs;
           };
 
           sdk = pkgs.mkShell {
