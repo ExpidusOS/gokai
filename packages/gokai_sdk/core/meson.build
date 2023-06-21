@@ -7,16 +7,18 @@ libgokai_core_src = [
   'lib/object-arguments.cc',
   'lib/object-factory.cc',
   'lib/service.cc',
+  'lib/graphics/renderer.cc',
   'lib/service-channel.cc',
   'lib/services/compositor.cc',
   'lib/services/display-manager.cc',
   'lib/services/package-manager.cc',
   'lib/services/window-manager.cc',
   'lib/view/display.cc',
+  'lib/view/displayable.cc',
   'lib/view/rect.cc',
 ]
-libgokai_core_inc = include_directories('include')
-libgokai_core_deps = [libuv, spdlog, yaml_cpp, glm]
+libgokai_core_inc = [include_directories('include'), include_directories(flutter_engine_dir)]
+libgokai_core_deps = [libuv, spdlog, yaml_cpp, glm, fmt, flutter_engine]
 libgokai_core_headers_exclude = []
 
 libgokai_core = library('gokai-core', libgokai_core_src,

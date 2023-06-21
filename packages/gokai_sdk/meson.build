@@ -1,5 +1,6 @@
 project('gokai-sdk', 'cpp', license: 'GPL-3.0-only', version: '0.1.0-alpha',
-  default_options: ['cpp_std=c++17'])
+  default_options: ['cpp_std=c++17'],
+  meson_version: '1.1.0')
 
 pkg = import('pkgconfig')
 
@@ -30,6 +31,7 @@ spdlog = dependency('spdlog')
 libuv = dependency('libuv')
 yaml_cpp = dependency('yaml-cpp')
 glm = dependency('glm')
+fmt = dependency('fmt')
 
 subdir('core')
 subdir('framework')
