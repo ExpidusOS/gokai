@@ -69,6 +69,7 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
   }
 
   this->renderer = wlr_renderer_autocreate(this->backend);
+  this->allocator = wlr_allocator_autocreate(this->backend, this->renderer);
 
   this->logger->debug("Attaching Wayland Event loop to context event loop");
   auto event_loop = wl_display_get_event_loop(this->display);
@@ -89,4 +90,12 @@ void Compositor::start() {
 
 struct wlr_backend* Compositor::getBackend() {
   return this->backend;
+}
+
+struct wlr_renderer* Compositor::getRenderer() {
+  return this->renderer;
+}
+
+struct wlr_allocator* Compositor::getAllocator() {
+  return this->allocator;
 }

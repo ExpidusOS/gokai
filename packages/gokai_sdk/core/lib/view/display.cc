@@ -5,6 +5,14 @@ using namespace Gokai::View;
 
 Display::Display(Gokai::ObjectArguments arguments) : Object(arguments) {}
 
+std::string Display::getName() {
+  return "";
+}
+
+std::string Display::getModel() {
+  return "";
+}
+
 bool Display::isHDR() {
   return false;
 }

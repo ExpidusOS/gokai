@@ -9,6 +9,7 @@ if target_machine.system() == 'linux'
     'lib/os/linux/services/wayland/server/display-manager.cc',
     'lib/os/linux/services/wayland/server/window-manager.cc',
     'lib/os/linux/services/package-manager.cc',
+    'lib/os/linux/view/wayland/server/display.cc',
     'lib/os/linux/context.cc',
     'lib/os/linux/logging.cc',
     'lib/os/linux/object-factory.cc',
@@ -17,6 +18,7 @@ if target_machine.system() == 'linux'
   libgokai_framework_deps += [
     dependency('libxdg-basedir'),
     dependency('packagekit-glib2'),
+    dependency('pixman-1'),
     dependency('wlroots'),
     dependency('wayland-server'),
     dependency('libsystemd'),

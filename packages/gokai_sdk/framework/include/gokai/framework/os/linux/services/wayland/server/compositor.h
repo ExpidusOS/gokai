@@ -27,6 +27,8 @@ namespace Gokai {
 
                   void start();
                   struct wlr_backend* getBackend();
+                  struct wlr_renderer* getRenderer();
+                  struct wlr_allocator* getAllocator();
                 private:
                   static void poll_event_handle(uv_poll_t* event_poll, int status, int events);
 

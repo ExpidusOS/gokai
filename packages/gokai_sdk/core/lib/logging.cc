@@ -15,6 +15,10 @@ Loggable::Loggable(const char* tag, ObjectArguments arguments) : Object(argument
   obj{std::any_cast<Logger*>(arguments.get("logger"))},
   logger{std::any_cast<Logger*>(arguments.get("logger"))->get(tag, arguments)} {}
 
+Loggable::~Loggable() {
+  this->logger.reset();
+}
+
 Logger* Loggable::getLogger() {
   return this->obj;
 }

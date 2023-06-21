@@ -17,6 +17,8 @@ namespace Gokai {
       public:
         Display(Gokai::ObjectArguments arguments);
 
+        virtual std::string getName();
+        virtual std::string getModel();
         virtual bool isHDR();
         virtual glm::uvec2 getPhysicalSize();
         virtual std::list<DisplayMode> getModes();

@@ -57,6 +57,7 @@
               yaml-cpp
               udev
               glm
+              pixman
             ];
           };
         };
@@ -72,6 +73,8 @@
               self.packages.${system}.sdk
               gdb
             ] ++ self.packages.${system}.sdk.buildInputs;
+
+            LIBGL_DRIVERS_PATH = "${pkgs.mesa.drivers}/lib/dri";
           };
 
           sdk = pkgs.mkShell {

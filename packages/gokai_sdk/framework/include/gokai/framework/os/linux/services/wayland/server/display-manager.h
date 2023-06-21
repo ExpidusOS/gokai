@@ -1,10 +1,14 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <gokai/framework/os/linux/view/wayland/server/display.h>
 #include <gokai/services/display-manager.h>
 
 extern "C" {
+#define static
+#include <wlr/types/wlr_output_layout.h>
 #include <wayland-server.h>
+#undef static
 }
 
 namespace Gokai {
@@ -21,6 +25,8 @@ namespace Gokai {
                   static void handle_display_new(struct wl_listener* listener, void* data);
 
                   struct wl_listener display_new;
+                  std::list<Gokai::Framework::os::Linux::View::Wayland::Server::Display*> displays;
+                  struct wlr_output_layout* layout;
               };
             }
           }

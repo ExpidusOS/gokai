@@ -23,6 +23,7 @@ namespace Gokai {
     public:
       std::shared_ptr<spdlog::logger> logger;
       Loggable(const char* tag, ObjectArguments arguments);
+      ~Loggable();
 
       Logger* getLogger();
     private:
