@@ -16,6 +16,7 @@ libgokai_core_src = [
   'lib/service-channel.cc',
   'lib/services/compositor.cc',
   'lib/services/display-manager.cc',
+  'lib/services/engine-manager.cc',
   'lib/services/package-manager.cc',
   'lib/services/window-manager.cc',
   'lib/view/pixman/image.cc',
@@ -38,6 +39,7 @@ libgokai_core_deps = [
   egl,
   vulkan,
   pixman,
+  crossguid,
 ]
 libgokai_core_headers_exclude = []
 
@@ -64,4 +66,5 @@ pkg.generate(libgokai_core,
     'fmt',
     'glesv2',
     'egl',
+    'crossguid',
   ])

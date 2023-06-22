@@ -1,5 +1,6 @@
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/view/wayland/server/display.h>
+#include <gokai/services/engine-manager.h>
 #include <gokai/view/pixman/image.h>
 
 #define TAG "Gokai::View::Display"
@@ -37,6 +38,9 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
     throw std::runtime_error(fmt::format("No renderer is available for {}", this->value->name));
   }
 
+  auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
+  this->engine = engine_manager->create(this->renderer);
+
   this->frame_listener.notify = Display::フレーム;
   wl_signal_add(&this->value->events.frame, &this->frame_listener);
 
@@ -47,6 +51,10 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
 Display::~Display() {
   for (auto func : this->destroy) func();
   delete this->renderer;
+
+  auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
+  engine_manager->destroy(this->engine->getId());
+
   this->logger->debug("Display {} destroyed", reinterpret_cast<void*>(this->value));
 }
 

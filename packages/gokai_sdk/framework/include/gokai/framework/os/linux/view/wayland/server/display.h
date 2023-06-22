@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <gokai/flutter/engine.h>
 #include <gokai/graphics/rendering.h>
 #include <gokai/view/display.h>
 #include <gokai/context.h>
@@ -30,6 +31,7 @@ namespace Gokai {
 
                   std::list<std::function<void()>> destroy;
                 private:
+                  Gokai::Flutter::Engine* engine;
                   Gokai::Graphics::Renderer* renderer;
                   Gokai::Context* context;
                   struct wlr_output* value;

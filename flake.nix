@@ -60,6 +60,8 @@
               pixman
               libglvnd
               vulkan-loader
+              crossguid
+              libuuid
             ];
           };
         };

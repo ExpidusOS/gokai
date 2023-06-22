@@ -36,6 +36,11 @@ gles2 = dependency('glesv2')
 egl = dependency('egl')
 vulkan = dependency('vulkan')
 pixman = dependency('pixman-1')
+crossguid = [dependency('crossguid')]
+
+if target_machine.system() == 'linux'
+  crossguid += dependency('uuid')
+endif
 
 subdir('core')
 subdir('framework')

@@ -83,6 +83,11 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
 
   this->services = std::map<std::string, Gokai::Service*>();
 
+  this->engine_manager = new Gokai::Services::EngineManager(Gokai::ObjectArguments({
+    { "context", static_cast<Gokai::Context*>(this) },
+    { "logger", this->getLogger() },
+  }));
+
   this->package_manager = new Services::PackageManager(Gokai::ObjectArguments({
     { "context", static_cast<Gokai::Context*>(this) },
     { "logger", this->getLogger() },
@@ -126,6 +131,8 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
 
 Context::~Context() {
   delete this->package_manager;
+  delete this->engine_manager;
+
   for (auto service : this->services) delete service.second;
 
   xdgWipeHandle(&this->xdg_handle);
@@ -138,6 +145,10 @@ ContextDisplayBackend Context::getDisplayBackend() {
 Gokai::Service* Context::getSystemService(std::string serviceName) {
   if (serviceName.compare(Gokai::Services::PackageManager::SERVICE_NAME) == 0) {
     return this->package_manager;
+  }
+
+  if (serviceName.compare(Gokai::Services::EngineManager::SERVICE_NAME) == 0) {
+    return this->engine_manager;
   }
 
   auto pair = this->services.find(serviceName);

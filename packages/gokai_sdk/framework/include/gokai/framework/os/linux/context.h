@@ -2,6 +2,7 @@
 
 #ifdef __cplusplus
 #include <gokai/framework/os/linux/services/package-manager.h>
+#include <gokai/services/engine-manager.h>
 #include <gokai/service.h>
 #include <basedir.h>
 #include <string>
@@ -41,6 +42,7 @@ namespace Gokai {
             ContextDisplayBackend display_backend;
             xdgHandle xdg_handle;
             Services::PackageManager* package_manager;
+            Gokai::Services::EngineManager* engine_manager;
             std::map<std::string, Gokai::Service*> services;
         };
       }
