@@ -49,6 +49,28 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
   if ((result = FlutterEngineRunInitialized(this->value)) != kSuccess) {
     throw std::runtime_error(fmt::format("Failed to start the engine: {}", result));
   }
+
+  auto size = this->renderer->getSize();
+
+  FlutterWindowMetricsEvent metrics = {
+    .struct_size = sizeof (FlutterWindowMetricsEvent),
+    .width = size.x,
+    .height = size.y,
+    .pixel_ratio = 1.0,
+  };
+
+  if (FlutterEngineSendWindowMetricsEvent(this->value, &metrics) != kSuccess) {
+    throw std::runtime_error(fmt::format(
+      "Failed to send window metrics ({}, {}) for engine {}",
+      metrics.width,
+      metrics.height,
+      this->id.str()
+    ));
+  }
+}
+
+Engine::~Engine() {
+  FlutterEngineShutdown(this->value);
 }
 
 xg::Guid Engine::getId() {
@@ -61,4 +83,29 @@ Gokai::Graphics::Renderer* Engine::getRenderer() {
 
 Gokai::Context* Engine::getContext() {
   return this->context;
+}
+
+FlutterEngine Engine::getValue() {
+  return this->value;
+}
+
+void Engine::resize(glm::uvec2 size) {
+  this->renderer->resize(size);
+
+  FlutterWindowMetricsEvent metrics = {
+    .struct_size = sizeof (FlutterWindowMetricsEvent),
+    .width = size.x,
+    .height = size.y,
+    .pixel_ratio = 1.0,
+  };
+
+  auto result = FlutterEngineSendWindowMetricsEvent(this->value, &metrics);
+  if (result != kSuccess) {
+    throw std::runtime_error(fmt::format(
+      "Failed to send window metrics ({}, {}) for engine {}",
+      metrics.width,
+      metrics.height,
+      this->id.str()
+    ));
+  }
 }

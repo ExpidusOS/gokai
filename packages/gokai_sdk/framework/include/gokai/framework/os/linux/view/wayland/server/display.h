@@ -36,9 +36,11 @@ namespace Gokai {
                   Gokai::Context* context;
                   struct wlr_output* value;
 
+                  struct wl_listener mode_listener;
                   struct wl_listener frame_listener;
                   struct wl_listener destroy_listener;
 
+                  static void mode(struct wl_listener* listener, void* data);
                   static void フレーム(struct wl_listener* listener, void* data);
                   static void 破壊する(struct wl_listener* listener, void* data);
               };

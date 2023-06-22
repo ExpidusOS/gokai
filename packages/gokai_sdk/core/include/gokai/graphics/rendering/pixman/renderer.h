@@ -14,7 +14,8 @@ namespace Gokai {
             Renderer(Gokai::ObjectArguments arguments);
 
             FlutterRendererConfig* getConfig() override;
-            void resize(glm::uvec2 size);
+            glm::uvec2 getSize() override;
+            void resize(glm::uvec2 size) override;
             void render(Gokai::View::Displayable& target) override;
           private:
             uint32_t* buffer;

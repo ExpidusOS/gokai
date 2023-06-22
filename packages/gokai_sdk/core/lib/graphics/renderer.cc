@@ -10,4 +10,9 @@ FlutterRendererConfig* Renderer::getConfig() {
   return nullptr;
 }
 
+glm::uvec2 Renderer::getSize() {
+  return glm::uvec2();
+}
+
+void Renderer::resize(glm::uvec2 size) {}
 void Renderer::render(Gokai::View::Displayable& target) {}

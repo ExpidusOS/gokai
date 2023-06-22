@@ -12,10 +12,13 @@ namespace Gokai {
     class Engine : public Gokai::Loggable {
       public:
         Engine(Gokai::ObjectArguments arguments);
+        ~Engine();
 
         xg::Guid getId();
         Gokai::Graphics::Renderer* getRenderer();
         Gokai::Context* getContext();
+        FlutterEngine getValue();
+        void resize(glm::uvec2 size);
       private:
         xg::Guid id;
         FlutterProjectArgs args;

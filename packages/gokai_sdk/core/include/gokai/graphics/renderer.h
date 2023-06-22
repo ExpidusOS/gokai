@@ -12,6 +12,9 @@ namespace Gokai {
         Renderer(Gokai::ObjectArguments arguments);
 
         virtual FlutterRendererConfig* getConfig();
+
+        virtual glm::uvec2 getSize();
+        virtual void resize(glm::uvec2 size);
         virtual void render(Gokai::View::Displayable& target);
     };
   }

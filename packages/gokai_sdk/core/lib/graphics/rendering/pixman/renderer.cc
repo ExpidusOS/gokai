@@ -18,6 +18,10 @@ FlutterRendererConfig* Renderer::getConfig() {
   return &this->config;
 }
 
+glm::uvec2 Renderer::getSize() {
+  return this->size;
+}
+
 void Renderer::resize(glm::uvec2 size) {
   this->mx.lock();
 
@@ -61,16 +65,22 @@ bool Renderer::present(void* data, const void* buffer, size_t width, size_t heig
   auto engine = static_cast<Gokai::Flutter::Engine*>(data);
   auto self = static_cast<Renderer*>(engine->getRenderer());
 
-  self->mx.lock();
-  pixman_blt(
-    (uint32_t*)reinterpret_cast<const uint32_t*>(buffer), self->buffer,
-    pixman_image_get_stride(self->img),
-    pixman_image_get_stride(self->img),
-    pixman_image_get_depth(self->img),
-    pixman_image_get_depth(self->img),
-    0, 0, 0, 0,
-    width, height
-  );
-  self->mx.unlock();
+  self->logger->debug("Rendering {} ({}x{})", buffer, width, height);
+  try {
+    self->mx.lock();
+    pixman_blt(
+      (uint32_t*)reinterpret_cast<const uint32_t*>(buffer), self->buffer,
+      pixman_image_get_stride(self->img),
+      pixman_image_get_stride(self->img),
+      pixman_image_get_depth(self->img),
+      pixman_image_get_depth(self->img),
+      0, 0, 0, 0,
+      width, height
+    );
+    self->mx.unlock();
+  } catch (const std::exception& ex) {
+    self->logger->error("Failed to present: {}", ex.what());
+    return false;
+  }
   return true;
 }

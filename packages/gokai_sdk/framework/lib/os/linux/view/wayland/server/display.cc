@@ -41,6 +41,9 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
   auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
   this->engine = engine_manager->create(this->renderer);
 
+  this->mode_listener.notify = Display::mode;
+  wl_signal_add(&this->value->events.mode, &this->mode_listener);
+
   this->frame_listener.notify = Display::フレーム;
   wl_signal_add(&this->value->events.frame, &this->frame_listener);
 
@@ -56,6 +59,11 @@ Display::~Display() {
   engine_manager->destroy(this->engine->getId());
 
   this->logger->debug("Display {} destroyed", reinterpret_cast<void*>(this->value));
+}
+
+void Display::mode(struct wl_listener* listener, void* data) {
+  Display* self = wl_container_of(listener, self, mode_listener);
+  self->engine->resize(glm::uvec2(self->value->width, self->value->height));
 }
 
 void Display::フレーム(struct wl_listener* listener, void* data) {
