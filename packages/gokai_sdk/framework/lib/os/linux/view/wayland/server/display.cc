@@ -1,5 +1,6 @@
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/view/wayland/server/display.h>
+#include <gokai/view/pixman/image.h>
 
 #define TAG "Gokai::View::Display"
 
@@ -26,6 +27,7 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
   } else if (wlr_renderer_is_pixman(renderer)) {
     this->renderer = new Gokai::Graphics::Rendering::Pixman::Renderer(Gokai::ObjectArguments({
       { "logger", this->getLogger() },
+      { "size", glm::uvec2(this->value->width, this->value->height) },
     }));
   } else if (wlr_renderer_is_vk(renderer)) {
     this->renderer = new Gokai::Graphics::Rendering::Pixman::Renderer(Gokai::ObjectArguments({
@@ -44,6 +46,7 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
 
 Display::~Display() {
   for (auto func : this->destroy) func();
+  delete this->renderer;
   this->logger->debug("Display {} destroyed", reinterpret_cast<void*>(this->value));
 }
 
@@ -53,9 +56,23 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
   auto renderer = compositor->getRenderer();
 
   wlr_output_attach_render(self->value, nullptr);
-  wlr_renderer_begin(renderer, self->value->width, self->value->height);
-  wlr_renderer_clear(renderer, (const float[4]){ 0, 1.0, 0, 1.0 });
-  wlr_renderer_end(renderer);
+
+  try {
+    if (wlr_renderer_is_pixman(renderer)) {
+      auto img = Gokai::View::Pixman::Image(Gokai::ObjectArguments({
+        { "logger", self->getLogger() },
+        { "value", wlr_pixman_renderer_get_current_image(renderer) },
+      }));
+      self->renderer->render(img);
+    } else {
+      wlr_renderer_begin(renderer, self->value->width, self->value->height);
+      wlr_renderer_clear(renderer, (const float[4]){ 0, 0.0, 0, 1.0 });
+      wlr_renderer_end(renderer);
+    }
+  } catch (const std::exception& ex) {
+    self->logger->error("Failed to render: {}", ex.what());
+  }
+
   wlr_output_commit(self->value);
 }
 

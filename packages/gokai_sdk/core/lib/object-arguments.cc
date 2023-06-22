@@ -37,7 +37,7 @@ std::any ObjectArguments::getAssert(std::string name) {
 std::any ObjectArguments::getException(std::string name) {
   auto pair = this->arguments.find(name);
   if (pair == this->arguments.end()) {
-    throw std::invalid_argument("Argument does not exist");
+    throw std::invalid_argument("Argument \"" + name + "\" does not exist");
   }
 
   return pair->second;

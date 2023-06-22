@@ -35,6 +35,7 @@ fmt = dependency('fmt')
 gles2 = dependency('glesv2')
 egl = dependency('egl')
 vulkan = dependency('vulkan')
+pixman = dependency('pixman-1')
 
 subdir('core')
 subdir('framework')

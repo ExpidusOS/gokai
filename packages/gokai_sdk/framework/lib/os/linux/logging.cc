@@ -34,6 +34,8 @@ std::shared_ptr<spdlog::logger> Logger::get(const char* tag, std::string type) {
 }
 
 std::shared_ptr<spdlog::logger> Logger::get(const char* tag, Gokai::ObjectArguments arguments) {
+  if (spdlog::get(tag) != nullptr) return spdlog::get(tag);
+
   std::shared_ptr<spdlog::logger> value = nullptr;
   std::string type = "default";
   if (arguments.has("context")) {

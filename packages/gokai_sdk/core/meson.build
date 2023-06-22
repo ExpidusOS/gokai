@@ -7,6 +7,7 @@ libgokai_core_src = [
   'lib/object-arguments.cc',
   'lib/object-factory.cc',
   'lib/service.cc',
+  'lib/flutter/engine.cc',
   'lib/graphics/rendering/egl/renderer.cc',
   'lib/graphics/rendering/gles2/renderer.cc',
   'lib/graphics/rendering/pixman/renderer.cc',
@@ -17,6 +18,7 @@ libgokai_core_src = [
   'lib/services/display-manager.cc',
   'lib/services/package-manager.cc',
   'lib/services/window-manager.cc',
+  'lib/view/pixman/image.cc',
   'lib/view/display.cc',
   'lib/view/displayable.cc',
   'lib/view/rect.cc',
@@ -35,6 +37,7 @@ libgokai_core_deps = [
   gles2,
   egl,
   vulkan,
+  pixman,
 ]
 libgokai_core_headers_exclude = []
 
