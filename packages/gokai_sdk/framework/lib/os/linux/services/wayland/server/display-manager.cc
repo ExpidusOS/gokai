@@ -20,21 +20,29 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
  		}
   }
 
-  auto display = new Gokai::Framework::os::Linux::View::Wayland::Server::Display(Gokai::ObjectArguments({
-    { "context", self->context },
-    { "logger", self->getLogger() },
-    { "value", value },
-  }));
-  self->displays.push_back(display);
+  try {
+    auto display = new Gokai::Framework::os::Linux::View::Wayland::Server::Display(Gokai::ObjectArguments({
+      { "context", self->context },
+      { "logger", self->getLogger() },
+      { "value", value },
+    }));
+    self->displays.push_back(display);
 
-  display->destroy.push_back([display, self]() {
-    self->displays.remove(display);
+    display->destroy.push_back([display, self]() {
+      self->displays.remove(display);
+      if (self->displays.empty()) {
+        uv_stop(self->context->getLoop());
+      }
+    });
+
+    wlr_output_layout_add_auto(self->layout, value);
+  } catch (const std::exception& ex) {
+    self->logger->error("Failed to activate display \"{}\": {}", value->name, ex.what());
+ 		wlr_output_enable(value, false);
     if (self->displays.empty()) {
       uv_stop(self->context->getLoop());
     }
-  });
-
-  wlr_output_layout_add_auto(self->layout, value);
+  }
 }
 
 DisplayManager::DisplayManager(Gokai::ObjectArguments arguments) : Gokai::Services::DisplayManager(arguments) {

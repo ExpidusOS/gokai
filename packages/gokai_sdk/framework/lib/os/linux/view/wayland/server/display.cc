@@ -15,10 +15,30 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
     this->value->name
   );
 
-  this->frame_listener.notify = Display::frame_handle;
+  auto compositor = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::Compositor*>(this->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
+  auto renderer = compositor->getRenderer();
+  if (wlr_renderer_is_gles2(renderer)) {
+    auto egl = wlr_gles2_renderer_get_egl(renderer);
+
+    this->renderer = new Gokai::Graphics::Rendering::EGL::Renderer(wlr_egl_get_display(egl), wlr_egl_get_context(egl), Gokai::ObjectArguments({
+      { "logger", this->getLogger() },
+    }));
+  } else if (wlr_renderer_is_pixman(renderer)) {
+    this->renderer = new Gokai::Graphics::Rendering::Pixman::Renderer(Gokai::ObjectArguments({
+      { "logger", this->getLogger() },
+    }));
+  } else if (wlr_renderer_is_vk(renderer)) {
+    this->renderer = new Gokai::Graphics::Rendering::Pixman::Renderer(Gokai::ObjectArguments({
+      { "logger", this->getLogger() },
+    }));
+  } else {
+    throw std::runtime_error(fmt::format("No renderer is available for {}", this->value->name));
+  }
+
+  this->frame_listener.notify = Display::フレーム;
   wl_signal_add(&this->value->events.frame, &this->frame_listener);
 
-  this->destroy_listener.notify = Display::destroy_handle;
+  this->destroy_listener.notify = Display::破壊する;
   wl_signal_add(&this->value->events.destroy, &this->destroy_listener);
 }
 
@@ -27,7 +47,7 @@ Display::~Display() {
   this->logger->debug("Display {} destroyed", reinterpret_cast<void*>(this->value));
 }
 
-void Display::frame_handle(struct wl_listener* listener, void* data) {
+void Display::フレーム(struct wl_listener* listener, void* data) {
   Display* self = wl_container_of(listener, self, frame_listener);
   auto compositor = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::Compositor*>(self->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
   auto renderer = compositor->getRenderer();
@@ -39,7 +59,7 @@ void Display::frame_handle(struct wl_listener* listener, void* data) {
   wlr_output_commit(self->value);
 }
 
-void Display::destroy_handle(struct wl_listener* listener, void* data) {
+void Display::破壊する(struct wl_listener* listener, void* data) {
   Display* self = wl_container_of(listener, self, destroy_listener);
   delete self;
 }

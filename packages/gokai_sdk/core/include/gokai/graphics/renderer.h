@@ -9,6 +9,8 @@ namespace Gokai {
     class Renderer : public Gokai::Loggable {
       public:
         Renderer(Gokai::ObjectArguments arguments);
+
+        virtual FlutterRendererConfig* getConfig();
     };
   }
 }

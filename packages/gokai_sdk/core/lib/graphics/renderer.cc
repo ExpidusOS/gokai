@@ -5,3 +5,7 @@
 using namespace Gokai::Graphics;
 
 Renderer::Renderer(Gokai::ObjectArguments arguments) : Loggable(TAG, arguments) {}
+
+FlutterRendererConfig* Renderer::getConfig() {
+  return nullptr;
+}

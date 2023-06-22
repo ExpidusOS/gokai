@@ -51,13 +51,15 @@
               libuv
               glib
               packagekit
-              wlroots
+              wlroots_0_16
               wayland
               spdlog
               yaml-cpp
               udev
               glm
               pixman
+              libglvnd
+              vulkan-loader
             ];
           };
         };
@@ -75,6 +77,7 @@
             ] ++ self.packages.${system}.sdk.buildInputs;
 
             LIBGL_DRIVERS_PATH = "${pkgs.mesa.drivers}/lib/dri";
+            VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
           };
 
           sdk = pkgs.mkShell {
