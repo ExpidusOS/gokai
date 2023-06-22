@@ -4,7 +4,6 @@ pkg_get_variable(WAYLAND_PROTOCOLS_DIR wayland-protocols pkgdatadir)
 set(WAYLAND_SCANNER ${WAYLAND_SCANNER_BINDIR}/wayland-scanner)
 set(WAYLAND_PROTOCOLS
   "${CMAKE_CURRENT_SOURCE_DIR}/color-scheme-unstable-v1.xml"
-  "${CMAKE_CURRENT_SOURCE_DIR}/gokai-shell-unstable-v1.xml"
 )
 set(WAYLAND_PROTOCOLS_GEN)
 
