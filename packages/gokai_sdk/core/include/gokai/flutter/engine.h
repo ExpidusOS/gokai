@@ -18,6 +18,9 @@ namespace Gokai {
         Gokai::Context* getContext();
       private:
         xg::Guid id;
+        FlutterProjectArgs args;
+        FlutterEngine value;
+
         Gokai::Graphics::Renderer* renderer;
         Gokai::Context* context;
     };

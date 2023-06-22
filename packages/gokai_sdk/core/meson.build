@@ -58,6 +58,9 @@ install_subdir('include/gokai',
   install_dir: includedir / 'gokai')
 
 pkg.generate(libgokai_core,
+  libraries: [
+    flutter_engine,
+  ],
   requires: [
     'spdlog',
     'libuv',
