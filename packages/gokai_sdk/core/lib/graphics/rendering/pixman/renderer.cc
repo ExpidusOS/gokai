@@ -68,6 +68,8 @@ bool Renderer::present(void* data, const void* buffer, size_t width, size_t heig
   self->logger->debug("Rendering {} ({}x{})", buffer, width, height);
   try {
     self->mx.lock();
+    auto b = (uint32_t*)reinterpret_cast<const uint32_t*>(buffer);
+
     pixman_blt(
       (uint32_t*)reinterpret_cast<const uint32_t*>(buffer), self->buffer,
       pixman_image_get_stride(self->img),

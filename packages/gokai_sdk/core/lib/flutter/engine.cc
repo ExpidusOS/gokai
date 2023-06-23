@@ -59,9 +59,11 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
     .pixel_ratio = 1.0,
   };
 
+  this->logger->debug("Initial window metrics (w: {}, h: {}, r: {})", metrics.width, metrics.height, metrics.pixel_ratio);
+
   if (FlutterEngineSendWindowMetricsEvent(this->value, &metrics) != kSuccess) {
     throw std::runtime_error(fmt::format(
-      "Failed to send window metrics ({}, {}) for engine {}",
+      "Failed to initialize window metrics ({}, {}) for engine {}",
       metrics.width,
       metrics.height,
       this->id.str()
@@ -99,10 +101,12 @@ void Engine::resize(glm::uvec2 size) {
     .pixel_ratio = 1.0,
   };
 
+  this->logger->debug("Updating window metrics (w: {}, h: {}, r: {}) {}", metrics.width, metrics.height, metrics.pixel_ratio, reinterpret_cast<void*>(this->value));
+
   auto result = FlutterEngineSendWindowMetricsEvent(this->value, &metrics);
   if (result != kSuccess) {
     throw std::runtime_error(fmt::format(
-      "Failed to send window metrics ({}, {}) for engine {}",
+      "Failed to update window metrics ({}, {}) for engine {}",
       metrics.width,
       metrics.height,
       this->id.str()

@@ -52,6 +52,10 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
 }
 
 Display::~Display() {
+  wl_list_remove(&this->mode_listener.link);
+  wl_list_remove(&this->frame_listener.link);
+  wl_list_remove(&this->destroy_listener.link);
+
   for (auto func : this->destroy) func();
   delete this->renderer;
 
@@ -63,7 +67,22 @@ Display::~Display() {
 
 void Display::mode(struct wl_listener* listener, void* data) {
   Display* self = wl_container_of(listener, self, mode_listener);
-  self->engine->resize(glm::uvec2(self->value->width, self->value->height));
+
+  auto old = self->renderer->getSize();
+  try {
+    self->engine->resize(glm::uvec2(self->value->width, self->value->height));
+  } catch (const std::exception& ex) {
+    int32_t refresh = self->value->current_mode != nullptr ? self->value->current_mode->refresh : 0;
+
+    wlr_output_set_custom_mode(self->value, old.x, old.y, refresh);
+    auto value = wlr_output_commit(self->value);
+
+    self->logger->error("Failed to resize: {}", ex.what());
+    if (!value) {
+      wlr_output_enable(self->value, false);
+      delete self;
+    }
+  }
 }
 
 void Display::フレーム(struct wl_listener* listener, void* data) {
