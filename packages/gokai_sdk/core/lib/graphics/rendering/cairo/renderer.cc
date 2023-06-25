@@ -20,7 +20,7 @@ FlutterRendererConfig* Renderer::getConfig() {
 }
 
 glm::uvec2 Renderer::getSize() {
-  if (this->surface == nullptr) return glm::uvec2();
+  if (this->surface == nullptr) return glm::uvec2(0, 0);
 
   return glm::uvec2(
     cairo_image_surface_get_width(this->surface),
@@ -66,42 +66,41 @@ bool Renderer::present(void* data, const void* buffer, size_t width, size_t heig
   if (!self->mx.try_lock()) return false;
 
   try {
-    auto src = reinterpret_cast<const uint32_t*>(buffer);
+    auto source = reinterpret_cast<const uint8_t*>(buffer);
+    auto size = glm::uvec2(width, height);
 
-    auto dest_width = cairo_image_surface_get_width(self->surface);
-    auto dest_height = cairo_image_surface_get_height(self->surface);
-    auto dest_stride = cairo_image_surface_get_stride(self->surface);
-    uint32_t dest_size = dest_width * dest_height * dest_stride;
-
-    auto stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
-    auto size = width * height * stride;
-
+    auto dest_size = self->getSize();
     if (size != dest_size) {
-      self->logger->warn("Forcing a resize from {}x{}x{} ({}) to {}x{}x{} ({})", width, height, stride, size, dest_width, dest_height, dest_stride, dest_size);
+      self->logger->warn("Forcing a resize from {}x{} to {}x{}", dest_size.x, dest_size.y, size.x, size.y);
       self->mx.unlock();
-      self->resize(glm::uvec2(width, height));
+      self->resize(size);
       self->mx.lock();
 
-      dest_width = cairo_image_surface_get_width(self->surface);
-      dest_height = cairo_image_surface_get_height(self->surface);
-      dest_stride = cairo_image_surface_get_stride(self->surface);
-      dest_size = dest_width * dest_height * dest_stride;
+      dest_size = self->getSize();
     }
 
     cairo_surface_flush(self->surface);
     auto dest = reinterpret_cast<uint32_t*>(cairo_image_surface_get_data(self->surface));
 
-    self->logger->debug("Rendering {} ({}x{}x{} -> {}x{}x{})", buffer, width, height, stride, dest_width, dest_height, dest_stride);
+    self->logger->debug("Rendering {} to {}x{}", buffer, dest_size.x, dest_size.y);
 
-    for (size_t y = 0; y < height; y++) {
-      for (size_t x = 0; x < width; x++) {
-        size_t pos = y * width + x;
-        dest[pos] = src[pos];
+    for (size_t y = 0; y < size.y; y++) {
+      for (size_t x = 0; x < size.x; x++) {
+        size_t source_pos = y * width + x * 4;
+        size_t dest_pos = y * width + x;
+
+        if (source_pos >= width * height) break;
+
+        auto r = source[source_pos];
+        auto g = source[source_pos + 1];
+        auto b = source[source_pos + 2];
+        auto a = source[source_pos + 3];
+
+        dest[dest_pos] = (a << 24) | (b << 16) | (g << 8) | r;
       }
     }
 
     cairo_surface_mark_dirty(self->surface);
-
     self->mx.unlock();
   } catch (const std::exception& ex) {
     self->mx.unlock();
