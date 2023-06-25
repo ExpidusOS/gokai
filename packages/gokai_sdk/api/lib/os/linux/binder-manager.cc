@@ -59,7 +59,9 @@ BinderManager::BinderManager(Gokai::ObjectArguments arguments) : Gokai::API::Bin
     }
   }
 
-  spdlog::debug("Found the default Gokai library at {}", this->binder_default->getPath().c_str());
+  if (this->binder_default != nullptr) {
+    spdlog::debug("Found the default Gokai library at {}", this->binder_default->getPath().c_str());
+  }
 }
 
 Gokai::API::Binder* BinderManager::load(std::string name) {
