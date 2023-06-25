@@ -7,6 +7,9 @@ extern "C" {
 #define static
 #include <wlr/backend.h>
 #include <wlr/render/allocator.h>
+#include <wlr/render/gles2.h>
+#include <wlr/render/pixman.h>
+#include <wlr/render/vulkan.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/util/log.h>
 #include <wayland-server.h>

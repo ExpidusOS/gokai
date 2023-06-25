@@ -4,6 +4,19 @@
 
 using namespace Gokai::Framework::os::Linux::Services::Wayland::Server;
 
+static struct wlr_renderer* renderer_from_string(std::string name, struct wlr_backend* backend) {
+  if (name.compare("auto") == 0) {
+    return wlr_renderer_autocreate(backend);
+  } else if (name.compare("pixman") == 0) {
+    return wlr_pixman_renderer_create();
+  } else if (name.compare("gles2") == 0) {
+    return wlr_gles2_renderer_create_with_drm_fd(wlr_backend_get_drm_fd(backend));
+  } else if (name.compare("vulkan") == 0) {
+     return wlr_vk_renderer_create_with_drm_fd(wlr_backend_get_drm_fd(backend));
+  }
+  throw std::runtime_error("Renderer \"" + name + "\" is either not supported or does not exist");
+}
+
 static spdlog::level::level_enum wlr2spdlog(enum wlr_log_importance level) {
   switch (level) {
     case WLR_DEBUG:
@@ -61,6 +74,8 @@ void Compositor::poll_event_handle(uv_poll_t* event_poll, int status, int events
 Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Compositor(arguments) {
   wlr_log_init(spdlog2wlr(this->logger->level()), spdlog4wlr);
 
+  auto manifest = this->context->getManifest();
+
   this->display = wl_display_create();
 
   this->backend = wlr_backend_autocreate(this->display);
@@ -68,7 +83,23 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
     throw std::runtime_error("Failed to create wlroots backend");
   }
 
-  this->renderer = wlr_renderer_autocreate(this->backend);
+  auto find = manifest.defaults.find("Gokai::Services::Compositor::renderer");
+  if (find != manifest.defaults.end()) {
+    auto override_find = manifest.overrides.find("Gokai::Services::Compositor::renderer");
+    if (override_find != manifest.overrides.end()) {
+      this->renderer = renderer_from_string(override_find->second, this->backend);
+    } else {
+      this->renderer = renderer_from_string(find->second, this->backend);
+    }
+  } else {
+    find = manifest.overrides.find("Gokai::Services::Compositor::renderer");
+    if (find != manifest.overrides.end()) {
+      this->renderer = renderer_from_string(find->second, this->backend);
+    } else {
+      this->renderer = wlr_renderer_autocreate(this->backend);
+    }
+  }
+
   this->allocator = wlr_allocator_autocreate(this->backend, this->renderer);
 
   this->logger->debug("Attaching Wayland Event loop to context event loop");
