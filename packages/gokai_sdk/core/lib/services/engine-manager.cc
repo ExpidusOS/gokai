@@ -28,4 +28,23 @@ void EngineManager::destroy(xg::Guid id) {
   this->engines.erase(id);
 }
 
+std::list<xg::Guid> EngineManager::getIds() {
+  auto keys = std::list<xg::Guid>();
+
+  for (auto it = this->engines.begin(); it != this->engines.end(); it++) {
+    keys.push_back(it->first);
+  }
+
+  return keys;
+}
+
+std::shared_ptr<Gokai::Flutter::Engine> EngineManager::get(xg::Guid id) {
+  auto find = this->engines.find(id);
+  if (find == this->engines.end()) {
+    throw std::invalid_argument("Engines " + id.str() + " does not exist");
+  }
+
+  return std::shared_ptr<Gokai::Flutter::Engine>(find->second);
+}
+
 const std::string EngineManager::SERVICE_NAME = "EngineManager";
