@@ -57,7 +57,7 @@
               yaml-cpp
               udev
               glm
-              pixman
+              cairo
               libglvnd
               vulkan-loader
               crossguid
