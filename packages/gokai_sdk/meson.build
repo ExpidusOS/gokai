@@ -36,6 +36,7 @@ gles2 = dependency('glesv2')
 egl = dependency('egl')
 vulkan = dependency('vulkan')
 cairo = dependency('cairo')
+jsoncpp = dependency('jsoncpp')
 crossguid = [dependency('crossguid')]
 
 if target_machine.system() == 'linux'

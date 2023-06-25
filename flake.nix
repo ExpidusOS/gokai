@@ -62,6 +62,7 @@
               vulkan-loader
               crossguid
               libuuid
+              jsoncpp
             ];
           };
         };

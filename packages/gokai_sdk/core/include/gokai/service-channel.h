@@ -8,6 +8,8 @@ namespace Gokai {
   class ServiceChannel : public Object {
     public:
       ServiceChannel(ObjectArguments arguments);
+
+      virtual std::string getName();
   };
 }
 #endif
