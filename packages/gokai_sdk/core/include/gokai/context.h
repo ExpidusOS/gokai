@@ -42,6 +42,8 @@ namespace Gokai {
       virtual std::string getPackageDir();
       virtual std::string getPackageDataDir();
       virtual std::string getPackageConfigDir();
+    protected:
+      std::map<std::string, Service*> services;
     private:
       uv_loop_t* loop;
       ContextMode mode;

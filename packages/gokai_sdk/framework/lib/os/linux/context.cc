@@ -84,12 +84,12 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   this->services = std::map<std::string, Gokai::Service*>();
   auto self = std::shared_ptr<Gokai::Context>(static_cast<Gokai::Context*>(this));
 
-  this->engine_manager = new Gokai::Services::EngineManager(Gokai::ObjectArguments({
+  this->services[Gokai::Services::EngineManager::SERVICE_NAME] = new Gokai::Services::EngineManager(Gokai::ObjectArguments({
     { "context", self },
     { "logger", this->getLogger() },
   }));
 
-  this->package_manager = new Services::PackageManager(Gokai::ObjectArguments({
+  this->services[Gokai::Services::PackageManager::SERVICE_NAME] = new Services::PackageManager(Gokai::ObjectArguments({
     { "context", self },
     { "logger", this->getLogger() },
   }));
@@ -131,30 +131,11 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
 }
 
 Context::~Context() {
-  delete this->package_manager;
-  delete this->engine_manager;
-
-  for (auto service : this->services) delete service.second;
-
   xdgWipeHandle(&this->xdg_handle);
 }
 
 ContextDisplayBackend Context::getDisplayBackend() {
   return this->display_backend;
-}
-
-Gokai::Service* Context::getSystemService(std::string serviceName) {
-  if (serviceName.compare(Gokai::Services::PackageManager::SERVICE_NAME) == 0) {
-    return this->package_manager;
-  }
-
-  if (serviceName.compare(Gokai::Services::EngineManager::SERVICE_NAME) == 0) {
-    return this->engine_manager;
-  }
-
-  auto pair = this->services.find(serviceName);
-  if (pair != this->services.end()) return pair->second;
-  return nullptr;
 }
 
 std::string Context::getPackageDir() {

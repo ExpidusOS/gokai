@@ -1,4 +1,5 @@
 #include <gokai/context.h>
+#include <gokai/services/compositor.h>
 #include <gokai/services/display-manager.h>
 #include <gokai/services/package-manager.h>
 #include <gokai/services/window-manager.h>
@@ -91,10 +92,7 @@ Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments) {
 }
 
 Context::~Context() {
-  // FIXME: causes segfault but we need to clean up
-  // TODO: make this only call for the main instance
-  //uv_loop_close(this->loop);
-  //free(this->loop);
+  uv_loop_close(this->loop);
 }
 
 uv_loop_t* Context::getLoop() {
@@ -110,6 +108,10 @@ ContextMode Context::getMode() {
 }
 
 template<class T> T* Context::getSystemService() {
+  if (std::is_same<T, Services::Compositor>::value) {
+    return getSystemService(Services::Compositor::SERVICE_NAME);
+  }
+
   if (std::is_same<T, Services::DisplayManager>::value) {
     return getSystemService(Services::DisplayManager::SERVICE_NAME);
   }
@@ -125,6 +127,8 @@ template<class T> T* Context::getSystemService() {
 }
 
 Service* Context::getSystemService(std::string serviceName) {
+  auto pair = this->services.find(serviceName);
+  if (pair != this->services.end()) return pair->second;
   return nullptr;
 }
 

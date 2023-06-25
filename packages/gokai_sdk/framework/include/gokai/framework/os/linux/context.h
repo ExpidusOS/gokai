@@ -35,15 +35,11 @@ namespace Gokai {
             ~Context();
 
             ContextDisplayBackend getDisplayBackend();
-            Service* getSystemService(std::string serviceName) override;
             std::string getPackageDir() override;
             std::string getPackageConfigDir() override;
           private:
             ContextDisplayBackend display_backend;
             xdgHandle xdg_handle;
-            Services::PackageManager* package_manager;
-            Gokai::Services::EngineManager* engine_manager;
-            std::map<std::string, Gokai::Service*> services;
         };
       }
     }

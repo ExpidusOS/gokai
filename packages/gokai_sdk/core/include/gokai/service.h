@@ -11,7 +11,7 @@ namespace Gokai {
     public:
       Service(ObjectArguments arguments);
 
-      virtual ServiceChannel* getServiceChannel();
+      virtual std::shared_ptr<ServiceChannel> getServiceChannel();
     protected:
       std::shared_ptr<Gokai::Context> context;
   };
