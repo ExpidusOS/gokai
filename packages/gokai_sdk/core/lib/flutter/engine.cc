@@ -43,6 +43,8 @@ void Engine::post_task_callback(FlutterTask task, uint64_t target_time, void* da
 Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, arguments), pid{uv_os_getpid()} {
   if (arguments.has("id")) {
     this->id = std::any_cast<xg::Guid>(arguments.get("id"));
+  } else {
+    this->id = xg::newGuid();
   }
 
   this->renderer = std::any_cast<Gokai::Graphics::Renderer*>(arguments.get("renderer"));
@@ -109,7 +111,7 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
     .pixel_ratio = 1.0,
   };
 
-  this->logger->debug("Initial window metrics (w: {}, h: {}, r: {})", metrics.width, metrics.height, metrics.pixel_ratio);
+  this->logger->debug("Initial window metrics (w: {}, h: {}, r: {}) for engine {}", metrics.width, metrics.height, metrics.pixel_ratio, this->id.str());
 
   if (FlutterEngineSendWindowMetricsEvent(this->value, &metrics) != kSuccess) {
     throw std::runtime_error(fmt::format(
@@ -122,6 +124,7 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
 }
 
 Engine::~Engine() {
+  this->logger->debug("Shutting down engine {}", this->id.str());
   FlutterEngineShutdown(this->value);
 }
 
@@ -151,7 +154,7 @@ void Engine::resize(glm::uvec2 size) {
     .pixel_ratio = 1.0,
   };
 
-  this->logger->debug("Updating window metrics (w: {}, h: {}, r: {}) {}", metrics.width, metrics.height, metrics.pixel_ratio, reinterpret_cast<void*>(this->value));
+  this->logger->debug("Updating window metrics (w: {}, h: {}, r: {}) {} for engine {}", metrics.width, metrics.height, metrics.pixel_ratio, reinterpret_cast<void*>(this->value), this->id.str());
 
   auto result = FlutterEngineSendWindowMetricsEvent(this->value, &metrics);
   if (result != kSuccess) {

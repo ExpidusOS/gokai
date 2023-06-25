@@ -11,7 +11,7 @@ EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(argumen
 EngineManager::~EngineManager() {}
 
 std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::Renderer* renderer) {
-  xg::Guid id;
+  auto id = xg::newGuid();
 
   auto engine = std::shared_ptr<Gokai::Flutter::Engine>(new Gokai::Flutter::Engine(Gokai::ObjectArguments({
     { "id", id },
