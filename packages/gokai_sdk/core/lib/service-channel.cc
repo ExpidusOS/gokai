@@ -8,7 +8,9 @@ using namespace Gokai;
 ServiceChannel::ServiceChannel(ObjectArguments arguments) :
   Loggable(fmt::format("{}#{}", TAG, std::any_cast<std::string>(arguments.get("name"))).c_str(), arguments),
   context{std::any_cast<std::shared_ptr<Context>>(arguments.get("context"))},
-  name{std::any_cast<std::string>(arguments.get("name"))} {}
+  name{std::any_cast<std::string>(arguments.get("name"))} {
+  this->logger->debug("Service channel created");
+}
 
 std::string ServiceChannel::getName() {
   return this->name;
