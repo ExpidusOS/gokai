@@ -91,8 +91,10 @@ Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments) {
 }
 
 Context::~Context() {
-  uv_loop_close(this->loop);
-  free(this->loop);
+  // FIXME: causes segfault but we need to clean up
+  // TODO: make this only call for the main instance
+  //uv_loop_close(this->loop);
+  //free(this->loop);
 }
 
 uv_loop_t* Context::getLoop() {

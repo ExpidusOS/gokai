@@ -2,13 +2,13 @@
 
 #ifdef __cplusplus
 #include <gokai/graphics/renderer.h>
-#include <gokai/view/pixman/image.h>
+#include <gokai/view/cairo/image.h>
 #include <mutex>
 
 namespace Gokai {
   namespace Graphics {
     namespace Rendering {
-      namespace Pixman {
+      namespace Cairo {
         class Renderer : public Gokai::Graphics::Renderer {
           public:
             Renderer(Gokai::ObjectArguments arguments);
@@ -18,9 +18,7 @@ namespace Gokai {
             void resize(glm::uvec2 size) override;
             void render(Gokai::View::Displayable& target) override;
           private:
-            uint32_t* buffer;
-            glm::uvec2 size;
-            pixman_image_t* img;
+            cairo_surface_t* surface;
 
             FlutterRendererConfig config;
             std::mutex mx;

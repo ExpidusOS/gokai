@@ -39,16 +39,30 @@ std::shared_ptr<spdlog::logger> Logger::get(const char* tag, Gokai::ObjectArgume
   std::shared_ptr<spdlog::logger> value = nullptr;
   std::string type = "default";
   if (arguments.has("context")) {
-    auto context = std::any_cast<Gokai::Context*>(arguments.get("context"));
-    auto manifest = context->getManifest();
-    auto entry = manifest.defaults.find("Gokai::Framework::os::Linux::Logger");
-    if (entry != manifest.defaults.end()) type = entry->second;
+    auto ctx_arg = arguments.get("context");
+    if (ctx_arg.type() == typeid(Gokai::Context*)) {
+      auto context = std::any_cast<Gokai::Context*>(ctx_arg);
+      auto manifest = context->getManifest();
+      auto entry = manifest.defaults.find("Gokai::Framework::os::Linux::Logger");
+      if (entry != manifest.defaults.end()) type = entry->second;
 
-    auto env = getenv("GOKAI_LOGGER");
-    if (env != nullptr) type = env;
+      auto env = getenv("GOKAI_LOGGER");
+      if (env != nullptr) type = env;
 
-    entry = manifest.overrides.find("Gokai::Framework::os::Linux::Logger");
-    if (entry != manifest.overrides.end()) type = entry->second;
+      entry = manifest.overrides.find("Gokai::Framework::os::Linux::Logger");
+      if (entry != manifest.overrides.end()) type = entry->second;
+    } else {
+      auto context = std::any_cast<std::shared_ptr<Gokai::Context>>(ctx_arg);
+      auto manifest = context->getManifest();
+      auto entry = manifest.defaults.find("Gokai::Framework::os::Linux::Logger");
+      if (entry != manifest.defaults.end()) type = entry->second;
+
+      auto env = getenv("GOKAI_LOGGER");
+      if (env != nullptr) type = env;
+
+      entry = manifest.overrides.find("Gokai::Framework::os::Linux::Logger");
+      if (entry != manifest.overrides.end()) type = entry->second;
+    }
   } else {
     auto env = getenv("GOKAI_LOGGER");
     if (env != nullptr) type = env;

@@ -31,7 +31,7 @@ namespace Gokai {
 
                   std::list<std::function<void()>> destroy;
                 private:
-                  Gokai::Flutter::Engine* engine;
+                  std::shared_ptr<Gokai::Flutter::Engine> engine;
                   Gokai::Graphics::Renderer* renderer;
                   Gokai::Context* context;
                   struct wlr_output* value;

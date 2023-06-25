@@ -20,7 +20,7 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
  		}
   }
 
-  try {
+  //try {
     auto display = new Gokai::Framework::os::Linux::View::Wayland::Server::Display(Gokai::ObjectArguments({
       { "context", self->context },
       { "logger", self->getLogger() },
@@ -36,13 +36,13 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
     });
 
     wlr_output_layout_add_auto(self->layout, value);
-  } catch (const std::exception& ex) {
+  /*} catch (const std::exception& ex) {
     self->logger->error("Failed to activate display \"{}\": {}", value->name, ex.what());
  		wlr_output_enable(value, false);
     if (self->displays.empty()) {
       uv_stop(self->context->getLoop());
     }
-  }
+  }*/
 }
 
 DisplayManager::DisplayManager(Gokai::ObjectArguments arguments) : Gokai::Services::DisplayManager(arguments) {

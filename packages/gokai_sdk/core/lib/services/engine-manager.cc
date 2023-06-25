@@ -5,26 +5,27 @@
 using namespace Gokai::Services;
 
 EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(arguments), Loggable(TAG, arguments) {
-  this->engines = new std::map<xg::Guid, Gokai::Flutter::Engine>();
   this->logger->debug("Service created");
 }
 
-EngineManager::~EngineManager() {
-  delete this->engines;
-}
+EngineManager::~EngineManager() {}
 
-Gokai::Flutter::Engine* EngineManager::create(Gokai::Graphics::Renderer* renderer) {
+std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::Renderer* renderer) {
   xg::Guid id;
-  return &this->engines->emplace(id, Gokai::Flutter::Engine(Gokai::ObjectArguments({
+
+  auto engine = std::shared_ptr<Gokai::Flutter::Engine>(new Gokai::Flutter::Engine(Gokai::ObjectArguments({
     { "id", id },
     { "logger", this->getLogger() },
-    { "context", this->context },
+    { "context", std::shared_ptr<Gokai::Context>(this->context) },
     { "renderer", renderer },
-  }))).first->second;
+  })));
+
+  this->engines[id] = engine.get();
+  return engine;
 }
 
 void EngineManager::destroy(xg::Guid id) {
-  this->engines->erase(id);
+  this->engines.erase(id);
 }
 
 const std::string EngineManager::SERVICE_NAME = "EngineManager";

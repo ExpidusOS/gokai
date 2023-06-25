@@ -14,12 +14,12 @@ namespace Gokai {
         EngineManager(Gokai::ObjectArguments arguments);
         ~EngineManager();
 
-        Gokai::Flutter::Engine* create(Gokai::Graphics::Renderer* renderer);
+        std::shared_ptr<Gokai::Flutter::Engine> create(Gokai::Graphics::Renderer* renderer);
         void destroy(xg::Guid id);
 
         static const std::string SERVICE_NAME;
       private:
-        std::map<xg::Guid, Gokai::Flutter::Engine>* engines;
+        std::map<xg::Guid, Gokai::Flutter::Engine*> engines;
     };
   }
 }
