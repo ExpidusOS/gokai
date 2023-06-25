@@ -9,7 +9,7 @@ using namespace Gokai::Framework::os::Linux::View::Wayland::Server;
 
 Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(arguments), Gokai::Loggable(TAG, arguments) {
   this->value = std::any_cast<struct wlr_output*>(arguments.get("value"));
-  this->context = std::any_cast<Context*>(arguments.get("context"));
+  this->context = std::any_cast<std::shared_ptr<Context>>(arguments.get("context"));
 
   this->logger->debug(
     "Display {} ({}) added",

@@ -3,6 +3,7 @@
 #ifdef __cplusplus
 #include <gokai/object.h>
 #include <gokai/service-channel.h>
+#include <memory>
 
 namespace Gokai {
   class Context;
@@ -12,7 +13,7 @@ namespace Gokai {
 
       virtual ServiceChannel* getServiceChannel();
     protected:
-      Gokai::Context* context;
+      std::shared_ptr<Gokai::Context> context;
   };
 }
 #endif

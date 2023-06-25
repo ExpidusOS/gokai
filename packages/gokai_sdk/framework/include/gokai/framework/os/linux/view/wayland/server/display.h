@@ -6,6 +6,7 @@
 #include <gokai/view/display.h>
 #include <gokai/context.h>
 #include <gokai/logging.h>
+#include <memory>
 
 extern "C" {
 #define static
@@ -33,7 +34,7 @@ namespace Gokai {
                 private:
                   std::shared_ptr<Gokai::Flutter::Engine> engine;
                   Gokai::Graphics::Renderer* renderer;
-                  Gokai::Context* context;
+                  std::shared_ptr<Gokai::Context> context;
                   struct wlr_output* value;
 
                   struct wl_listener mode_listener;

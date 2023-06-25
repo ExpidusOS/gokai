@@ -16,7 +16,7 @@ std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::R
   auto engine = std::shared_ptr<Gokai::Flutter::Engine>(new Gokai::Flutter::Engine(Gokai::ObjectArguments({
     { "id", id },
     { "logger", this->getLogger() },
-    { "context", std::shared_ptr<Gokai::Context>(this->context) },
+    { "context", this->context },
     { "renderer", renderer },
   })));
 

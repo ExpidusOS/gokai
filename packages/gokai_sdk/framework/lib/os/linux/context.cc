@@ -82,14 +82,15 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   assert(xdgInitHandle(&this->xdg_handle) != nullptr);
 
   this->services = std::map<std::string, Gokai::Service*>();
+  auto self = std::shared_ptr<Gokai::Context>(static_cast<Gokai::Context*>(this));
 
   this->engine_manager = new Gokai::Services::EngineManager(Gokai::ObjectArguments({
-    { "context", static_cast<Gokai::Context*>(this) },
+    { "context", self },
     { "logger", this->getLogger() },
   }));
 
   this->package_manager = new Services::PackageManager(Gokai::ObjectArguments({
-    { "context", static_cast<Gokai::Context*>(this) },
+    { "context", self },
     { "logger", this->getLogger() },
   }));
 
@@ -104,19 +105,19 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   } else if (this->getMode() == Gokai::ContextMode::compositor) {
     if (this->getDisplayBackend() == ContextDisplayBackend::wayland) {
       auto compositor = new Services::Wayland::Server::Compositor(Gokai::ObjectArguments({
-        { "context", static_cast<Gokai::Context*>(this) },
+        { "context", self },
         { "logger", this->getLogger() },
       }));
 
       this->services[Gokai::Services::Compositor::SERVICE_NAME] = compositor;
 
       this->services[Gokai::Services::DisplayManager::SERVICE_NAME] = new Services::Wayland::Server::DisplayManager(Gokai::ObjectArguments({
-        { "context", static_cast<Gokai::Context*>(this) },
+        { "context", self },
         { "logger", this->getLogger() },
       }));
 
       this->services[Gokai::Services::WindowManager::SERVICE_NAME] = new Services::Wayland::Server::WindowManager(Gokai::ObjectArguments({
-        { "context", static_cast<Gokai::Context*>(this) },
+        { "context", self },
         { "logger", this->getLogger() },
       }));
 
