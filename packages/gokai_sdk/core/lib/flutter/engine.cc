@@ -68,7 +68,8 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
   this->args.struct_size = sizeof (FlutterProjectArgs);
   this->args.assets_path = strdup((path / "data" / "flutter_assets").c_str());
   this->args.icu_data_path = strdup((path / "data" / "icudtl.dat").c_str());
-  //this->args.custom_task_runners = &this->runners;
+  // FIXME: [FATAL:flutter/fml/memory/weak_ptr.h(109)] Check failed: (checker_.checker).IsCreationThreadCurrent().
+  // this->args.custom_task_runners = &this->runners;
 
   if (FlutterEngineRunsAOTCompiledDartCode()) {
     FlutterEngineAOTDataSource src = {
@@ -121,9 +122,7 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
 }
 
 Engine::~Engine() {
-  // FIXME: causes segfault but we need to clean up
-  // TODO: make this only call for the main instance
-  // FlutterEngineShutdown(this->value);
+  FlutterEngineShutdown(this->value);
 }
 
 xg::Guid Engine::getId() {
