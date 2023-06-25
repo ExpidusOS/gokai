@@ -16,9 +16,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final methodChannel = MethodChannel('Gokai::Services::EngineManager');
+  String _engineId = 'Unknown';
+
   @override
   void initState() {
     super.initState();
+    initEngineId();
+  }
+
+  Future<void> initEngineId() async {
+    String value = await methodChannel.invokeMethod('getEngineId');
+    setState(() {
+      _engineId = value;
+    });
   }
 
   @override
@@ -29,7 +40,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: const CircularProgressIndicator(),
+          child: Text('Engine ID: $_engineId'),
         ),
       ),
     );
