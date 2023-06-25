@@ -37,6 +37,7 @@ namespace Gokai {
       ApplicationManifest getManifest();
       ContextMode getMode();
       template<class T> T* getSystemService();
+      std::list<std::string> getSystemServiceNames();
       virtual Service* getSystemService(std::string serviceName);
       virtual std::string getPackageName();
       virtual std::string getPackageDir();

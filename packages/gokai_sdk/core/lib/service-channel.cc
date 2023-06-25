@@ -14,8 +14,12 @@ std::string ServiceChannel::getName() {
   return this->name;
 }
 
-void ServiceChannel::receive(xg::Guid engine_id, std::vector<uint8_t> message) {
+std::vector<uint8_t> ServiceChannel::receive(xg::Guid engine_id, std::vector<uint8_t> message) {
   for (auto func : this->onReceive) {
-    func(engine_id, message);
+    auto result = func(engine_id, message);
+    if (result.size() > 0) {
+      return result;
+    }
   }
+  return std::vector<uint8_t>();
 }

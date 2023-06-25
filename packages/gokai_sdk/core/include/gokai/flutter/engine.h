@@ -33,6 +33,7 @@ namespace Gokai {
         static bool runs_task_on_current_thread_callback(void* data);
         static void post_task_callback(FlutterTask task, uint64_t target_time, void* data);
         static void log_message_callback(const char* tag, const char* message, void* data);
+        static void platform_message_callback(const FlutterPlatformMessage* message, void* data);
     };
 
     struct EngineTask {

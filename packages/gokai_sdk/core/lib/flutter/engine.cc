@@ -1,4 +1,5 @@
 #include <gokai/flutter/engine.h>
+#include <gokai/service.h>
 #include <filesystem>
 #include <stdexcept>
 #include <unistd.h>
@@ -47,6 +48,41 @@ void Engine::log_message_callback(const char* tag, const char* message, void* da
   }))->info("{}", message);
 }
 
+void Engine::platform_message_callback(const FlutterPlatformMessage* message, void* data) {
+  auto self = reinterpret_cast<Engine*>(data);
+
+  self->logger->debug("Receiving message on method channel \"{}\" for engine {}", message->channel, self->id.str());
+
+  for (auto service_name : self->context->getSystemServiceNames()) {
+    auto service = self->context->getSystemService(service_name);
+
+    auto service_channel = service->getServiceChannel();
+    if (service_channel == nullptr) continue;
+    if (service_channel->getName().compare(message->channel) != 0) continue;
+
+    std::vector<uint8_t> msg(message->message, message->message + message->message_size);
+    auto msg_resp = service_channel->receive(self->id, msg);
+
+    auto result = FlutterEngineSendPlatformMessageResponse(
+      self->value, message->response_handle, msg_resp.data(), msg_resp.size()
+    );
+    if (result != kSuccess) {
+      self->logger->error("Failed to send response for engine {} on service channel \"{}\": {}", self->id.str(), message->channel, result);
+    }
+    return;
+  }
+
+  self->logger->warn("A handler for the \"{}\" method channel on engine {} was not set, sending an empty response.", message->channel, self->id.str());
+
+  std::vector<uint8_t> resp;
+  auto result = FlutterEngineSendPlatformMessageResponse(
+    self->value, message->response_handle, resp.data(), resp.size()
+  );
+  if (result != kSuccess) {
+    self->logger->error("Failed to send response for engine {} on method channel \"{}\": {}", self->id.str(), message->channel, result);
+  }
+}
+
 Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, arguments), pid{uv_os_getpid()} {
   if (arguments.has("id")) {
     this->id = std::any_cast<xg::Guid>(arguments.get("id"));
@@ -79,6 +115,7 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
   this->args.icu_data_path = strdup((path / "data" / "icudtl.dat").c_str());
   this->args.log_tag = strdup(fmt::format("{}#{}", TAG, this->id.str()).c_str());
   this->args.log_message_callback = Engine::log_message_callback;
+  this->args.platform_message_callback = Engine::platform_message_callback;
   // FIXME: [FATAL:flutter/fml/memory/weak_ptr.h(109)] Check failed: (checker_.checker).IsCreationThreadCurrent().
   // this->args.custom_task_runners = &this->runners;
 

@@ -126,6 +126,12 @@ template<class T> T* Context::getSystemService() {
   return nullptr;
 }
 
+std::list<std::string> Context::getSystemServiceNames() {
+  std::list<std::string> list;
+  for (const auto& item : this->services) list.push_back(item.first);
+  return list;
+}
+
 Service* Context::getSystemService(std::string serviceName) {
   auto pair = this->services.find(serviceName);
   if (pair != this->services.end()) return pair->second;
