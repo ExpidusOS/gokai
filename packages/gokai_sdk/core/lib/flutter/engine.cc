@@ -40,6 +40,13 @@ void Engine::post_task_callback(FlutterTask task, uint64_t target_time, void* da
   uv_timer_start(&etask->handle, EngineTask::callback, delta, 0);
 }
 
+void Engine::log_message_callback(const char* tag, const char* message, void* data) {
+  auto self = reinterpret_cast<Engine*>(data);
+  self->getLogger()->get(tag, Gokai::ObjectArguments({
+    { "context", self->context.get() },
+  }))->info("{}", message);
+}
+
 Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, arguments), pid{uv_os_getpid()} {
   if (arguments.has("id")) {
     this->id = std::any_cast<xg::Guid>(arguments.get("id"));
@@ -70,6 +77,8 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
   this->args.struct_size = sizeof (FlutterProjectArgs);
   this->args.assets_path = strdup((path / "data" / "flutter_assets").c_str());
   this->args.icu_data_path = strdup((path / "data" / "icudtl.dat").c_str());
+  this->args.log_tag = strdup(fmt::format("{}#{}", TAG, this->id.str()).c_str());
+  this->args.log_message_callback = Engine::log_message_callback;
   // FIXME: [FATAL:flutter/fml/memory/weak_ptr.h(109)] Check failed: (checker_.checker).IsCreationThreadCurrent().
   // this->args.custom_task_runners = &this->runners;
 
