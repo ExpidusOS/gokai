@@ -12,13 +12,15 @@ namespace Gokai {
     class MethodChannel : public Gokai::Loggable {
       public:
         MethodChannel(Gokai::ObjectArguments arguments);
+        ~MethodChannel();
 
         MethodCodec codec;
         std::string name;
-        std::list<std::function<void(std::any)>> handlers;
+        std::function<std::any(MethodCall)> handler;
 
         std::promise<std::any> invokeMethod(std::string name, std::any arguments);
       private:
+        std::function<std::vector<uint8_t>(std::vector<uint8_t>)> onResponseFunc;
         std::shared_ptr<Engine> engine;
     };
   }

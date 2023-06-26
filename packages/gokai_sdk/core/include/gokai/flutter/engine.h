@@ -14,6 +14,8 @@ namespace Gokai {
         Engine(Gokai::ObjectArguments arguments);
         ~Engine();
 
+        std::map<std::string, std::list<std::function<std::vector<uint8_t>(std::vector<uint8_t>)>>> method_channel_handlers;
+
         xg::Guid getId();
         Gokai::Graphics::Renderer* getRenderer();
         std::shared_ptr<Gokai::Context> getContext();

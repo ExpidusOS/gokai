@@ -28,11 +28,39 @@ MethodChannel::MethodChannel(Gokai::ObjectArguments arguments)
   : Loggable(fmt::format("{}#{}", TAG, std::any_cast<std::string>(arguments.get("name"))).c_str(), arguments),
     engine{std::any_cast<std::shared_ptr<Engine>>(arguments.get("engine"))},
     name{std::any_cast<std::string>(arguments.get("name"))},
-    codec{arguments} {
+    codec{arguments},
+    onResponseFunc{[this](std::vector<uint8_t> in) {
+      if (this->handler == nullptr) return std::vector<uint8_t>();
+
+      auto call = this->codec.decodeMethodCall(in);
+      try {
+        auto value = this->handler(call);
+        return this->codec.encodeSuccessEnvelope(value);
+      } catch (const std::exception& ex) {
+        return this->codec.encodeErrorEnvelope(this->name, ex.what(), std::make_any<void*>(nullptr));
+      }
+    }} {
   if (arguments.has("codec")) {
     this->codec = std::any_cast<MethodCodec>(arguments.get("codec"));
   } else {
     this->codec = Codecs::JSONMethodCodec(arguments);
+  }
+
+  auto find = this->engine->method_channel_handlers.find(this->name);
+  if (find == this->engine->method_channel_handlers.end()) {
+    this->engine->method_channel_handlers[this->name] = std::list<std::function<std::vector<uint8_t>(std::vector<uint8_t>)>>();
+  }
+
+  this->engine->method_channel_handlers[this->name].emplace_back(this->onResponseFunc);
+}
+
+MethodChannel::~MethodChannel() {
+  auto list = this->engine->method_channel_handlers[this->name];
+  for (auto it = list.begin(); it != list.end(); it++) {
+    if (it->target_type() == this->onResponseFunc.target_type()) {
+      this->engine->method_channel_handlers[this->name].erase(it);
+      break;
+    }
   }
 }
 
