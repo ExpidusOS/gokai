@@ -26,7 +26,7 @@ namespace Gokai {
         static const std::string SERVICE_NAME;
       private:
         Gokai::Flutter::Codecs::JSONMethodCodec method_codec;
-        Gokai::ServiceChannel* service_channel;
+        std::shared_ptr<Gokai::ServiceChannel> service_channel;
         std::map<xg::Guid, Gokai::Flutter::Engine*> engines;
     };
   }

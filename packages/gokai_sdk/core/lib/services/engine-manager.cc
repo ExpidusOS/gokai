@@ -7,11 +7,11 @@ using namespace Gokai::Services;
 EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(arguments), Loggable(TAG, arguments), method_codec(arguments) {
   this->logger->debug("Service created");
 
-  this->service_channel = new Gokai::ServiceChannel(Gokai::ObjectArguments({
+  this->service_channel = std::shared_ptr<Gokai::ServiceChannel>(new Gokai::ServiceChannel(Gokai::ObjectArguments({
     { "context", this->context },
     { "logger", this->getLogger() },
     { "name", std::string(TAG) },
-  }));
+  })));
 
   this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::vector<uint8_t> message) {
     auto call = this->method_codec.decodeMethodCall(message);
@@ -23,12 +23,10 @@ EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(argumen
   });
 }
 
-EngineManager::~EngineManager() {
-  delete this->service_channel;
-}
+EngineManager::~EngineManager() {}
 
 std::shared_ptr<Gokai::ServiceChannel> EngineManager::getServiceChannel() {
-  return std::shared_ptr<Gokai::ServiceChannel>(this->service_channel);
+  return this->service_channel;
 }
 
 std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::Renderer* renderer) {

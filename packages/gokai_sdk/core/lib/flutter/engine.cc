@@ -34,11 +34,10 @@ void Engine::post_task_callback(FlutterTask task, uint64_t target_time, void* da
   etask->task = task;
   etask->handle = {};
 
-  auto delta = target_time - FlutterEngineGetCurrentTime();
-  self->logger->debug("Running task {} in {}", reinterpret_cast<void*>(&etask->task), delta);
+  self->logger->debug("Queueing task {}", reinterpret_cast<void*>(&etask->task));
 
   uv_timer_init(self->context->getLoop(), &etask->handle);
-  uv_timer_start(&etask->handle, EngineTask::callback, delta, 0);
+  uv_timer_start(&etask->handle, EngineTask::callback, 0, 0);
 }
 
 void Engine::log_message_callback(const char* tag, const char* message, void* data) {
