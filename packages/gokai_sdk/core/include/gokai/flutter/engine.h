@@ -19,6 +19,7 @@ namespace Gokai {
         std::shared_ptr<Gokai::Context> getContext();
         FlutterEngine getValue();
         void resize(glm::uvec2 size);
+        uv_pid_t getPid();
       private:
         xg::Guid id;
         FlutterProjectArgs args;

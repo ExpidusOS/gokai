@@ -16,7 +16,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final methodChannel = MethodChannel('Gokai::Services::EngineManager');
+  static const methodChannel = MethodChannel('Gokai::Services::EngineManager', JSONMethodCodec());
   String _engineId = 'Unknown';
 
   @override

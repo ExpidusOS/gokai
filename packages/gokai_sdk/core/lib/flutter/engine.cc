@@ -116,8 +116,8 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
   this->args.log_tag = strdup(fmt::format("{}#{}", TAG, this->id.str()).c_str());
   this->args.log_message_callback = Engine::log_message_callback;
   this->args.platform_message_callback = Engine::platform_message_callback;
-  // FIXME: [FATAL:flutter/fml/memory/weak_ptr.h(109)] Check failed: (checker_.checker).IsCreationThreadCurrent().
-  // this->args.custom_task_runners = &this->runners;
+  // NOTE: https://github.com/flutter/flutter/issues/129533
+  this->args.custom_task_runners = &this->runners;
 
   if (FlutterEngineRunsAOTCompiledDartCode()) {
     FlutterEngineAOTDataSource src = {
@@ -211,4 +211,8 @@ void Engine::resize(glm::uvec2 size) {
       this->id.str()
     ));
   }
+}
+
+uv_pid_t Engine::getPid() {
+  return this->pid;
 }
