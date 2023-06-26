@@ -10,6 +10,7 @@ libgokai_core_src = [
   'lib/flutter/codecs/json.cc',
   'lib/flutter/engine.cc',
   'lib/flutter/message-codec.cc',
+  'lib/flutter/method-channel.cc',
   'lib/flutter/method-codec.cc',
   'lib/graphics/rendering/cairo/renderer.cc',
   'lib/graphics/rendering/egl/renderer.cc',
