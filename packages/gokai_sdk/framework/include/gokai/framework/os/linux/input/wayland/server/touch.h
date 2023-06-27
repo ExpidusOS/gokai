@@ -23,11 +23,7 @@ namespace Gokai {
                 public:
                   Touch(Gokai::ObjectArguments arguments);
 
-                  struct wlr_seat* getSeat() override;
-
                   struct wlr_touch* getTouchValue();
-                private:
-                  struct wlr_seat* seat;
               };
             }
           }

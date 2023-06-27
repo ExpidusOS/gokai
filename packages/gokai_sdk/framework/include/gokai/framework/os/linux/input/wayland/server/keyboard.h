@@ -22,8 +22,8 @@ namespace Gokai {
               class Keyboard : public Base, public Gokai::Input::Keyboard {
                 public:
                   Keyboard(Gokai::ObjectArguments arguments);
+                  ~Keyboard();
 
-                  struct wlr_seat* getSeat() override;
                   struct wlr_keyboard* getKeyboardValue();
                 private:
                   struct wlr_seat* seat;

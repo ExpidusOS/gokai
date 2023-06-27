@@ -25,12 +25,9 @@ namespace Gokai {
                   Pointer(Gokai::ObjectArguments arguments);
                   ~Pointer();
 
-                  struct wlr_seat* getSeat() override;
-
                   struct wlr_pointer* getPointerValue();
                   struct wlr_cursor* getCursor();
                 private:
-                  struct wlr_seat* seat;
                   struct wlr_cursor* cursor;
               };
             }

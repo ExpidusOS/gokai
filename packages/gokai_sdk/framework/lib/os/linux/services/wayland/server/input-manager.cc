@@ -68,6 +68,8 @@ void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
 InputManager::InputManager(Gokai::ObjectArguments arguments) : Gokai::Services::InputManager(arguments) {
   auto compositor = reinterpret_cast<Compositor*>(this->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
 
+  this->seat = wlr_seat_create(compositor->getDisplay(), "seat0");
+
   this->xcursor_manager = wlr_xcursor_manager_create("left_ptr", 24);
   wlr_xcursor_manager_load(this->xcursor_manager, 1);
 
@@ -77,6 +79,10 @@ InputManager::InputManager(Gokai::ObjectArguments arguments) : Gokai::Services::
 
 struct wlr_xcursor_manager* InputManager::getXcursorManager() {
   return this->xcursor_manager;
+}
+
+struct wlr_seat* InputManager::getSeat() {
+  return this->seat;
 }
 
 std::list<std::string> InputManager::getNames() {

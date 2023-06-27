@@ -1,6 +1,5 @@
 #include <fmt/core.h>
 #include <gokai/framework/os/linux/input/wayland/server/base.h>
-#include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 
 using namespace Gokai::Framework::os::Linux::Input::Wayland::Server;
 
@@ -19,20 +18,6 @@ Base::~Base() {
 
 struct wlr_input_device* Base::getValue() {
   return this->value;
-}
-
-struct wlr_seat* Base::getSeat() {
-  auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(this->context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
-  for (const auto& input_name : input_manager->getNames()) {
-    if (input_name.compare(this->getName()) == 0) continue;
-
-    auto input = input_manager->get(input_name);
-    if (input == nullptr) continue;
-
-    auto seat = static_cast<Base*>(input.get())->getSeat();
-    if (seat != nullptr) return seat;
-  }
-  return nullptr;
 }
 
 std::string Base::getName() {

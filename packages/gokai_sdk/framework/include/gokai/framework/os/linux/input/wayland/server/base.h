@@ -9,7 +9,6 @@ extern "C" {
 #include <wayland-server-core.h>
 #define static
 #include <wlr/types/wlr_input_device.h>
-#include <wlr/types/wlr_seat.h>
 #include <wayland-server.h>
 #undef static
 }
@@ -27,7 +26,6 @@ namespace Gokai {
                   ~Base();
 
                   struct wlr_input_device* getValue();
-                  virtual struct wlr_seat* getSeat();
                   std::string getName() override;
 
                   std::list<std::function<void()>> destroy;
