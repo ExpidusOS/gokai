@@ -1,3 +1,4 @@
+#include <fmt/core.h>
 #include <gokai/framework/os/linux/input/wayland/server/base.h>
 
 using namespace Gokai::Framework::os::Linux::Input::Wayland::Server;
@@ -20,7 +21,7 @@ struct wlr_input_device* Base::getValue() {
 }
 
 std::string Base::getName() {
-  return std::string(this->value->name);
+  return fmt::format("{} ({}:{})", this->value->name, reinterpret_cast<void*>(this->value), this->value->vendor, this->value->product);
 }
 
 void Base::破壊する(struct wl_listener* listener, void* data) {

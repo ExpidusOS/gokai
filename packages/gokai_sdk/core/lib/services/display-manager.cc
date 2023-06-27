@@ -5,7 +5,7 @@
 
 using namespace Gokai::Services;
 
-DisplayManager::DisplayManager(Gokai::ObjectArguments arguments) : Service(arguments), Loggable(TAG, arguments), method_codec(arguments)  {
+DisplayManager::DisplayManager(Gokai::ObjectArguments arguments) : Service(arguments), Loggable(TAG, arguments), method_codec(arguments) {
   this->logger->debug("Service created");
 
   this->service_channel = std::shared_ptr<Gokai::ServiceChannel>(new Gokai::ServiceChannel(Gokai::ObjectArguments({
