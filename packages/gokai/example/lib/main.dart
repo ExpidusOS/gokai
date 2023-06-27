@@ -18,20 +18,33 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   static const displayManager = MethodChannel('Gokai::Services::DisplayManager', JSONMethodCodec());
   static const engineManager = MethodChannel('Gokai::Services::EngineManager', JSONMethodCodec());
+  static const inputManager = MethodChannel('Gokai::Services::InputManager', JSONMethodCodec());
 
   late Future<List<String>?> _displayNamesFuture;
+  late Future<List<String>?> _inputNamesFuture;
 
   @override
   void initState() {
     super.initState();
 
     _displayNamesFuture = displayManager.invokeListMethod<String>('getNames');
+    _inputNamesFuture = inputManager.invokeListMethod<String>('getNames');
 
     displayManager.setMethodCallHandler((call) async {
       switch (call.method) {
         case "changed":
           setState(() {
             _displayNamesFuture = displayManager.invokeListMethod<String>('getNames');
+          });
+          break;
+      }
+    });
+
+    inputManager.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case "changed":
+          setState(() {
+            _inputNamesFuture = inputManager.invokeListMethod<String>('getNames');
           });
           break;
       }
@@ -72,6 +85,22 @@ class _MyAppState extends State<MyApp> {
 
                   if (snapshot.hasError) {
                     return Text('Failed to get displays: ${snapshot.error!.toString()}');
+                  }
+
+                  return const Text('');
+                },
+              ),
+              FutureBuilder(
+                future: _inputNamesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(
+                      'Inputs: ${snapshot.data!.join(', ')}'
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Text('Failed to get inputs: ${snapshot.error!.toString()}');
                   }
 
                   return const Text('');
