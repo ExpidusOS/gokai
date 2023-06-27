@@ -16,6 +16,8 @@ namespace Gokai {
         virtual std::list<std::string> getNames();
         virtual std::shared_ptr<Gokai::Input::Base> get(std::string name);
 
+        std::list<std::function<void()>> changed;
+
         static const std::string SERVICE_NAME;
     };
   }
