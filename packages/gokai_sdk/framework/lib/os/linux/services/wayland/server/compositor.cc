@@ -119,6 +119,10 @@ void Compositor::start() {
   }
 }
 
+struct wl_display* Compositor::getDisplay() {
+  return this->display;
+}
+
 struct wlr_backend* Compositor::getBackend() {
   return this->backend;
 }

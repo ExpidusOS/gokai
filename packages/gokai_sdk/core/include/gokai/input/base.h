@@ -1,7 +1,9 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <gokai/context.h>
 #include <gokai/object.h>
+#include <memory>
 
 namespace Gokai {
   namespace Input {
@@ -10,6 +12,8 @@ namespace Gokai {
         Base(Gokai::ObjectArguments arguments);
 
         virtual std::string getName();
+      protected:
+        std::shared_ptr<Gokai::Context> context;
     };
   }
 }

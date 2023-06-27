@@ -23,7 +23,10 @@ namespace Gokai {
                 public:
                   Keyboard(Gokai::ObjectArguments arguments);
 
+                  struct wlr_seat* getSeat() override;
                   struct wlr_keyboard* getKeyboardValue();
+                private:
+                  struct wlr_seat* seat;
               };
             }
           }

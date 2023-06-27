@@ -29,6 +29,7 @@ namespace Gokai {
                   ~Compositor();
 
                   void start();
+                  struct wl_display* getDisplay();
                   struct wlr_backend* getBackend();
                   struct wlr_renderer* getRenderer();
                   struct wlr_allocator* getAllocator();

@@ -7,6 +7,7 @@
 extern "C" {
 #include <wayland-server-core.h>
 #define static
+#include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_pointer.h>
 #include <wayland-server.h>
 #undef static
@@ -22,8 +23,15 @@ namespace Gokai {
               class Pointer : public Base, public Gokai::Input::Pointer {
                 public:
                   Pointer(Gokai::ObjectArguments arguments);
+                  ~Pointer();
+
+                  struct wlr_seat* getSeat() override;
 
                   struct wlr_pointer* getPointerValue();
+                  struct wlr_cursor* getCursor();
+                private:
+                  struct wlr_seat* seat;
+                  struct wlr_cursor* cursor;
               };
             }
           }
