@@ -75,7 +75,7 @@ std::promise<std::any> MethodChannel::invokeMethod(std::string name, std::any ar
   std::promise<std::any> promise;
 
   InvokeMethodData data = {
-    .promise = &promise,
+    .promise = std::move(&promise),
     .codec = this->codec,
   };
 

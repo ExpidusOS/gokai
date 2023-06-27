@@ -41,7 +41,7 @@ static std::any jsonvalue2any(Json::Value value) {
 }
 
 static Json::Value any2jsonvalue(std::any value) {
-  if (value.type() == typeid(void*)) {
+  if (value.type() == typeid(void*) || value.type() == typeid(void)) {
     return Json::Value();
   } else if (value.type() == typeid(bool)) {
     return Json::Value(std::any_cast<bool>(value));

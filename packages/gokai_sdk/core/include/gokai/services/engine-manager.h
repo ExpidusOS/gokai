@@ -7,6 +7,7 @@
 #include <gokai/context.h>
 #include <gokai/logging.h>
 #include <gokai/service.h>
+#include <future>
 
 namespace Gokai {
   namespace Services {
@@ -22,6 +23,7 @@ namespace Gokai {
 
         std::list<xg::Guid> getIds();
         std::shared_ptr<Gokai::Flutter::Engine> get(xg::Guid id);
+        std::map<xg::Guid, std::promise<std::vector<uint8_t>*>> sendAll(std::string channel, std::vector<uint8_t> data);
 
         static const std::string SERVICE_NAME;
       private:

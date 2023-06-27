@@ -66,4 +66,12 @@ std::shared_ptr<Gokai::Flutter::Engine> EngineManager::get(xg::Guid id) {
   return std::shared_ptr<Gokai::Flutter::Engine>(find->second);
 }
 
+std::map<xg::Guid, std::promise<std::vector<uint8_t>*>> EngineManager::sendAll(std::string channel, std::vector<uint8_t> data) {
+  std::map<xg::Guid, std::promise<std::vector<uint8_t>*>> value;
+  for (const auto& entry : this->engines) {
+    value[entry.first] = entry.second->send(channel, data);
+  }
+  return value;
+}
+
 const std::string EngineManager::SERVICE_NAME = "EngineManager";

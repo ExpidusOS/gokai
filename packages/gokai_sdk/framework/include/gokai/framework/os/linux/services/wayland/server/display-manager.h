@@ -23,6 +23,7 @@ namespace Gokai {
                   DisplayManager(Gokai::ObjectArguments arguments);
 
                   struct wlr_output_layout* getLayout();
+                  std::list<std::string> getNames() override;
                 private:
                   static void handle_display_new(struct wl_listener* listener, void* data);
 

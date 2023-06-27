@@ -8,6 +8,17 @@
 
 using namespace Gokai::Flutter;
 
+static void receive(const uint8_t* data, size_t size, void* user_data) {
+  // FIXME: std::future_error: Promise already satisfied
+  auto promise = reinterpret_cast<std::promise<std::vector<uint8_t>*>*>(user_data);
+  if (data == nullptr || size == 0) {
+    //promise->set_value(new std::vector<uint8_t>());
+    return;
+  }
+
+  //promise->set_value(new std::vector<uint8_t>(data, data + size));
+}
+
 void EngineTask::callback(uv_timer_t* handle) {
   EngineTask* self = reinterpret_cast<EngineTask*>((char*)(handle) - offsetof(EngineTask, handle));
 
@@ -17,6 +28,7 @@ void EngineTask::callback(uv_timer_t* handle) {
     self->engine->logger->error("Failed to run task: {}", result);
   }
 
+  self->engine->tasks.remove(self);
   uv_timer_stop(&self->handle);
   delete self;
 }
@@ -28,6 +40,10 @@ bool Engine::runs_task_on_current_thread_callback(void* data) {
 
 void Engine::post_task_callback(FlutterTask task, uint64_t target_time, void* data) {
   Engine* self = reinterpret_cast<Engine*>(data);
+  if (self->shutdown) {
+    self->logger->warn("Engine is in shutdown phase");
+    return;
+  }
 
   auto etask = new EngineTask();
   etask->engine = self;
@@ -35,6 +51,7 @@ void Engine::post_task_callback(FlutterTask task, uint64_t target_time, void* da
   etask->handle = {};
 
   self->logger->debug("Queueing task {}", reinterpret_cast<void*>(&etask->task));
+  self->tasks.push_back(etask);
 
   uv_timer_init(self->context->getLoop(), &etask->handle);
   uv_timer_start(&etask->handle, EngineTask::callback, 0, 0);
@@ -100,7 +117,7 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
   }
 }
 
-Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, arguments), pid{uv_os_getpid()} {
+Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, arguments), pid{uv_os_getpid()}, shutdown{false} {
   if (arguments.has("id")) {
     this->id = std::any_cast<xg::Guid>(arguments.get("id"));
   } else {
@@ -187,8 +204,47 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
 }
 
 Engine::~Engine() {
-  this->logger->debug("Shutting down engine {}", this->id.str());
-  FlutterEngineShutdown(this->value);
+  this->shutdown = true;
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+  if (!this->tasks.empty()) {
+    this->logger->warn("Waiting for engine {} to clear up tasks before shutting down", this->id.str());
+    std::thread([this]() {
+      while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        if (this->tasks.empty()) break;
+      }
+
+      this->logger->debug("Shutting down engine {}", this->id.str());
+      FlutterEngineShutdown(this->value);
+    }).detach();
+  } else {
+    this->logger->debug("Shutting down engine {}", this->id.str());
+    FlutterEngineShutdown(this->value);
+  }
+}
+
+std::promise<std::vector<uint8_t>*> Engine::send(std::string channel, std::vector<uint8_t> data) {
+  std::promise<std::vector<uint8_t>*> promise;
+
+  FlutterPlatformMessageResponseHandle* handle = nullptr;
+  auto result = FlutterPlatformMessageCreateResponseHandle(this->value, receive, std::move(&promise), &handle);
+  if (result != kSuccess) {
+    throw std::runtime_error("Failed to create response handle");
+  }
+
+  FlutterPlatformMessage message = {};
+  message.struct_size = sizeof (FlutterPlatformMessage);
+  message.channel = channel.c_str();
+  message.message = data.data();
+  message.message_size = data.size();
+  message.response_handle = handle;
+
+  result = FlutterEngineSendPlatformMessage(this->value, &message);
+  if (result != kSuccess) {
+    throw std::runtime_error("Failed to send platform message");
+  }
+  return promise;
 }
 
 xg::Guid Engine::getId() {

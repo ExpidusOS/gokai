@@ -5,16 +5,31 @@
 #include <gokai/graphics/renderer.h>
 #include <gokai/context.h>
 #include <gokai/logging.h>
+#include <atomic>
 #include <flutter_embedder.h>
+#include <future>
+#include <mutex>
 
 namespace Gokai {
   namespace Flutter {
+    class Engine;
+    struct EngineTask {
+      Engine* engine;
+      FlutterTask task;
+      uv_timer_t handle;
+
+      static void callback(uv_timer_t* handle);
+    };
+
     class Engine : public Gokai::Loggable {
       public:
         Engine(Gokai::ObjectArguments arguments);
         ~Engine();
 
         std::map<std::string, std::list<std::function<std::vector<uint8_t>(std::vector<uint8_t>)>>> method_channel_handlers;
+        std::list<EngineTask*> tasks;
+
+        std::promise<std::vector<uint8_t>*> send(std::string channel, std::vector<uint8_t> data);
 
         xg::Guid getId();
         Gokai::Graphics::Renderer* getRenderer();
@@ -23,6 +38,7 @@ namespace Gokai {
         void resize(glm::uvec2 size);
         uv_pid_t getPid();
       private:
+        bool shutdown;
         xg::Guid id;
         FlutterProjectArgs args;
         FlutterEngine value;
@@ -37,14 +53,6 @@ namespace Gokai {
         static void post_task_callback(FlutterTask task, uint64_t target_time, void* data);
         static void log_message_callback(const char* tag, const char* message, void* data);
         static void platform_message_callback(const FlutterPlatformMessage* message, void* data);
-    };
-
-    struct EngineTask {
-      Engine* engine;
-      FlutterTask task;
-      uv_timer_t handle;
-
-      static void callback(uv_timer_t* handle);
     };
   }
 }
