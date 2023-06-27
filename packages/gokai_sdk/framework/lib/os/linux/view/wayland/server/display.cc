@@ -1,4 +1,5 @@
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
+#include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/view/wayland/server/display.h>
 #include <gokai/services/engine-manager.h>
 #include <gokai/view/cairo/image.h>
@@ -63,6 +64,60 @@ Display::~Display() {
   engine_manager->destroy(this->engine->getId());
 
   this->logger->debug("Display {} destroyed", reinterpret_cast<void*>(this->value));
+}
+
+std::string Display::getName() {
+  return std::string(this->value->name);
+}
+
+std::string Display::getModel() {
+  return std::string(this->value->model);
+}
+
+bool Display::isHDR() {
+  return false;
+}
+
+glm::uvec2 Display::getPhysicalSize() {
+  return glm::uvec2(this->value->phys_width, this->value->phys_height);
+}
+
+std::list<Gokai::View::DisplayMode> Display::getModes() {
+  std::list<Gokai::View::DisplayMode> list;
+  auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(this->context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+
+  double x;
+  double y;
+  wlr_output_layout_output_coords(display_manager->getLayout(), this->value, &x, &y);
+  glm::uvec2 pos(x * 1, y * 1);
+
+  struct wlr_output_mode* mode;
+  wl_list_for_each(mode, &this->value->modes, link) {
+    auto value = Gokai::View::DisplayMode();
+    value.resolution = Gokai::View::URect(
+      pos,
+      glm::uvec2(mode->width, mode->height)
+    );
+    value.refresh = mode->refresh / 1000;
+
+    list.push_back(value);
+  }
+  return list;
+}
+
+void Display::setMode(Gokai::View::DisplayMode mode) {
+  auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(this->context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+  wlr_output_set_custom_mode(this->value, mode.resolution.size.x, mode.resolution.size.y, mode.refresh * 1000);
+
+  if (!wlr_output_test(this->value)) {
+    throw std::runtime_error("Mode failed test");
+  }
+
+  if (!wlr_output_commit(this->value)) {
+    throw std::runtime_error("Failed to commit");
+  }
+
+  wlr_output_layout_move(display_manager->getLayout(), this->value, mode.resolution.pos.x, mode.resolution.pos.y);
 }
 
 void Display::mode(struct wl_listener* listener, void* data) {

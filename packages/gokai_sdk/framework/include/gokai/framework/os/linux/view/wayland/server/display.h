@@ -30,6 +30,13 @@ namespace Gokai {
                   Display(Gokai::ObjectArguments arguments);
                   ~Display();
 
+                  std::string getName() override;
+                  std::string getModel() override;
+                  bool isHDR() override;
+                  glm::uvec2 getPhysicalSize() override;
+                  std::list<Gokai::View::DisplayMode> getModes() override;
+                  void setMode(Gokai::View::DisplayMode mode) override;
+
                   std::list<std::function<void()>> destroy;
                 private:
                   std::shared_ptr<Gokai::Flutter::Engine> engine;

@@ -21,6 +21,8 @@ namespace Gokai {
               class DisplayManager : public Gokai::Services::DisplayManager {
                 public:
                   DisplayManager(Gokai::ObjectArguments arguments);
+
+                  struct wlr_output_layout* getLayout();
                 private:
                   static void handle_display_new(struct wl_listener* listener, void* data);
 
