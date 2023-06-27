@@ -16,19 +16,25 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const methodChannel = MethodChannel('Gokai::Services::EngineManager', JSONMethodCodec());
-  String _engineId = 'Unknown';
+  static const displayManager = MethodChannel('Gokai::Services::DisplayManager', JSONMethodCodec());
+  static const engineManager = MethodChannel('Gokai::Services::EngineManager', JSONMethodCodec());
+
+  late Future<List<String>?> _displayNamesFuture;
 
   @override
   void initState() {
     super.initState();
-    initEngineId();
-  }
 
-  Future<void> initEngineId() async {
-    String value = await methodChannel.invokeMethod('getEngineId');
-    setState(() {
-      _engineId = value;
+    _displayNamesFuture = displayManager.invokeListMethod<String>('getNames');
+
+    displayManager.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case "changed":
+          setState(() {
+            _displayNamesFuture = displayManager.invokeListMethod<String>('getNames');
+          });
+          break;
+      }
     });
   }
 
@@ -37,10 +43,42 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Gokai Example'),
         ),
         body: Center(
-          child: Text('Engine ID: $_engineId'),
+          child: Column(
+            children: [
+              FutureBuilder(
+                future: engineManager.invokeMethod<String>('getEngineId'),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text('Engine ID: ${snapshot.data!}');
+                  }
+
+                  if (snapshot.hasError) {
+                    return Text('Failed to get engine ID: ${snapshot.error!.toString()}');
+                  }
+                  return const Text('Engine ID: Unknown');
+                },
+              ),
+              FutureBuilder(
+                future: _displayNamesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(
+                      'Displays: ${snapshot.data!.join(', ')}'
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Text('Failed to get displays: ${snapshot.error!.toString()}');
+                  }
+
+                  return const Text('');
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
