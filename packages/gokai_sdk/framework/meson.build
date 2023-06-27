@@ -5,8 +5,12 @@ libgokai_framework_cppflags = []
 
 if target_machine.system() == 'linux'
   libgokai_framework_src += [
+    'lib/os/linux/input/wayland/server/base.cc',
+    'lib/os/linux/input/wayland/server/keyboard.cc',
+    'lib/os/linux/input/wayland/server/pointer.cc',
     'lib/os/linux/services/wayland/server/compositor.cc',
     'lib/os/linux/services/wayland/server/display-manager.cc',
+    'lib/os/linux/services/wayland/server/input-manager.cc',
     'lib/os/linux/services/wayland/server/window-manager.cc',
     'lib/os/linux/services/package-manager.cc',
     'lib/os/linux/view/wayland/server/display.cc',
@@ -22,6 +26,7 @@ if target_machine.system() == 'linux'
     dependency('wlroots'),
     dependency('wayland-server'),
     dependency('libsystemd'),
+    dependency('xkbcommon'),
   ]
 
   libgokai_framework_cppflags += [

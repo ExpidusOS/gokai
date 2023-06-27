@@ -63,6 +63,7 @@
               crossguid
               libuuid
               jsoncpp
+              libxkbcommon
             ];
           };
         };
