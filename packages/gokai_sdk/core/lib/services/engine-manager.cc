@@ -57,13 +57,13 @@ std::list<xg::Guid> EngineManager::getIds() {
   return keys;
 }
 
-std::shared_ptr<Gokai::Flutter::Engine> EngineManager::get(xg::Guid id) {
+Gokai::Flutter::Engine* EngineManager::get(xg::Guid id) {
   auto find = this->engines.find(id);
   if (find == this->engines.end()) {
     throw std::invalid_argument("Engines " + id.str() + " does not exist");
   }
 
-  return std::shared_ptr<Gokai::Flutter::Engine>(find->second);
+  return find->second;
 }
 
 std::map<xg::Guid, std::promise<std::vector<uint8_t>*>> EngineManager::sendAll(std::string channel, std::vector<uint8_t> data) {

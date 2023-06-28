@@ -29,6 +29,8 @@ namespace Gokai {
                   std::string getName() override;
 
                   std::list<std::function<void()>> destroy;
+                protected:
+                  int32_t id;
                 private:
                   struct wlr_input_device* value;
                   struct wl_listener destroy_listener;

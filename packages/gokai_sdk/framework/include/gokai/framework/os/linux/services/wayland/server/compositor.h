@@ -11,6 +11,9 @@ extern "C" {
 #include <wlr/render/pixman.h>
 #include <wlr/render/vulkan.h>
 #include <wlr/render/wlr_renderer.h>
+#include <wlr/types/wlr_compositor.h>
+#include <wlr/types/wlr_data_device.h>
+#include <wlr/types/wlr_subcompositor.h>
 #include <wlr/util/log.h>
 #include <wayland-server.h>
 #undef static
@@ -41,6 +44,7 @@ namespace Gokai {
                   struct wlr_renderer* renderer;
                   struct wlr_allocator* allocator;
                   uv_poll_t event_poll;
+                  const char* socket;
               };
             }
           }

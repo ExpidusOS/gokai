@@ -7,6 +7,8 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
   DisplayManager* self = wl_container_of(listener, self, display_new);
   auto value = reinterpret_cast<struct wlr_output*>(data);
 
+  if (value->non_desktop) return;
+
   auto compositor = reinterpret_cast<Compositor*>(self->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
 
   wlr_output_init_render(value, compositor->getAllocator(), compositor->getRenderer());

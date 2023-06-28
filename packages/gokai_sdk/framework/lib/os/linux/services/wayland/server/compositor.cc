@@ -68,7 +68,8 @@ void Compositor::poll_event_handle(uv_poll_t* event_poll, int status, int events
   Compositor* self = wl_container_of(event_poll, self, event_poll);
 
   auto event_loop = wl_display_get_event_loop(self->display);
-  wl_event_loop_dispatch(event_loop, 0);
+  wl_display_flush_clients(self->display);
+  wl_event_loop_dispatch(event_loop, -1);
 }
 
 Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Compositor(arguments) {
@@ -102,10 +103,17 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
 
   this->allocator = wlr_allocator_autocreate(this->backend, this->renderer);
 
+  wlr_compositor_create(this->display, this->renderer);
+  wlr_subcompositor_create(this->display);
+  wlr_data_device_manager_create(this->display);
+
   this->logger->debug("Attaching Wayland Event loop to context event loop");
   auto event_loop = wl_display_get_event_loop(this->display);
   uv_poll_init(this->context->getLoop(), &this->event_poll, wl_event_loop_get_fd(event_loop));
-  uv_poll_start(&this->event_poll, UV_READABLE, Compositor::poll_event_handle);
+  uv_poll_start(&this->event_poll, UV_READABLE | UV_WRITABLE, Compositor::poll_event_handle);
+
+  this->socket = wl_display_add_socket_auto(this->display);
+  this->logger->info("Wayland is running on display \"{}\"", this->socket);
 }
 
 Compositor::~Compositor() {

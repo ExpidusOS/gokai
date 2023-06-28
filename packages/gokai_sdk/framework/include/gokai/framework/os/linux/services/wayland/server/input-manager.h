@@ -33,11 +33,13 @@ namespace Gokai {
                   std::shared_ptr<Gokai::Input::Base> get(std::string name) override;
                 private:
                   static void handle_input_new(struct wl_listener* listener, void* data);
+                  static void handle_cursor_request(struct wl_listener* listener, void* data);
 
                   struct wlr_xcursor_manager* xcursor_manager;
                   struct wlr_seat* seat;
 
                   struct wl_listener input_new;
+                  struct wl_listener cursor_request;
                   std::list<Gokai::Framework::os::Linux::Input::Wayland::Server::Base*> inputs;
               };
             }

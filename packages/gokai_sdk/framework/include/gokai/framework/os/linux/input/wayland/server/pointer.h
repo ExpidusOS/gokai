@@ -29,6 +29,13 @@ namespace Gokai {
                   struct wlr_cursor* getCursor();
                 private:
                   struct wlr_cursor* cursor;
+                  struct wl_listener button_listener;
+                  struct wl_listener cursor_axis_listener;
+                  struct wl_listener cursor_frame_listener;
+
+                  static void button_handle(struct wl_listener* listener, void* data);
+                  static void cursor_axis_handle(struct wl_listener* listener, void* data);
+                  static void cursor_frame_handle(struct wl_listener* listener, void* data);
               };
             }
           }

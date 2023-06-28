@@ -65,16 +65,30 @@ void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
   for (auto func : self->changed) func();
 }
 
+void InputManager::handle_cursor_request(struct wl_listener* listener, void* data) {
+  InputManager* self = wl_container_of(listener, self, cursor_request);
+  auto event = reinterpret_cast<struct wlr_seat_pointer_request_set_cursor_event*>(data);
+
+  for (const auto& input : self->inputs) {
+    auto pointer = dynamic_cast<Gokai::Framework::os::Linux::Input::Wayland::Server::Pointer*>(input);
+    if (pointer == nullptr) continue;
+
+    wlr_cursor_set_surface(pointer->getCursor(), event->surface, event->hotspot_x, event->hotspot_y);
+  }
+}
+
 InputManager::InputManager(Gokai::ObjectArguments arguments) : Gokai::Services::InputManager(arguments) {
   auto compositor = reinterpret_cast<Compositor*>(this->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
 
-  this->seat = wlr_seat_create(compositor->getDisplay(), "seat0");
+  this->seat = wlr_seat_create(compositor->getDisplay(), "default");
+  this->cursor_request.notify = InputManager::handle_cursor_request;
+  wl_signal_add(&this->seat->events.request_set_cursor, &this->cursor_request);
 
-  this->xcursor_manager = wlr_xcursor_manager_create("left_ptr", 24);
+  this->xcursor_manager = wlr_xcursor_manager_create("default", 24);
   wlr_xcursor_manager_load(this->xcursor_manager, 1);
 
-  wl_signal_add(&compositor->getBackend()->events.new_input, &this->input_new);
   this->input_new.notify = InputManager::handle_input_new;
+  wl_signal_add(&compositor->getBackend()->events.new_input, &this->input_new);
 }
 
 struct wlr_xcursor_manager* InputManager::getXcursorManager() {
