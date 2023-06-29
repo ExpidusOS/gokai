@@ -8,8 +8,11 @@
 
 using namespace Gokai::Flutter;
 
+bool TaskRunnerComp::operator()(const EngineTask& a, const EngineTask& b) const {
+  return a.first > b.first;
+}
+
 static void receive(const uint8_t* data, size_t size, void* user_data) {
-  // FIXME: std::future_error: Promise already satisfied
   auto promise = reinterpret_cast<std::promise<std::vector<uint8_t>>*>(user_data);
   if (data == nullptr || size == 0) {
     promise->set_value(std::vector<uint8_t>());
@@ -17,20 +20,6 @@ static void receive(const uint8_t* data, size_t size, void* user_data) {
   }
 
   promise->set_value(std::vector<uint8_t>(data, data + size));
-}
-
-void EngineTask::callback(uv_timer_t* handle) {
-  EngineTask* self = reinterpret_cast<EngineTask*>((char*)(handle) - offsetof(EngineTask, handle));
-
-  self->engine->logger->debug("Running task {}", reinterpret_cast<void*>(&self->task));
-  auto result = FlutterEngineRunTask(self->engine->getValue(), &self->task);
-  if (result != kSuccess) {
-    self->engine->logger->error("Failed to run task: {}", result);
-  }
-
-  self->engine->tasks.remove(self);
-  uv_timer_stop(&self->handle);
-  delete self;
 }
 
 bool Engine::runs_task_on_current_thread_callback(void* data) {
@@ -45,20 +34,8 @@ void Engine::post_task_callback(FlutterTask task, uint64_t target_time, void* da
     return;
   }
 
-  auto etask = new EngineTask();
-  etask->engine = self;
-  etask->task = task;
-  etask->handle = {};
-
-  auto current = FlutterEngineGetCurrentTime();
-  auto delta = current > target_time ? current - target_time : target_time - current;
-  auto delta_ms = delta / 1000000UL;
-
-  self->logger->debug("Queueing task {} to run in {}ms", reinterpret_cast<void*>(&etask->task), delta_ms);
-  self->tasks.push_back(etask);
-
-  uv_timer_init(self->context->getLoop(), &etask->handle);
-  uv_timer_start(&etask->handle, EngineTask::callback, delta_ms, 0);
+  self->logger->debug("Queueing task {}", task.task);
+  self->tasks.emplace(target_time, task);
 }
 
 void Engine::log_message_callback(const char* tag, const char* message, void* data) {
@@ -180,6 +157,9 @@ Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, argument
     throw std::runtime_error(fmt::format("Failed to initialize the engine: {}", result));
   }
 
+  uv_timer_init(this->context->getLoop(), &this->event_runner);
+  uv_timer_start(&this->event_runner, Engine::event_callback, 100, 100);
+
   this->logger->debug("Flutter engine {} has initialized", this->id.str());
 
   if ((result = FlutterEngineRunInitialized(this->value)) != kSuccess) {
@@ -218,6 +198,8 @@ Engine::~Engine() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         if (this->tasks.empty()) break;
       }
+
+      uv_timer_stop(&this->event_runner);
 
       this->logger->debug("Shutting down engine {}", this->id.str());
       FlutterEngineShutdown(this->value);
@@ -292,4 +274,16 @@ void Engine::resize(glm::uvec2 size) {
 
 std::thread::id Engine::getThreadId() {
   return this->thread_id;
+}
+
+void Engine::event_callback(uv_timer_t* event_runner) {
+  Engine* self = reinterpret_cast<Engine*>((char*)(event_runner) - offsetof(Engine, event_runner));
+  if (self->tasks.empty()) return;
+
+  while (not self->tasks.empty() and FlutterEngineGetCurrentTime() >= self->tasks.top().first) {
+    auto task = self->tasks.top();
+    self->tasks.pop();
+    self->logger->debug("Executing task {}", task.second.task);
+    FlutterEngineRunTask(self->getValue(), &task.second);
+  }
 }

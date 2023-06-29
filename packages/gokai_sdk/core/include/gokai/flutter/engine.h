@@ -10,16 +10,14 @@
 #include <future>
 #include <mutex>
 #include <thread>
+#include <queue>
 
 namespace Gokai {
   namespace Flutter {
-    class Engine;
-    struct EngineTask {
-      Engine* engine;
-      FlutterTask task;
-      uv_timer_t handle;
+    using EngineTask = std::pair<uint64_t, FlutterTask>;
 
-      static void callback(uv_timer_t* handle);
+    struct TaskRunnerComp {
+      bool operator()(const EngineTask& a, const EngineTask& b) const;
     };
 
     class Engine : public Gokai::Loggable {
@@ -28,10 +26,8 @@ namespace Gokai {
         ~Engine();
 
         std::map<std::string, std::list<std::function<std::vector<uint8_t>(std::vector<uint8_t>)>>> method_channel_handlers;
-        std::list<EngineTask*> tasks;
 
         std::future<std::vector<uint8_t>> send(std::string channel, std::vector<uint8_t> data);
-
         xg::Guid getId();
         Gokai::Graphics::Renderer* getRenderer();
         std::shared_ptr<Gokai::Context> getContext();
@@ -46,6 +42,8 @@ namespace Gokai {
         FlutterCustomTaskRunners runners;
         FlutterTaskRunnerDescription runner_task;
         std::thread::id thread_id;
+        uv_timer_t event_runner;
+        std::priority_queue<EngineTask, std::vector<EngineTask>, TaskRunnerComp> tasks;
 
         Gokai::Graphics::Renderer* renderer;
         std::shared_ptr<Gokai::Context> context;
@@ -54,6 +52,7 @@ namespace Gokai {
         static void post_task_callback(FlutterTask task, uint64_t target_time, void* data);
         static void log_message_callback(const char* tag, const char* message, void* data);
         static void platform_message_callback(const FlutterPlatformMessage* message, void* data);
+        static void event_callback(uv_timer_t* event_runner);
     };
   }
 }
