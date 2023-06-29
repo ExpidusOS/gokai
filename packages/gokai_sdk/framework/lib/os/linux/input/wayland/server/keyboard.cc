@@ -92,11 +92,15 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
   future.wait();
 
   try {
-    auto response = codec.decodeMessage(future.get());
-    self->logger->debug("{}", response.type().name());
-    // TODO: wait for promise and check if "handled" is true
+    auto response = std::any_cast<std::map<std::string, std::any>>(codec.decodeMessage(future.get()));
+    auto handled = std::any_cast<bool>(response["handled"]);
+
+    if (!handled) {
+      wlr_seat_keyboard_notify_key(seat, event->time_msec, event->keycode, event->state);
+    }
   } catch (const std::exception& ex) {
     self->logger->error("Failed to read response: {}", ex.what());
+    wlr_seat_keyboard_notify_key(seat, event->time_msec, event->keycode, event->state);
   }
 }
 
