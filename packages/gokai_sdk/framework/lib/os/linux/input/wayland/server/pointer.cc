@@ -110,10 +110,10 @@ void Pointer::button_handle(struct wl_listener* listener, void* data) {
   ev.y = self->cursor->y;
 
   if (event->state == WLR_BUTTON_RELEASED) {
-    self->buttons.insert(event->button);
+    self->buttons.erase(event->button);
     ev.phase = self->buttons.empty() ? kUp : kMove;
   } else {
-    self->buttons.erase(event->button);
+    self->buttons.insert(event->button);
     ev.phase = self->buttons.empty() ? kDown : kMove;
   }
 
