@@ -106,6 +106,12 @@ class _MyAppState extends State<MyApp> {
                   return const Text('');
                 },
               ),
+              TextButton(
+                onPressed: () {
+                  print('Hello, world');
+                },
+                child: const Text('Test Log'),
+              ),
             ],
           ),
         ),

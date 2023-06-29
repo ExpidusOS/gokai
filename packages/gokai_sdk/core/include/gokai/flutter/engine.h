@@ -9,6 +9,7 @@
 #include <flutter_embedder.h>
 #include <future>
 #include <mutex>
+#include <thread>
 
 namespace Gokai {
   namespace Flutter {
@@ -36,7 +37,7 @@ namespace Gokai {
         std::shared_ptr<Gokai::Context> getContext();
         FlutterEngine getValue();
         void resize(glm::uvec2 size);
-        uv_pid_t getPid();
+        std::thread::id getThreadId();
       private:
         bool shutdown;
         xg::Guid id;
@@ -44,7 +45,7 @@ namespace Gokai {
         FlutterEngine value;
         FlutterCustomTaskRunners runners;
         FlutterTaskRunnerDescription runner_task;
-        uv_pid_t pid;
+        std::thread::id thread_id;
 
         Gokai::Graphics::Renderer* renderer;
         std::shared_ptr<Gokai::Context> context;

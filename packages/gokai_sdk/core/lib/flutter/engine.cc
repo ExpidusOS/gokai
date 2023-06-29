@@ -35,7 +35,7 @@ void EngineTask::callback(uv_timer_t* handle) {
 
 bool Engine::runs_task_on_current_thread_callback(void* data) {
   Engine* self = reinterpret_cast<Engine*>(data);
-  return self->pid == uv_os_getpid();
+  return self->thread_id == std::this_thread::get_id();
 }
 
 void Engine::post_task_callback(FlutterTask task, uint64_t target_time, void* data) {
@@ -117,7 +117,7 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
   }
 }
 
-Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, arguments), pid{uv_os_getpid()}, shutdown{false} {
+Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, arguments), thread_id{std::this_thread::get_id()}, shutdown{false} {
   if (arguments.has("id")) {
     this->id = std::any_cast<xg::Guid>(arguments.get("id"));
   } else {
@@ -286,6 +286,6 @@ void Engine::resize(glm::uvec2 size) {
   }
 }
 
-uv_pid_t Engine::getPid() {
-  return this->pid;
+std::thread::id Engine::getThreadId() {
+  return this->thread_id;
 }
