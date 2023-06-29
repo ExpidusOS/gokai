@@ -50,13 +50,15 @@ void Engine::post_task_callback(FlutterTask task, uint64_t target_time, void* da
   etask->task = task;
   etask->handle = {};
 
-  auto delta = FlutterEngineGetCurrentTime() - target_time;
+  auto current = FlutterEngineGetCurrentTime();
+  auto delta = current > target_time ? current - target_time : target_time - current;
+  auto delta_ms = delta / 1000000UL;
 
-  self->logger->debug("Queueing task {} to run in {}ms", reinterpret_cast<void*>(&etask->task), delta / 1000000UL);
+  self->logger->debug("Queueing task {} to run in {}ms", reinterpret_cast<void*>(&etask->task), delta_ms);
   self->tasks.push_back(etask);
 
   uv_timer_init(self->context->getLoop(), &etask->handle);
-  uv_timer_start(&etask->handle, EngineTask::callback, delta / 1000000UL, 0);
+  uv_timer_start(&etask->handle, EngineTask::callback, delta_ms, 0);
 }
 
 void Engine::log_message_callback(const char* tag, const char* message, void* data) {
