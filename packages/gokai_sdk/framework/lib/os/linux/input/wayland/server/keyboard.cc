@@ -1,3 +1,4 @@
+#include <gokai/flutter/codecs/json.h>
 #include <gokai/framework/os/linux/input/wayland/server/keyboard.h>
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
@@ -12,6 +13,7 @@ Keyboard::Keyboard(Gokai::ObjectArguments arguments) : Gokai::Framework::os::Lin
 
   this->context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
   this->keymap = xkb_keymap_new_from_names(this->context, nullptr, XKB_KEYMAP_COMPILE_NO_FLAGS);
+  this->state = xkb_state_new(this->keymap);
 
   wlr_keyboard_set_keymap(keyboard, this->keymap);
   wlr_keyboard_set_repeat_info(keyboard, 25, 300);
@@ -29,6 +31,7 @@ Keyboard::Keyboard(Gokai::ObjectArguments arguments) : Gokai::Framework::os::Lin
 Keyboard::~Keyboard() {
   wl_list_remove(&this->key_listener.link);
 
+  xkb_state_unref(this->state);
   xkb_keymap_unref(this->keymap);
   xkb_context_unref(this->context);
 }
@@ -39,6 +42,7 @@ struct wlr_keyboard* Keyboard::getKeyboardValue() {
 
 void Keyboard::key_handle(struct wl_listener* listener, void* data) {
   Keyboard* self = wl_container_of(listener, self, key_listener);
+  auto event = reinterpret_cast<struct wlr_keyboard_key_event*>(data);
 
   auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
   auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
@@ -55,6 +59,40 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
 
   auto display = display_manager->get(output);
   if (display == nullptr) return;
+
+  xkb_keycode_t scan_code = event->keycode + 8;
+  xkb_keysym_t keysym = xkb_state_key_get_one_sym(self->state, scan_code);
+  auto modifiers = wlr_keyboard_get_modifiers(keyboard);
+
+  auto ev = std::map<std::string, std::any>();
+  ev["keymap"] = "linux";
+  ev["toolkit"] = "gtk";
+  ev["scanCode"] = scan_code;
+  ev["keyCode"] = keysym;
+
+  if (keysym < 128) {
+    ev["specifiedLogicalKey"] = keysym;
+  }
+
+  ev["modifiers"] = modifiers;
+
+  switch (event->state) {
+    case WL_KEYBOARD_KEY_STATE_PRESSED:
+      ev["type"] = "keydown";
+      break;
+    case WL_KEYBOARD_KEY_STATE_RELEASED:
+      ev["type"] = "keyup";
+      break;
+  }
+
+  auto codec = Gokai::Flutter::Codecs::JSONMessageCodec(Gokai::ObjectArguments({}));
+  auto promise = display->getEngine()->send("flutter/keyevent", codec.encodeMessage(ev));
+  auto future = promise.get_future();
+  future.wait();
+
+  auto response = codec.decodeMessage(*future.get());
+  self->logger->debug("{}", response.type().name());
+  // TODO: wait for promise and check if "handled" is true
 }
 
 void Keyboard::modifiers_handle(struct wl_listener* listener, void* data) {

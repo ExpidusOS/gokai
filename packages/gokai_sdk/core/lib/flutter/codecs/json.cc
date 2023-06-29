@@ -57,6 +57,10 @@ static Json::Value any2jsonvalue(std::any value) {
     return Json::Value(std::any_cast<double>(value));
   } else if (value.type() == typeid(std::string)) {
     return Json::Value(std::any_cast<std::string>(value));
+  } else if (value.type() == typeid(char*)) {
+    return Json::Value(std::any_cast<char*>(value));
+  } else if (value.type() == typeid(const char*)) {
+    return Json::Value(std::any_cast<const char*>(value));
   } else if (value.type() == typeid(std::list<std::any>)) {
     auto value_list = std::any_cast<std::list<std::any>>(value);
     Json::Value list;

@@ -29,6 +29,7 @@ namespace Gokai {
                 private:
                   struct xkb_context* context;
                   struct xkb_keymap* keymap;
+                  struct xkb_state* state;
                   struct wlr_seat* seat;
                   struct wl_listener key_listener;
                   struct wl_listener modifiers_listener;
