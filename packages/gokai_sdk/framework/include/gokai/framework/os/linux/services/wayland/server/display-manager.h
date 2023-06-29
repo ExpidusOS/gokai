@@ -24,6 +24,7 @@ namespace Gokai {
 
                   struct wlr_output_layout* getLayout();
                   std::list<std::string> getNames() override;
+                  Gokai::Framework::os::Linux::View::Wayland::Server::Display* get(struct wlr_output* output);
                 private:
                   static void handle_display_new(struct wl_listener* listener, void* data);
 

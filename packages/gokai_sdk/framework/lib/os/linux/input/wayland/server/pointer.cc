@@ -3,6 +3,7 @@
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 #include <gokai/services/engine-manager.h>
+#include <linux/input-event-codes.h>
 
 using namespace Gokai::Framework::os::Linux::Input::Wayland::Server;
 
@@ -30,11 +31,18 @@ Pointer::Pointer(Gokai::ObjectArguments arguments) : Gokai::Framework::os::Linux
   this->cursor_axis_listener.notify = Pointer::cursor_axis_handle;
   wl_signal_add(&this->cursor->events.axis, &this->cursor_axis_listener);
 
+  this->cursor_motion_absolute_listener.notify = Pointer::cursor_motion_absolute_handle;
+  wl_signal_add(&this->cursor->events.motion_absolute, &this->cursor_motion_absolute_listener);
+
+  this->cursor_motion_listener.notify = Pointer::cursor_motion_handle;
+  wl_signal_add(&this->cursor->events.motion, &this->cursor_motion_listener);
+
   FlutterPointerEvent event = {};
   event.struct_size = sizeof (FlutterPointerEvent);
   event.phase = kAdd;
   event.timestamp = FlutterEngineGetCurrentTime();
   event.device = this->id;
+  event.device_kind = kFlutterPointerDeviceKindMouse;
 
   for (const auto& id : engine_manager->getIds()) {
     auto engine = engine_manager->get(id);
@@ -55,6 +63,7 @@ Pointer::~Pointer() {
   event.phase = kRemove;
   event.timestamp = FlutterEngineGetCurrentTime();
   event.device = this->id;
+  event.device_kind = kFlutterPointerDeviceKindMouse;
 
   for (const auto& id : engine_manager->getIds()) {
     auto engine = engine_manager->get(id);
@@ -81,24 +90,174 @@ struct wlr_cursor* Pointer::getCursor() {
 }
 
 void Pointer::button_handle(struct wl_listener* listener, void* data) {
-  Pointer* self = wl_container_of(listener, self, cursor_frame_listener);
+  Pointer* self = wl_container_of(listener, self, button_listener);
   auto event = reinterpret_cast<struct wlr_pointer_button_event*>(data);
+
+  auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+
+  struct wlr_output* output = wlr_output_layout_output_at(display_manager->getLayout(), self->cursor->x, self->cursor->y);
+  if (output == nullptr) return;
+
+  auto display = display_manager->get(output);
+  if (display == nullptr) return;
+
+  FlutterPointerEvent ev = {};
+  ev.struct_size = sizeof (FlutterPointerEvent);
+  ev.timestamp = FlutterEngineGetCurrentTime();
+  ev.device_kind = kFlutterPointerDeviceKindMouse;
+  ev.device = self->id;
+  ev.x = self->cursor->x;
+  ev.y = self->cursor->y;
+
+  if (event->state == WLR_BUTTON_RELEASED) {
+    self->buttons.insert(event->button);
+    ev.phase = self->buttons.empty() ? kUp : kMove;
+  } else {
+    self->buttons.erase(event->button);
+    ev.phase = self->buttons.empty() ? kDown : kMove;
+  }
+
+  ev.buttons = self->getButtons();
+
+  auto result = FlutterEngineSendPointerEvent(display->getEngine()->getValue(), &ev, 1);
+  if (result != kSuccess) {
+    self->logger->warn("Failed to send pointer event");
+  }
 }
 
 void Pointer::cursor_axis_handle(struct wl_listener* listener, void* data) {
-  Pointer* self = wl_container_of(listener, self, cursor_frame_listener);
+  Pointer* self = wl_container_of(listener, self, cursor_axis_listener);
   auto event = reinterpret_cast<struct wlr_pointer_axis_event*>(data);
 
   auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
+  auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+
   wlr_seat_pointer_notify_axis(
     input_manager->getSeat(),
     event->time_msec, event->orientation, event->delta,
     event->delta_discrete, event->source
   );
+
+  struct wlr_output* output = wlr_output_layout_output_at(display_manager->getLayout(), self->cursor->x, self->cursor->y);
+  if (output == nullptr) return;
+
+  auto display = display_manager->get(output);
+  if (display == nullptr) return;
+
+  FlutterPointerEvent ev = {};
+  ev.struct_size = sizeof (FlutterPointerEvent);
+  ev.phase = self->buttons.empty() ? kDown : kMove;
+  ev.timestamp = FlutterEngineGetCurrentTime();
+  ev.device = self->id;
+  ev.device_kind = kFlutterPointerDeviceKindMouse;
+  ev.signal_kind = kFlutterPointerSignalKindScroll;
+  ev.x = self->cursor->x;
+  ev.y = self->cursor->y;
+  ev.buttons = self->getButtons();
+
+  switch (event->orientation) {
+    case WLR_AXIS_ORIENTATION_HORIZONTAL:
+      ev.scroll_delta_x = event->delta;
+      break;
+    case WLR_AXIS_ORIENTATION_VERTICAL:
+      ev.scroll_delta_y = event->delta;
+      break;
+  }
+
+  auto result = FlutterEngineSendPointerEvent(display->getEngine()->getValue(), &ev, 1);
+  if (result != kSuccess) {
+    self->logger->warn("Failed to send pointer event");
+  }
 }
 
 void Pointer::cursor_frame_handle(struct wl_listener* listener, void* data) {
   Pointer* self = wl_container_of(listener, self, cursor_frame_listener);
   auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
   wlr_seat_pointer_notify_frame(input_manager->getSeat());
+}
+
+void Pointer::cursor_motion_absolute_handle(struct wl_listener* listener, void* data) {
+  Pointer* self = wl_container_of(listener, self, cursor_motion_absolute_listener);
+  auto event = reinterpret_cast<struct wlr_pointer_motion_absolute_event*>(data);
+
+  auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+
+  wlr_cursor_warp_absolute(self->cursor, self->getValue(), event->x, event->y);
+
+  struct wlr_output* output = wlr_output_layout_output_at(display_manager->getLayout(), self->cursor->x, self->cursor->y);
+  if (output == nullptr) return;
+
+  auto display = display_manager->get(output);
+  if (display == nullptr) return;
+
+  FlutterPointerEvent ev = {};
+  ev.struct_size = sizeof (FlutterPointerEvent);
+  ev.phase = self->buttons.empty() ? kHover : kMove;
+  ev.timestamp = FlutterEngineGetCurrentTime();
+  ev.device = self->id;
+  ev.device_kind = kFlutterPointerDeviceKindMouse;
+  ev.x = self->cursor->x;
+  ev.y = self->cursor->y;
+  ev.buttons = self->getButtons();
+
+  auto result = FlutterEngineSendPointerEvent(display->getEngine()->getValue(), &ev, 1);
+  if (result != kSuccess) {
+    self->logger->warn("Failed to send pointer event");
+  }
+}
+
+void Pointer::cursor_motion_handle(struct wl_listener* listener, void* data) {
+  Pointer* self = wl_container_of(listener, self, cursor_motion_listener);
+  auto event = reinterpret_cast<struct wlr_pointer_motion_event*>(data);
+
+  auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+
+  wlr_cursor_move(self->cursor, self->getValue(), event->delta_x, event->delta_y);
+
+  struct wlr_output* output = wlr_output_layout_output_at(display_manager->getLayout(), self->cursor->x, self->cursor->y);
+  if (output == nullptr) return;
+
+  auto display = display_manager->get(output);
+  if (display == nullptr) return;
+
+  FlutterPointerEvent ev = {};
+  ev.struct_size = sizeof (FlutterPointerEvent);
+  ev.phase = self->buttons.empty() ? kHover : kMove;
+  ev.timestamp = FlutterEngineGetCurrentTime();
+  ev.device = self->id;
+  ev.device_kind = kFlutterPointerDeviceKindMouse;
+  ev.x = self->cursor->x;
+  ev.y = self->cursor->y;
+  ev.buttons = self->getButtons();
+
+  auto result = FlutterEngineSendPointerEvent(display->getEngine()->getValue(), &ev, 1);
+  if (result != kSuccess) {
+    self->logger->warn("Failed to send pointer event");
+  }
+}
+
+int64_t Pointer::getButtons() {
+  int64_t bitmap = 0;
+  for (auto button : this->buttons) {
+    switch (button) {
+      case BTN_LEFT:
+        bitmap |= kFlutterPointerButtonMousePrimary;
+        break;
+      case BTN_RIGHT:
+        bitmap |= kFlutterPointerButtonMouseSecondary;
+        break;
+      case BTN_MIDDLE:
+        bitmap |= kFlutterPointerButtonMouseMiddle;
+        break;
+      case BTN_BACK:
+      case BTN_SIDE:
+        bitmap |= kFlutterPointerButtonMouseBack;
+        break;
+      case BTN_FORWARD:
+      case BTN_EXTRA:
+        bitmap |= kFlutterPointerButtonMouseForward;
+        break;
+    }
+  }
+  return bitmap;
 }

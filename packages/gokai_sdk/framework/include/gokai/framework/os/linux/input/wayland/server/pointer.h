@@ -3,6 +3,7 @@
 #ifdef __cplusplus
 #include <gokai/framework/os/linux/input/wayland/server/base.h>
 #include <gokai/input/pointer.h>
+#include <set>
 
 extern "C" {
 #include <wayland-server-core.h>
@@ -32,10 +33,16 @@ namespace Gokai {
                   struct wl_listener button_listener;
                   struct wl_listener cursor_axis_listener;
                   struct wl_listener cursor_frame_listener;
+                  struct wl_listener cursor_motion_absolute_listener;
+                  struct wl_listener cursor_motion_listener;
+                  std::set<uint32_t> buttons;
+                  int64_t getButtons();
 
                   static void button_handle(struct wl_listener* listener, void* data);
                   static void cursor_axis_handle(struct wl_listener* listener, void* data);
                   static void cursor_frame_handle(struct wl_listener* listener, void* data);
+                  static void cursor_motion_absolute_handle(struct wl_listener* listener, void* data);
+                  static void cursor_motion_handle(struct wl_listener* listener, void* data);
               };
             }
           }

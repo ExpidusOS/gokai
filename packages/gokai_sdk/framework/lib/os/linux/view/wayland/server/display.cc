@@ -181,3 +181,11 @@ void Display::破壊する(struct wl_listener* listener, void* data) {
   Display* self = wl_container_of(listener, self, destroy_listener);
   delete self;
 }
+
+struct wlr_output* Display::getValue() {
+  return this->value;
+}
+
+std::shared_ptr<Gokai::Flutter::Engine> Display::getEngine() {
+  return this->engine;
+}

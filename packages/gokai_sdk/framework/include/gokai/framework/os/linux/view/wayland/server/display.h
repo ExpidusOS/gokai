@@ -36,6 +36,8 @@ namespace Gokai {
                   glm::uvec2 getPhysicalSize() override;
                   std::list<Gokai::View::DisplayMode> getModes() override;
                   void setMode(Gokai::View::DisplayMode mode) override;
+                  struct wlr_output* getValue();
+                  std::shared_ptr<Gokai::Flutter::Engine> getEngine();
 
                   std::list<std::function<void()>> destroy;
                 private:
