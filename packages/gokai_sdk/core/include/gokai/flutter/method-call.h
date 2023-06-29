@@ -9,6 +9,9 @@ namespace Gokai {
     struct MethodCall {
       std::any arguments;
       std::string method;
+
+      MethodCall();
+      MethodCall(std::string method, std::any arguments);
     };
   }
 }

@@ -30,7 +30,7 @@ namespace Gokai {
         std::map<std::string, std::list<std::function<std::vector<uint8_t>(std::vector<uint8_t>)>>> method_channel_handlers;
         std::list<EngineTask*> tasks;
 
-        std::promise<std::vector<uint8_t>*> send(std::string channel, std::vector<uint8_t> data);
+        std::future<std::vector<uint8_t>> send(std::string channel, std::vector<uint8_t> data);
 
         xg::Guid getId();
         Gokai::Graphics::Renderer* getRenderer();

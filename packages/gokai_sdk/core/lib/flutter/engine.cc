@@ -10,13 +10,13 @@ using namespace Gokai::Flutter;
 
 static void receive(const uint8_t* data, size_t size, void* user_data) {
   // FIXME: std::future_error: Promise already satisfied
-  auto promise = reinterpret_cast<std::promise<std::vector<uint8_t>*>*>(user_data);
+  auto promise = reinterpret_cast<std::promise<std::vector<uint8_t>>*>(user_data);
   if (data == nullptr || size == 0) {
-    //promise->set_value(new std::vector<uint8_t>());
+    promise->set_value(std::vector<uint8_t>());
     return;
   }
 
-  //promise->set_value(new std::vector<uint8_t>(data, data + size));
+  promise->set_value(std::vector<uint8_t>(data, data + size));
 }
 
 void EngineTask::callback(uv_timer_t* handle) {
@@ -228,11 +228,11 @@ Engine::~Engine() {
   }
 }
 
-std::promise<std::vector<uint8_t>*> Engine::send(std::string channel, std::vector<uint8_t> data) {
-  std::promise<std::vector<uint8_t>*> promise;
+std::future<std::vector<uint8_t>> Engine::send(std::string channel, std::vector<uint8_t> data) {
+  auto promise = new std::promise<std::vector<uint8_t>>();
 
   FlutterPlatformMessageResponseHandle* handle = nullptr;
-  auto result = FlutterPlatformMessageCreateResponseHandle(this->value, receive, std::move(&promise), &handle);
+  auto result = FlutterPlatformMessageCreateResponseHandle(this->value, receive, promise, &handle);
   if (result != kSuccess) {
     throw std::runtime_error("Failed to create response handle");
   }
@@ -248,7 +248,7 @@ std::promise<std::vector<uint8_t>*> Engine::send(std::string channel, std::vecto
   if (result != kSuccess) {
     throw std::runtime_error("Failed to send platform message");
   }
-  return promise;
+  return promise->get_future();
 }
 
 xg::Guid Engine::getId() {

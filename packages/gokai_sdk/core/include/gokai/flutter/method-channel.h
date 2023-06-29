@@ -18,7 +18,7 @@ namespace Gokai {
         std::string name;
         std::function<std::any(MethodCall)> handler;
 
-        std::promise<std::any> invokeMethod(std::string name, std::any arguments);
+        std::future<std::any> invokeMethod(std::string name, std::any arguments);
       private:
         std::function<std::vector<uint8_t>(std::vector<uint8_t>)> onResponseFunc;
         std::shared_ptr<Engine> engine;

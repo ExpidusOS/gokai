@@ -23,7 +23,7 @@ namespace Gokai {
 
         std::list<xg::Guid> getIds();
         Gokai::Flutter::Engine* get(xg::Guid id);
-        std::map<xg::Guid, std::promise<std::vector<uint8_t>*>> sendAll(std::string channel, std::vector<uint8_t> data);
+        std::map<xg::Guid, std::future<std::vector<uint8_t>>> sendAll(std::string channel, std::vector<uint8_t> data);
 
         static const std::string SERVICE_NAME;
       private:

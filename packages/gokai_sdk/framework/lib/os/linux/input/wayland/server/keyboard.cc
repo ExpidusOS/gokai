@@ -62,6 +62,7 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
 
   xkb_keycode_t scan_code = event->keycode + 8;
   xkb_keysym_t keysym = xkb_state_key_get_one_sym(self->state, scan_code);
+  uint32_t unicode = xkb_state_key_get_utf32(self->state, scan_code);
   auto modifiers = wlr_keyboard_get_modifiers(keyboard);
 
   auto ev = std::map<std::string, std::any>();
@@ -69,6 +70,7 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
   ev["toolkit"] = "gtk";
   ev["scanCode"] = scan_code;
   ev["keyCode"] = keysym;
+  ev["unicodeScalarValues"] = unicode;
 
   if (keysym < 128) {
     ev["specifiedLogicalKey"] = keysym;
@@ -86,13 +88,16 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
   }
 
   auto codec = Gokai::Flutter::Codecs::JSONMessageCodec(Gokai::ObjectArguments({}));
-  auto promise = display->getEngine()->send("flutter/keyevent", codec.encodeMessage(ev));
-  auto future = promise.get_future();
+  auto future = display->getEngine()->send("flutter/keyevent", codec.encodeMessage(ev));
   future.wait();
 
-  auto response = codec.decodeMessage(*future.get());
-  self->logger->debug("{}", response.type().name());
-  // TODO: wait for promise and check if "handled" is true
+  try {
+    auto response = codec.decodeMessage(future.get());
+    self->logger->debug("{}", response.type().name());
+    // TODO: wait for promise and check if "handled" is true
+  } catch (const std::exception& ex) {
+    self->logger->error("Failed to read response: {}", ex.what());
+  }
 }
 
 void Keyboard::modifiers_handle(struct wl_listener* listener, void* data) {
