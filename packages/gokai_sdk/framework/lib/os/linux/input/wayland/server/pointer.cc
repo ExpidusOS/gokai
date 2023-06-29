@@ -113,8 +113,8 @@ void Pointer::button_handle(struct wl_listener* listener, void* data) {
     self->buttons.erase(event->button);
     ev.phase = self->buttons.empty() ? kUp : kMove;
   } else {
-    self->buttons.insert(event->button);
     ev.phase = self->buttons.empty() ? kDown : kMove;
+    self->buttons.insert(event->button);
   }
 
   ev.buttons = self->getButtons();
