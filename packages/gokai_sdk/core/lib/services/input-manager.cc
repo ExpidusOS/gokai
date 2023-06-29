@@ -46,4 +46,8 @@ std::shared_ptr<Gokai::Input::Base> InputManager::get(std::string name) {
   return nullptr;
 }
 
+glm::uvec2 InputManager::getActivePoint() {
+  return glm::uvec2();
+}
+
 const std::string InputManager::SERVICE_NAME = "InputManager";

@@ -115,3 +115,11 @@ std::shared_ptr<Gokai::Input::Base> InputManager::get(std::string name) {
   }
   return nullptr;
 }
+
+glm::uvec2 InputManager::getActivePoint() {
+  return this->active_point;
+}
+
+void InputManager::setActivePoint(glm::uvec2 point) {
+  this->active_point = point;
+}

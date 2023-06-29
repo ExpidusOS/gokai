@@ -31,12 +31,15 @@ namespace Gokai {
 
                   std::list<std::string> getNames() override;
                   std::shared_ptr<Gokai::Input::Base> get(std::string name) override;
+                  glm::uvec2 getActivePoint() override;
+                  void setActivePoint(glm::uvec2 point);
                 private:
                   static void handle_input_new(struct wl_listener* listener, void* data);
                   static void handle_cursor_request(struct wl_listener* listener, void* data);
 
                   struct wlr_xcursor_manager* xcursor_manager;
                   struct wlr_seat* seat;
+                  glm::uvec2 active_point;
 
                   struct wl_listener input_new;
                   struct wl_listener cursor_request;

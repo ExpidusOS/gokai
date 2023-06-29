@@ -6,6 +6,7 @@
 
 extern "C" {
 #include <wayland-server-core.h>
+#include <xkbcommon/xkbcommon.h>
 #define static
 #include <wlr/types/wlr_keyboard.h>
 #include <wayland-server.h>
@@ -26,7 +27,14 @@ namespace Gokai {
 
                   struct wlr_keyboard* getKeyboardValue();
                 private:
+                  struct xkb_context* context;
+                  struct xkb_keymap* keymap;
                   struct wlr_seat* seat;
+                  struct wl_listener key_listener;
+                  struct wl_listener modifiers_listener;
+
+                  static void key_handle(struct wl_listener* listener, void* data);
+                  static void modifiers_handle(struct wl_listener* listener, void* data);
               };
             }
           }

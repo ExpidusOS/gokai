@@ -180,9 +180,11 @@ void Pointer::cursor_motion_absolute_handle(struct wl_listener* listener, void* 
   Pointer* self = wl_container_of(listener, self, cursor_motion_absolute_listener);
   auto event = reinterpret_cast<struct wlr_pointer_motion_absolute_event*>(data);
 
+  auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
   auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
 
   wlr_cursor_warp_absolute(self->cursor, self->getValue(), event->x, event->y);
+  input_manager->setActivePoint(glm::uvec2(self->cursor->x, self->cursor->y));
 
   struct wlr_output* output = wlr_output_layout_output_at(display_manager->getLayout(), self->cursor->x, self->cursor->y);
   if (output == nullptr) return;
@@ -210,9 +212,11 @@ void Pointer::cursor_motion_handle(struct wl_listener* listener, void* data) {
   Pointer* self = wl_container_of(listener, self, cursor_motion_listener);
   auto event = reinterpret_cast<struct wlr_pointer_motion_event*>(data);
 
+  auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
   auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
 
   wlr_cursor_move(self->cursor, self->getValue(), event->delta_x, event->delta_y);
+  input_manager->setActivePoint(glm::uvec2(self->cursor->x, self->cursor->y));
 
   struct wlr_output* output = wlr_output_layout_output_at(display_manager->getLayout(), self->cursor->x, self->cursor->y);
   if (output == nullptr) return;
