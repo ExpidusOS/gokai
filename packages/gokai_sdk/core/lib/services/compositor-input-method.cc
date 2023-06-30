@@ -35,11 +35,28 @@ CompositorInputMethod::CompositorInputMethod(Gokai::ObjectArguments arguments) :
       }
     }
 
+    if (call.method.compare("TextInput.setEditableSizeAndTransform") == 0) {
+      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+    }
+
+    if (call.method.compare("TextInput.setMarkedTextRect") == 0) {
+      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+    }
+
+    if (call.method.compare("TextInput.setStyle") == 0) {
+      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+    }
+
+    if (call.method.compare("TextInput.setClient") == 0) {
+      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+    }
+
     if (call.method.compare("TextInput.setCaretRect") == 0) {
       return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
     }
 
     if (call.method.compare("TextInput.clearClient") == 0) {
+      this->model = Gokai::Flutter::TextInputModel();
       return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
     }
 
@@ -48,6 +65,13 @@ CompositorInputMethod::CompositorInputMethod(Gokai::ObjectArguments arguments) :
     }
 
     if (call.method.compare("TextInput.setEditingState") == 0) {
+      auto args = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+
+      int base = std::any_cast<int>(args["selectionBase"]);
+      int extent = std::any_cast<int>(args["selectionExtent"]);
+
+      this->model.setText(std::any_cast<std::string>(args["text"]));
+      this->model.setSelection(Gokai::Flutter::TextRange(static_cast<size_t>(base), static_cast<size_t>(extent)));
       return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
     }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
