@@ -14,6 +14,8 @@ libgokai_core_src = [
   'lib/flutter/method-call.cc',
   'lib/flutter/method-channel.cc',
   'lib/flutter/method-codec.cc',
+  'lib/flutter/text-input-model.cc',
+  'lib/flutter/text-range.cc',
   'lib/graphics/rendering/cairo/renderer.cc',
   'lib/graphics/rendering/egl/renderer.cc',
   'lib/graphics/rendering/gles2/renderer.cc',

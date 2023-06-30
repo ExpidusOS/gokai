@@ -1,6 +1,7 @@
 #include <gokai/flutter/codecs/json.h>
 #include <gokai/framework/os/linux/input/wayland/server/keyboard.h>
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
+#include <gokai/framework/os/linux/services/wayland/server/compositor-input-method.h>
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 
@@ -44,6 +45,7 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
   Keyboard* self = wl_container_of(listener, self, key_listener);
   auto event = reinterpret_cast<struct wlr_keyboard_key_event*>(data);
 
+  auto input_method = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::CompositorInputMethod*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::CompositorInputMethod::SERVICE_NAME));
   auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
   auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
 
@@ -87,9 +89,118 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
       break;
   }
 
-  std::thread([self, display, ev, event, seat]() {
+  auto send_input_method = [self, input_method, keysym, display]() -> bool {
+    bool did_perform = false;
+    switch (keysym) {
+      case XKB_KEY_Left:
+      case XKB_KEY_KP_Left:
+        did_perform = input_method->model.moveCursorBack();
+        break;
+      case XKB_KEY_Right:
+      case XKB_KEY_KP_Right:
+        did_perform = input_method->model.moveCursorForward();
+        break;
+      case XKB_KEY_End:
+      case XKB_KEY_KP_End:
+        did_perform = input_method->model.moveCursorToEnd();
+        break;
+      case XKB_KEY_Home:
+      case XKB_KEY_KP_Home:
+        did_perform = input_method->model.moveCursorToBeginning();
+        break;
+      case XKB_KEY_BackSpace:
+        did_perform = input_method->model.performBackspace();
+        break;
+      case XKB_KEY_Delete:
+      case XKB_KEY_KP_Delete:
+        did_perform = input_method->model.performDelete();
+        break;
+      case XKB_KEY_ISO_Enter:
+      case XKB_KEY_KP_Enter:
+        break;
+      case XKB_KEY_Shift_L:
+      case XKB_KEY_Shift_R:
+      case XKB_KEY_Control_L:
+      case XKB_KEY_Control_R:
+      case XKB_KEY_Caps_Lock:
+      case XKB_KEY_Shift_Lock:
+      case XKB_KEY_Meta_L:
+      case XKB_KEY_Meta_R:
+      case XKB_KEY_Alt_L:
+      case XKB_KEY_Alt_R:
+      case XKB_KEY_Super_L:
+      case XKB_KEY_Super_R:
+      case XKB_KEY_Hyper_L:
+      case XKB_KEY_Hyper_R:
+      case XKB_KEY_Tab:
+      case XKB_KEY_Linefeed:
+      case XKB_KEY_Clear:
+      case XKB_KEY_Return:
+      case XKB_KEY_Pause:
+      case XKB_KEY_Scroll_Lock:
+      case XKB_KEY_Sys_Req:
+      case XKB_KEY_Escape:
+      case XKB_KEY_Up:
+      case XKB_KEY_Down:
+      case XKB_KEY_Page_Up:
+      case XKB_KEY_Page_Down:
+      case XKB_KEY_Begin:
+      case XKB_KEY_Print:
+      case XKB_KEY_Insert:
+      case XKB_KEY_Menu:
+      case XKB_KEY_Num_Lock:
+      case XKB_KEY_KP_Up:
+      case XKB_KEY_KP_Down:
+      case XKB_KEY_KP_Page_Up:
+      case XKB_KEY_KP_Page_Down:
+      case XKB_KEY_KP_Begin:
+      case XKB_KEY_KP_Insert:
+      case XKB_KEY_KP_Tab:
+      case XKB_KEY_F1:
+      case XKB_KEY_F2:
+      case XKB_KEY_F3:
+      case XKB_KEY_F4:
+      case XKB_KEY_F5:
+      case XKB_KEY_F6:
+      case XKB_KEY_F7:
+      case XKB_KEY_F8:
+      case XKB_KEY_F9:
+      case XKB_KEY_F10:
+      case XKB_KEY_F11:
+      case XKB_KEY_F12:
+      case XKB_KEY_F13:
+      case XKB_KEY_F14:
+      case XKB_KEY_F15:
+      case XKB_KEY_F16:
+      case XKB_KEY_F17:
+      case XKB_KEY_F18:
+      case XKB_KEY_F19:
+      case XKB_KEY_F20:
+      case XKB_KEY_F21:
+      case XKB_KEY_F22:
+      case XKB_KEY_F23:
+      case XKB_KEY_F24:
+        break;
+      default:
+        input_method->model.addCodePoint(keysym);
+        did_perform = true;
+        break;
+    }
+
+    if (did_perform) {
+      did_perform = input_method->sendStateUpdate(display->getEngine()->getId());
+    }
+    return did_perform;
+  };
+
+  std::thread([self, display, ev, event, seat, input_method, send_input_method]() {
+    if (input_method->isActive()) {
+      if (!send_input_method()) return;
+    }
+
     auto codec = Gokai::Flutter::Codecs::JSONMessageCodec(Gokai::ObjectArguments({}));
-    auto future = display->getEngine()->send("flutter/keyevent", codec.encodeMessage(ev));
+    auto engine = display->getEngine();
+    auto future = engine->send("flutter/keyevent", codec.encodeMessage(ev));
     future.wait();
     auto response_value = future.get();
 
