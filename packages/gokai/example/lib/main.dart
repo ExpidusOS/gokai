@@ -112,6 +112,7 @@ class _MyAppState extends State<MyApp> {
                 },
                 child: const Text('Test Log'),
               ),
+              const TextField(),
             ],
           ),
         ),
