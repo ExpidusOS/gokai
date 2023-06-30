@@ -165,7 +165,9 @@ std::string Context::getPackageDir() {
     throw std::runtime_error("Failed to readlink /proc/self/exe");
   }
 
-  auto str = std::filesystem::path(link_path).parent_path().c_str();
+  link_path[read_size] = 0;
+
+  auto str = strdup(std::filesystem::path(link_path).parent_path().c_str());
   free(link_path);
   return std::string(str);
 }
