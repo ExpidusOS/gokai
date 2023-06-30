@@ -194,7 +194,7 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
   };
 
   std::thread([self, display, ev, event, seat, input_method, send_input_method]() {
-    if (input_method->isActive()) {
+    if (input_method->isActive() && event->state == WL_KEYBOARD_KEY_STATE_PRESSED) {
       if (!send_input_method()) return;
     }
 
