@@ -34,8 +34,8 @@ DisplayManager::DisplayManager(Gokai::ObjectArguments arguments) : Service(argum
   });
 }
 
-std::shared_ptr<Gokai::ServiceChannel> DisplayManager::getServiceChannel() {
-  return this->service_channel;
+std::list<std::shared_ptr<Gokai::ServiceChannel>> DisplayManager::getServiceChannels() {
+  return { this->service_channel };
 }
 
 std::list<std::string> DisplayManager::getNames() {

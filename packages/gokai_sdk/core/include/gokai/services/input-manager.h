@@ -15,7 +15,7 @@ namespace Gokai {
       public:
         InputManager(Gokai::ObjectArguments arguments);
 
-        std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
+        std::list<std::shared_ptr<Gokai::ServiceChannel>> getServiceChannels() override;
 
         virtual std::list<std::string> getNames();
         virtual std::shared_ptr<Gokai::Input::Base> get(std::string name);

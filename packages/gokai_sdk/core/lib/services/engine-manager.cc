@@ -25,8 +25,8 @@ EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(argumen
 
 EngineManager::~EngineManager() {}
 
-std::shared_ptr<Gokai::ServiceChannel> EngineManager::getServiceChannel() {
-  return this->service_channel;
+std::list<std::shared_ptr<Gokai::ServiceChannel>> EngineManager::getServiceChannels() {
+  return { this->service_channel };
 }
 
 std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::Renderer* renderer) {

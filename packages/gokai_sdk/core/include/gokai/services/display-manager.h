@@ -13,7 +13,7 @@ namespace Gokai {
       public:
         DisplayManager(Gokai::ObjectArguments arguments);
 
-        std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
+        std::list<std::shared_ptr<Gokai::ServiceChannel>> getServiceChannels() override;
         virtual std::list<std::string> getNames();
 
         std::list<std::function<void()>> changed;

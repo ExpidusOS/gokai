@@ -16,7 +16,7 @@ namespace Gokai {
         EngineManager(Gokai::ObjectArguments arguments);
         ~EngineManager();
 
-        std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
+        std::list<std::shared_ptr<Gokai::ServiceChannel>> getServiceChannels() override;
 
         std::shared_ptr<Gokai::Flutter::Engine> create(Gokai::Graphics::Renderer* renderer);
         void destroy(xg::Guid id);
