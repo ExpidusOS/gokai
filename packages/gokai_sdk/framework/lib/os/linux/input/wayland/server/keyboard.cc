@@ -91,16 +91,21 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
     auto codec = Gokai::Flutter::Codecs::JSONMessageCodec(Gokai::ObjectArguments({}));
     auto future = display->getEngine()->send("flutter/keyevent", codec.encodeMessage(ev));
     future.wait();
+    auto response_value = future.get();
 
-    try {
-      auto response = std::any_cast<std::map<std::string, std::any>>(codec.decodeMessage(future.get()));
-      auto handled = std::any_cast<bool>(response["handled"]);
+    if (response_value.size() > 0) {
+      try {
+        auto response = std::any_cast<std::map<std::string, std::any>>(codec.decodeMessage(response_value));
+        auto handled = std::any_cast<bool>(response["handled"]);
 
-      if (!handled) {
+        if (!handled) {
+          wlr_seat_keyboard_notify_key(seat, event->time_msec, event->keycode, event->state);
+        }
+      } catch (const std::exception& ex) {
+        self->logger->error("Failed to read response: {}", ex.what());
         wlr_seat_keyboard_notify_key(seat, event->time_msec, event->keycode, event->state);
       }
-    } catch (const std::exception& ex) {
-      self->logger->error("Failed to read response: {}", ex.what());
+    } else {
       wlr_seat_keyboard_notify_key(seat, event->time_msec, event->keycode, event->state);
     }
   }).detach();
