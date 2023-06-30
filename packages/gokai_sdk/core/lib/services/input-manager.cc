@@ -34,8 +34,8 @@ InputManager::InputManager(Gokai::ObjectArguments arguments) : Service(arguments
   });
 }
 
-std::list<std::shared_ptr<Gokai::ServiceChannel>> InputManager::getServiceChannels() {
-  return { this->service_channel };
+std::shared_ptr<Gokai::ServiceChannel> InputManager::getServiceChannel() {
+  return this->service_channel;
 }
 
 std::list<std::string> InputManager::getNames() {

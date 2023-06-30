@@ -1,4 +1,5 @@
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
+#include <gokai/framework/os/linux/services/wayland/server/compositor-input-method.h>
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
@@ -123,6 +124,11 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
       }));
 
       this->services[Gokai::Services::WindowManager::SERVICE_NAME] = new Services::Wayland::Server::WindowManager(Gokai::ObjectArguments({
+        { "context", self },
+        { "logger", this->getLogger() },
+      }));
+
+      this->services[Gokai::Services::CompositorInputMethod::SERVICE_NAME] = new Services::Wayland::Server::CompositorInputMethod(Gokai::ObjectArguments({
         { "context", self },
         { "logger", this->getLogger() },
       }));

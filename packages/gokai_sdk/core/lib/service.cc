@@ -10,6 +10,6 @@ Service::Service(ObjectArguments arguments) : Object(arguments) {
   this->context = context;
 }
 
-std::list<std::shared_ptr<ServiceChannel>> Service::getServiceChannels() {
-  return {};
+std::shared_ptr<ServiceChannel> Service::getServiceChannel() {
+  return nullptr;
 }

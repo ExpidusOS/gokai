@@ -72,20 +72,19 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
   for (auto service_name : self->context->getSystemServiceNames()) {
     auto service = self->context->getSystemService(service_name);
 
-    auto service_channels = service->getServiceChannels();
-    for (auto service_channel : service_channels) {
-      if (service_channel->getName().compare(message->channel) != 0) continue;
+    auto service_channel = service->getServiceChannel();
+    if (service_channel == nullptr) continue;
+    if (service_channel->getName().compare(message->channel) != 0) continue;
 
-      auto msg_resp = service_channel->receive(self->id, msg);
-      if (msg_resp.size() > 0) {
-        auto result = FlutterEngineSendPlatformMessageResponse(
-          self->value, message->response_handle, msg_resp.data(), msg_resp.size()
-        );
-        if (result != kSuccess) {
-          self->logger->error("Failed to send response for engine {} on service channel \"{}\": {}", self->id.str(), message->channel, result);
-        }
-        return;
+    auto msg_resp = service_channel->receive(self->id, msg);
+    if (msg_resp.size() > 0) {
+      auto result = FlutterEngineSendPlatformMessageResponse(
+        self->value, message->response_handle, msg_resp.data(), msg_resp.size()
+      );
+      if (result != kSuccess) {
+        self->logger->error("Failed to send response for engine {} on service channel \"{}\": {}", self->id.str(), message->channel, result);
       }
+      return;
     }
   }
 

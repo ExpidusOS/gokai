@@ -10,6 +10,7 @@ if target_machine.system() == 'linux'
     'lib/os/linux/input/wayland/server/pointer.cc',
     'lib/os/linux/input/wayland/server/touch.cc',
     'lib/os/linux/services/wayland/server/compositor.cc',
+    'lib/os/linux/services/wayland/server/compositor-input-method.cc',
     'lib/os/linux/services/wayland/server/display-manager.cc',
     'lib/os/linux/services/wayland/server/input-manager.cc',
     'lib/os/linux/services/wayland/server/window-manager.cc',
