@@ -71,9 +71,10 @@ bool CompositorInputMethod::sendStateUpdate(xg::Guid engine_id) {
   args["selectionBase"] = selection.getBase();
   args["selectionExtent"] = selection.getExtent();
   args["selectionIsDirectional"] = false;
-  args["text"] = this->model.getText().c_str();
+  args["text"] = strdup(this->model.getText().c_str());
 
   auto value = this->method_codec.encodeMethodCall(Gokai::Flutter::MethodCall("TextInputClient.updateEditingState", args));
+  this->logger->debug("{}", std::string(value.begin(), value.end()));
   engine->send("flutter/textinput", value);
   return true;
 }
