@@ -17,15 +17,20 @@ namespace Gokai {
         std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
 
         bool sendStateUpdate(xg::Guid engine_id);
+        bool performActionMethod(xg::Guid engine_id);
 
         virtual void showInput();
         virtual void hideInput();
         bool isActive();
+        std::string getInputType();
 
         static const std::string SERVICE_NAME;
       protected:
         bool is_active;
       private:
+        std::string input_type;
+        std::string input_action;
+        int client_id;
         Gokai::Flutter::Codecs::JSONMethodCodec method_codec;
         std::shared_ptr<Gokai::ServiceChannel> service_channel;
     };

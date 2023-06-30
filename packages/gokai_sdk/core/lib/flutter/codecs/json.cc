@@ -162,14 +162,10 @@ Gokai::Flutter::MethodCall JSONMethodCodec::decodeMethodCall(std::vector<uint8_t
   auto arguments = decoded["args"];
 
   if (method.type() == typeid(std::string)) {
-    auto value = Gokai::Flutter::MethodCall();
-    value.method = std::any_cast<std::string>(method);
-    value.arguments = arguments;
-    return value;
+    return Gokai::Flutter::MethodCall(std::any_cast<std::string>(method), arguments);
   }
 
-  std::string call_str(call.begin(), call.end());
-  throw std::runtime_error(fmt::format("Invalid method call: {}", call_str));
+  throw std::runtime_error(fmt::format("Invalid method call: {}", std::string(call.begin(), call.end())));
 }
 
 std::vector<uint8_t> JSONMethodCodec::encodeMethodCall(MethodCall call) {

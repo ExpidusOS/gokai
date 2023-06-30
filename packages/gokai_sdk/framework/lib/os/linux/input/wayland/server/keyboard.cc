@@ -117,7 +117,13 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
         break;
       case XKB_KEY_ISO_Enter:
       case XKB_KEY_KP_Enter:
-        break;
+      case XKB_KEY_Return:
+        if (input_method->getInputType().compare("TextInputType.multiline") == 0) {
+          input_method->model.addCodePoint('\n');
+          input_method->sendStateUpdate(display->getEngine()->getId());
+        }
+
+        return input_method->performActionMethod(display->getEngine()->getId());
       case XKB_KEY_Shift_L:
       case XKB_KEY_Shift_R:
       case XKB_KEY_Control_L:
@@ -135,7 +141,6 @@ void Keyboard::key_handle(struct wl_listener* listener, void* data) {
       case XKB_KEY_Tab:
       case XKB_KEY_Linefeed:
       case XKB_KEY_Clear:
-      case XKB_KEY_Return:
       case XKB_KEY_Pause:
       case XKB_KEY_Scroll_Lock:
       case XKB_KEY_Sys_Req:

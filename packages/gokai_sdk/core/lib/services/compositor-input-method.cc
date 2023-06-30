@@ -48,6 +48,15 @@ CompositorInputMethod::CompositorInputMethod(Gokai::ObjectArguments arguments) :
     }
 
     if (call.method.compare("TextInput.setClient") == 0) {
+      auto args = std::any_cast<std::list<std::any>>(call.arguments);
+      if (!args.empty()) {
+        auto first = std::any_cast<std::map<std::string, std::any>>(args.back());
+        auto input_type = std::any_cast<std::map<std::string, std::any>>(first["inputType"]);
+
+        this->client_id = std::any_cast<int>(args.front());
+        this->input_type = std::any_cast<std::string>(input_type["name"]);
+        this->input_action = std::any_cast<std::string>(first["inputAction"]);
+      }
       return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
     }
 
@@ -57,6 +66,8 @@ CompositorInputMethod::CompositorInputMethod(Gokai::ObjectArguments arguments) :
 
     if (call.method.compare("TextInput.clearClient") == 0) {
       this->model = Gokai::Flutter::TextInputModel();
+      this->input_type = std::string();
+      this->input_action = std::string();
       return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
     }
 
@@ -103,12 +114,33 @@ bool CompositorInputMethod::sendStateUpdate(xg::Guid engine_id) {
   return true;
 }
 
+bool CompositorInputMethod::performActionMethod(xg::Guid engine_id) {
+  if (!this->input_action.empty()) {
+    auto engine_manager = reinterpret_cast<EngineManager*>(this->context->getSystemService(EngineManager::SERVICE_NAME));
+    auto engine = engine_manager->get(engine_id);
+    if (engine == nullptr) return false;
+
+    auto args = std::list<std::any>();
+    args.push_back(this->client_id);
+    args.push_back(this->input_action);
+
+    auto value = this->method_codec.encodeMethodCall(Gokai::Flutter::MethodCall("TextInputClient.performAction", args));
+    engine->send("flutter/textinput", value);
+    return true;
+  }
+  return false;
+}
+
 void CompositorInputMethod::showInput() {}
 
 void CompositorInputMethod::hideInput() {}
 
 bool CompositorInputMethod::isActive() {
   return this->is_active;
+}
+
+std::string CompositorInputMethod::getInputType() {
+  return this->input_type;
 }
 
 const std::string CompositorInputMethod::SERVICE_NAME = "CompositorInputMethod";
