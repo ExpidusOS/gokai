@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gokai/flutter/engine.dart';
 import 'package:gokai/gokai.dart';
 import 'package:gokai/services.dart';
 
@@ -17,6 +18,7 @@ class _MyAppState extends State<MyApp> {
   List<String> _displayNames = [];
   List<String> _inputNames = [];
   GokaiContext? gkContext;
+  GokaiFlutterEngine? _engine;
 
   @override
   void initState() {
@@ -41,10 +43,14 @@ class _MyAppState extends State<MyApp> {
 
       final inputNames = await inputManager.getNames();
 
+      final engineManager = ctx.services['EngineManager'] as GokaiEngineManager;
+      final engine = await engineManager.getEngine();
+
       setState(() {
         gkContext = ctx;
         _displayNames = displayNames;
         _inputNames = inputNames;
+        _engine = engine;
       });
     });
   }
@@ -63,6 +69,7 @@ class _MyAppState extends State<MyApp> {
               Text('Service channels: ${gkContext != null ? gkContext!.services.values.map((e) => e.channelName).join(', ') : ''}'),
               Text('Displays: ${_displayNames.join(', ')}'),
               Text('Inputs: ${_inputNames.join(', ')}'),
+              Text(_engine == null ? '' : 'Engine ${_engine!.id}: ${_engine!.viewType.name}, ${_engine!.viewName}'),
             ],
           ),
         ),

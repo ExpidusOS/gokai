@@ -7,3 +7,8 @@ enum GokaiContextMode {
 
   final int id;
 }
+
+enum GokaiFlutterEngineViewType {
+  window,
+  display
+}
