@@ -20,6 +20,13 @@ EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(argumen
       return this->method_codec.encodeSuccessEnvelope(engine_id.str());
     }
 
+    if (call.method.compare("getIds") == 0) {
+      auto ids = this->getIds();
+      std::list<std::any> list;
+      for (const auto& id : ids) list.push_back(id.str());
+      return this->method_codec.encodeSuccessEnvelope(list);
+    }
+
     if (call.method.compare("getViewType") == 0) {
       auto engine_id = xg::Guid(std::any_cast<std::string>(call.arguments));
       auto engine = this->get(engine_id);
@@ -49,6 +56,13 @@ EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(argumen
     }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
   });
+
+  this->changed.push_back([this]() {
+    auto engine_manager = reinterpret_cast<EngineManager*>(this->context->getSystemService(EngineManager::SERVICE_NAME));
+    auto call = Gokai::Flutter::MethodCall();
+    call.method = "changed";
+    engine_manager->sendAll(TAG, this->method_codec.encodeMethodCall(call));
+  });
 }
 
 EngineManager::~EngineManager() {}
@@ -69,7 +83,13 @@ std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::R
     { "view-name", name },
   })));
 
+  engine->destroy.push_back([this, id]() {
+    this->engines.erase(id);
+    for (const auto& func : this->changed) func();
+  });
+
   this->engines[id] = engine.get();
+  for (const auto& func : this->changed) func();
   return engine;
 }
 

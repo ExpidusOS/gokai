@@ -29,6 +29,8 @@ namespace Gokai {
         Gokai::Flutter::Engine* get(xg::Guid id);
         std::map<xg::Guid, std::future<std::vector<uint8_t>>> sendAll(std::string channel, std::vector<uint8_t> data);
 
+        std::list<std::function<void()>> changed;
+
         static const std::string SERVICE_NAME;
       private:
         Gokai::Flutter::Codecs::JSONMethodCodec method_codec;

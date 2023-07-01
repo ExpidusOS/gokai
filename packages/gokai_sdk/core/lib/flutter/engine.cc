@@ -220,10 +220,14 @@ Engine::~Engine() {
 
       uv_timer_stop(&this->event_runner);
 
+      for (auto func : this->destroy) func();
       this->logger->debug("Shutting down engine {}", this->id.str());
       FlutterEngineShutdown(this->value);
     }).detach();
   } else {
+    uv_timer_stop(&this->event_runner);
+
+    for (auto func : this->destroy) func();
     this->logger->debug("Shutting down engine {}", this->id.str());
     FlutterEngineShutdown(this->value);
   }

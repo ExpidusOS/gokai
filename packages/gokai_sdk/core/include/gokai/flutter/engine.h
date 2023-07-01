@@ -31,6 +31,7 @@ namespace Gokai {
         ~Engine();
 
         std::map<std::string, std::list<std::function<std::vector<uint8_t>(std::vector<uint8_t>)>>> method_channel_handlers;
+        std::list<std::function<void()>> destroy;
 
         std::future<std::vector<uint8_t>> send(std::string channel, std::vector<uint8_t> data);
         xg::Guid getId();
