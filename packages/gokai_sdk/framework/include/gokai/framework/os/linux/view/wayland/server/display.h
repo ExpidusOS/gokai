@@ -34,6 +34,7 @@ namespace Gokai {
                   std::string getModel() override;
                   bool isHDR() override;
                   glm::uvec2 getPhysicalSize() override;
+                  Gokai::View::DisplayMode getMode() override;
                   std::list<Gokai::View::DisplayMode> getModes() override;
                   void setMode(Gokai::View::DisplayMode mode) override;
                   struct wlr_output* getValue();

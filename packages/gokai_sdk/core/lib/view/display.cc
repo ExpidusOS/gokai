@@ -21,6 +21,10 @@ glm::uvec2 Display::getPhysicalSize() {
   return glm::uvec2(0, 0);
 }
 
+DisplayMode Display::getMode() {
+  return DisplayMode();
+}
+
 std::list<DisplayMode> Display::getModes() {
   return std::list<DisplayMode>();
 }

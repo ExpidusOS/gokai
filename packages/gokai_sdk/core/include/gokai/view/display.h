@@ -21,6 +21,7 @@ namespace Gokai {
         virtual std::string getModel();
         virtual bool isHDR();
         virtual glm::uvec2 getPhysicalSize();
+        virtual DisplayMode getMode();
         virtual std::list<DisplayMode> getModes();
         virtual void setMode(DisplayMode mode);
     };

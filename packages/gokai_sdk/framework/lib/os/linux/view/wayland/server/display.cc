@@ -82,6 +82,23 @@ glm::uvec2 Display::getPhysicalSize() {
   return glm::uvec2(this->value->phys_width, this->value->phys_height);
 }
 
+Gokai::View::DisplayMode Display::getMode() {
+  auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(this->context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+
+  double x;
+  double y;
+  wlr_output_layout_output_coords(display_manager->getLayout(), this->value, &x, &y);
+  glm::uvec2 pos(x * 1, y * 1);
+
+  auto value = Gokai::View::DisplayMode();
+  value.resolution = Gokai::View::URect(
+    pos,
+    glm::uvec2(this->value->width, this->value->height)
+  );
+  value.refresh = this->value->refresh / 1000;
+  return value;
+}
+
 std::list<Gokai::View::DisplayMode> Display::getModes() {
   std::list<Gokai::View::DisplayMode> list;
   auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(this->context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));

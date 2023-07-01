@@ -2,6 +2,7 @@
 
 #ifdef __cplusplus
 #include <gokai/flutter/codecs/json.h>
+#include <gokai/view/display.h>
 #include <gokai/context.h>
 #include <gokai/logging.h>
 #include <gokai/service.h>
@@ -15,6 +16,7 @@ namespace Gokai {
 
         std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
         virtual std::list<std::string> getNames();
+        virtual Gokai::View::Display* get(std::string name);
 
         std::list<std::function<void()>> changed;
 

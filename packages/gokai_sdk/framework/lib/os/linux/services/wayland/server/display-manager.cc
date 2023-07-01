@@ -70,6 +70,13 @@ std::list<std::string> DisplayManager::getNames() {
   return list;
 }
 
+Gokai::View::Display* DisplayManager::get(std::string name) {
+  for (const auto& display : this->displays) {
+    if (display->getName().compare(name) == 0) return display;
+  }
+  return nullptr;
+}
+
 Gokai::Framework::os::Linux::View::Wayland::Server::Display* DisplayManager::get(struct wlr_output* output) {
   for (const auto& display : this->displays) {
     if (display->getValue() == output) return display;
