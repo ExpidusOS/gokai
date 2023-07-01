@@ -8,7 +8,7 @@ class GokaiContext {
   final GokaiPlatform _instance;
   bool _hasInitialized = false;
 
-  List<String> serviceNames = [];
+  Map<String, String> services = {};
   GokaiContextMode mode = GokaiContextMode.invalid;
   late String packageName;
   late String packageDir;
@@ -20,7 +20,15 @@ class GokaiContext {
       throw Exception('GokaiContext has already been initialized');
     }
 
-    serviceNames = await _instance.getServiceNames();
+    final serviceNames = await _instance.getServiceNames();
+    for (final serviceName in serviceNames) {
+      try {
+        services[serviceName] = await _instance.getService(serviceName);
+      } catch(ex) {
+        // ignore
+      }
+    }
+
     mode = await _instance.getMode();
     packageName = await _instance.getPackageName();
     packageDir = await _instance.getPackageDir();

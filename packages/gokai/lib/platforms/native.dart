@@ -8,6 +8,10 @@ class GokaiNativePlatform extends GokaiPlatform {
   final methodChannel = const MethodChannel('Gokai::Context', JSONMethodCodec());
 
   @override
+  Future<String> getService(String name) async
+    => (await methodChannel.invokeMethod<String>('getService', name))!;
+
+  @override
   Future<List<String>> getServiceNames() async
     => (await methodChannel.invokeListMethod<String>('getServiceNames'))!;
 

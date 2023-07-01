@@ -14,6 +14,10 @@ abstract class GokaiPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  Future<String> getService(String name) {
+    throw UnimplementedError('getService("$name") has not been implemented.');
+  }
+
   Future<List<String>> getServiceNames() {
     throw UnimplementedError('getServiceNames() has not been implemented.');
   }

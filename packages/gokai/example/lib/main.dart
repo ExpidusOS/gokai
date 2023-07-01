@@ -68,7 +68,8 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Column(
             children: [
-              Text('Service names: ${gkContext != null ? gkContext!.serviceNames.join(', ') : ''}'),
+              Text('Service names: ${gkContext != null ? gkContext!.services.keys.join(', ') : ''}'),
+              Text('Service channels: ${gkContext != null ? gkContext!.services.values.join(', ') : ''}'),
               FutureBuilder(
                 future: engineManager.invokeMethod<String>('getEngineId'),
                 builder: (context, snapshot) {
