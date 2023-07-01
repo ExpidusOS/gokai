@@ -38,6 +38,7 @@ namespace Gokai {
       std::list<std::function<std::vector<uint8_t>(xg::Guid, std::vector<uint8_t>)>> onChannelReceive;
       std::vector<uint8_t> channelReceive(xg::Guid engine_id, std::vector<uint8_t> message);
 
+      std::list<std::string> getArguments();
       uv_loop_t* getLoop();
       ApplicationManifest getManifest();
       ContextMode getMode();
@@ -51,6 +52,7 @@ namespace Gokai {
     protected:
       std::map<std::string, Service*> services;
     private:
+      std::list<std::string> arguments;
       Gokai::Flutter::Codecs::JSONMethodCodec method_codec;
       uv_loop_t* loop;
       ContextMode mode;

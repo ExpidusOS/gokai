@@ -143,7 +143,21 @@ Engine::Engine(Gokai::ObjectArguments arguments)
     .thread_priority_setter = nullptr,
   };
 
+  auto args = this->context->getArguments();
+  auto argc = args.size();
+  auto argv = reinterpret_cast<char**>(malloc(sizeof (char*) * (argc + 1)));
+  memset(argv, 0, sizeof (char*) * (argc + 1));
+
+  size_t i = 0;
+  for (const auto& arg : args) {
+    argv[i] = (char*)arg.c_str();
+    i++;
+  }
+
   this->args = {};
+  this->args.command_line_argc = argc;
+  this->args.command_line_argv = argv;
+
   this->args.struct_size = sizeof (FlutterProjectArgs);
   this->args.assets_path = strdup((path / "data" / "flutter_assets").c_str());
   this->args.icu_data_path = strdup((path / "data" / "icudtl.dat").c_str());

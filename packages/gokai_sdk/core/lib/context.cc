@@ -61,7 +61,7 @@ const ContextMode ContextMode::values[3] = {
   ContextMode::compositor,
 };
 
-Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments), method_codec{arguments} {
+Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments), method_codec{arguments}, arguments{std::any_cast<std::list<std::string>>(arguments.get("arguments"))} {
   auto manifest = this->getManifest();
   this->logger->debug("Manifest loaded with ID {}", manifest.id);
 
@@ -138,6 +138,10 @@ Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments), method_c
 
 Context::~Context() {
   uv_loop_close(this->loop);
+}
+
+std::list<std::string> Context::getArguments() {
+  return this->arguments;
 }
 
 uv_loop_t* Context::getLoop() {
