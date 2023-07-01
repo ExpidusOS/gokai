@@ -14,7 +14,7 @@ class GokaiNativePlatform extends GokaiPlatform {
     final channel = (await methodChannel.invokeMethod<String>('getService', name))!;
     final map = {
       'Gokai::Services::DisplayManager': () => GokaiNativeDisplayManager(),
-      'Gokai::Services::EngineManager': () => const GokaiNativeEngineManager(),
+      'Gokai::Services::EngineManager': () => GokaiNativeEngineManager(),
       'Gokai::Services::InputManager': () => GokaiNativeInputManager(),
     };
 

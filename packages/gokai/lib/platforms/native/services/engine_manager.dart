@@ -8,11 +8,25 @@ class GokaiNativeEngineManager extends GokaiEngineManager {
   @visibleForTesting
   final methodChannel = const MethodChannel('Gokai::Services::EngineManager', JSONMethodCodec());
 
-  const GokaiNativeEngineManager() : super();
+  GokaiNativeEngineManager() : super() {
+    methodChannel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case 'changed':
+          for (final func in onChange) {
+            func();
+          }
+          break;
+      }
+    });
+  }
 
   @override
   Future<String> getEngineId() async
     => (await methodChannel.invokeMethod<String>('getEngineId'))!;
+
+  @override
+  Future<List<String>> getIds() async
+    => (await methodChannel.invokeListMethod<String>('getIds'))!;
 
   @override
   Future<GokaiFlutterEngine> get(String id) async {
