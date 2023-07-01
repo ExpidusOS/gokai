@@ -153,6 +153,13 @@ Engine::Engine(Gokai::ObjectArguments arguments)
   // NOTE: https://github.com/flutter/flutter/issues/129533
   this->args.custom_task_runners = &this->runners;
 
+  if (arguments.has("compositor")) {
+    this->compositor = std::any_cast<Gokai::Graphics::Compositor*>(arguments.get("compositor"));
+    this->args.compositor = this->compositor->get();
+  } else {
+    this->compositor = nullptr;
+  }
+
   if (FlutterEngineRunsAOTCompiledDartCode()) {
     FlutterEngineAOTDataSource src = {
       .type = kFlutterEngineAOTDataSourceTypeElfPath,
@@ -258,6 +265,10 @@ std::future<std::vector<uint8_t>> Engine::send(std::string channel, std::vector<
 
 xg::Guid Engine::getId() {
   return this->id;
+}
+
+Gokai::Graphics::Compositor* Engine::getCompositor() {
+  return this->compositor;
 }
 
 Gokai::Graphics::Renderer* Engine::getRenderer() {

@@ -2,6 +2,7 @@
 
 #ifdef __cplusplus
 #include <crossguid/guid.hpp>
+#include <gokai/graphics/compositor.h>
 #include <gokai/graphics/renderer.h>
 #include <gokai/context.h>
 #include <gokai/logging.h>
@@ -35,6 +36,7 @@ namespace Gokai {
 
         std::future<std::vector<uint8_t>> send(std::string channel, std::vector<uint8_t> data);
         xg::Guid getId();
+        Gokai::Graphics::Compositor* getCompositor();
         Gokai::Graphics::Renderer* getRenderer();
         std::shared_ptr<Gokai::Context> getContext();
         FlutterEngine getValue();
@@ -55,6 +57,7 @@ namespace Gokai {
         EngineViewType view_type;
         std::string view_name;
 
+        Gokai::Graphics::Compositor* compositor;
         Gokai::Graphics::Renderer* renderer;
         std::shared_ptr<Gokai::Context> context;
 
