@@ -1,6 +1,8 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <crossguid/guid.hpp>
+#include <gokai/flutter/codecs/json.h>
 #include <gokai/application-manifest.h>
 #include <gokai/logging.h>
 #include <gokai/object.h>
@@ -33,6 +35,9 @@ namespace Gokai {
       Context(ObjectArguments arguments);
       ~Context();
 
+      std::list<std::function<std::vector<uint8_t>(xg::Guid, std::vector<uint8_t>)>> onChannelReceive;
+      std::vector<uint8_t> channelReceive(xg::Guid engine_id, std::vector<uint8_t> message);
+
       uv_loop_t* getLoop();
       ApplicationManifest getManifest();
       ContextMode getMode();
@@ -46,6 +51,7 @@ namespace Gokai {
     protected:
       std::map<std::string, Service*> services;
     private:
+      Gokai::Flutter::Codecs::JSONMethodCodec method_codec;
       uv_loop_t* loop;
       ContextMode mode;
   };

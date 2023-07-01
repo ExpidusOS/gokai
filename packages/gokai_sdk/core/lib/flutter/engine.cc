@@ -88,6 +88,19 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
     }
   }
 
+  if (strcmp(message->channel, "Gokai::Context") == 0) {
+    auto msg_resp = self->context->channelReceive(self->id, msg);
+    if (msg_resp.size() > 0) {
+      auto result = FlutterEngineSendPlatformMessageResponse(
+        self->value, message->response_handle, msg_resp.data(), msg_resp.size()
+      );
+      if (result != kSuccess) {
+        self->logger->error("Failed to send response for engine {} on service channel \"{}\": {}", self->id.str(), message->channel, result);
+      }
+      return;
+    }
+  }
+
   self->logger->warn("A handler for the \"{}\" method channel on engine {} was not set, sending an empty response.", message->channel, self->id.str());
 
   std::vector<uint8_t> resp;
