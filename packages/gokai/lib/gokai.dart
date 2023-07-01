@@ -21,7 +21,7 @@ class GokaiContext {
     }
 
     serviceNames = await _instance.getServiceNames();
-    mode = await _instance.getContextMode();
+    mode = await _instance.getMode();
     packageName = await _instance.getPackageName();
     packageDir = await _instance.getPackageDir();
     packageConfigDir = await _instance.getPackageConfigDir();

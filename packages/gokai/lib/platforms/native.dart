@@ -5,15 +5,15 @@ import 'package:gokai/platform_interface.dart';
 
 class GokaiNativePlatform extends GokaiPlatform {
   @visibleForTesting
-  final methodChannel = const MethodChannel('Gokai::Context');
+  final methodChannel = const MethodChannel('Gokai::Context', JSONMethodCodec());
 
   @override
   Future<List<String>> getServiceNames() async
     => (await methodChannel.invokeListMethod<String>('getServiceNames'))!;
 
   @override
-  Future<GokaiContextMode> getContextMode() async {
-    final name = (await methodChannel.invokeMethod<String>('getContextMode'))!;
+  Future<GokaiContextMode> getMode() async {
+    final name = (await methodChannel.invokeMethod<String>('getMode'))!;
     return GokaiContextMode.values.firstWhere((e) => e.name == name);
   }
 

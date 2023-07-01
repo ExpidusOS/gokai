@@ -18,8 +18,8 @@ abstract class GokaiPlatform extends PlatformInterface {
     throw UnimplementedError('getServiceNames() has not been implemented.');
   }
 
-  Future<GokaiContextMode> getContextMode() {
-    throw UnimplementedError('getContextMode() has not been implemented.');
+  Future<GokaiContextMode> getMode() {
+    throw UnimplementedError('getMode() has not been implemented.');
   }
 
   Future<String> getPackageName() {

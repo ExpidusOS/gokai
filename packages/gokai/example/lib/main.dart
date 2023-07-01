@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
 
   late Future<List<String>?> _displayNamesFuture;
   late Future<List<String>?> _inputNamesFuture;
-  late GokaiContext gkContext;
+  GokaiContext? gkContext;
 
   @override
   void initState() {
@@ -68,6 +68,7 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Column(
             children: [
+              Text('Service names: ${gkContext != null ? gkContext!.serviceNames.join(', ') : ''}'),
               FutureBuilder(
                 future: engineManager.invokeMethod<String>('getEngineId'),
                 builder: (context, snapshot) {
