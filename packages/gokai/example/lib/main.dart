@@ -45,6 +45,12 @@ class _MyAppState extends State<MyApp> {
       final inputNames = await inputManager.getNames();
 
       final engineManager = ctx.services['EngineManager'] as GokaiEngineManager;
+      engineManager.onChange.add(() {
+        engineManager.getAll().then((value) => setState(() {
+          _engines = value;
+        }));
+      });
+
       final engine = await engineManager.getEngine();
       final engines = await engineManager.getAll();
 
