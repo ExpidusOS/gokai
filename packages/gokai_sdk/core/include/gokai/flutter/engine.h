@@ -44,6 +44,7 @@ namespace Gokai {
         std::thread::id getThreadId();
         EngineViewType getViewType();
         std::string getViewName();
+        bool isShutdown();
       private:
         bool shutdown;
         xg::Guid id;

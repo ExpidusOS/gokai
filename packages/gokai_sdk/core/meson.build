@@ -22,6 +22,7 @@ libgokai_core_src = [
   'lib/graphics/rendering/vulkan/renderer.cc',
   'lib/graphics/compositor.cc',
   'lib/graphics/renderer.cc',
+  'lib/graphics/swap-chain.cc',
   'lib/input/base.cc',
   'lib/input/keyboard.cc',
   'lib/input/pointer.cc',

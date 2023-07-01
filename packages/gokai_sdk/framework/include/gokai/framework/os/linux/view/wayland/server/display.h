@@ -14,6 +14,7 @@ extern "C" {
 #include <wlr/render/gles2.h>
 #include <wlr/render/pixman.h>
 #include <wlr/render/vulkan.h>
+#include <wlr/types/wlr_matrix.h>
 #include <wlr/types/wlr_output.h>
 #undef static
 }

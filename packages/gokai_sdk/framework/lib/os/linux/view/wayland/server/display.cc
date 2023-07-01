@@ -1,5 +1,7 @@
+#include <gokai/framework/os/linux/graphics/rendering/egl/wayland/server/renderer.h>
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
+#include <gokai/framework/os/linux/view/wayland/server/egl/buffer.h>
 #include <gokai/framework/os/linux/view/wayland/server/display.h>
 #include <gokai/services/engine-manager.h>
 #include <gokai/view/cairo/image.h>
@@ -21,10 +23,12 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
   auto compositor = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::Compositor*>(this->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
   auto renderer = compositor->getRenderer();
   if (wlr_renderer_is_gles2(renderer)) {
-    auto egl = wlr_gles2_renderer_get_egl(renderer);
-
-    this->renderer = new Gokai::Graphics::Rendering::EGL::Renderer(wlr_egl_get_display(egl), wlr_egl_get_context(egl), Gokai::ObjectArguments({
+    this->renderer = new Gokai::Framework::os::Linux::Graphics::Rendering::EGL::Wayland::Server::Renderer(Gokai::ObjectArguments({
+      { "context", this->context },
+      { "value", renderer },
       { "logger", this->getLogger() },
+      { "size", glm::uvec2(this->value->width, this->value->height) },
+      { "format", this->value->render_format },
     }));
   } else if (wlr_renderer_is_pixman(renderer)) {
     this->renderer = new Gokai::Graphics::Rendering::Cairo::Renderer(Gokai::ObjectArguments({
@@ -162,10 +166,11 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
   auto compositor = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::Compositor*>(self->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
   auto renderer = compositor->getRenderer();
 
-  wlr_output_attach_render(self->value, nullptr);
+  if (self->engine->isShutdown()) return;
 
   try {
     if (wlr_renderer_is_pixman(renderer)) {
+      wlr_output_attach_render(self->value, nullptr);
       auto img = wlr_pixman_renderer_get_current_image(renderer);
 
       auto surface = cairo_image_surface_create_for_data(
@@ -182,7 +187,29 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
       }));
 
       self->renderer->render(target);
+    } else if (wlr_renderer_is_gles2(renderer)) {
+      auto render_egl = static_cast<Gokai::Framework::os::Linux::Graphics::Rendering::EGL::Wayland::Server::Renderer*>(self->renderer);
+
+      float mat[9];
+      wlr_matrix_identity(mat);
+
+      struct wlr_box box = {
+        .x = 0,
+        .y = 0,
+        .width = self->value->width,
+        .height = self->value->height,
+      };
+
+      auto transform = (enum wl_output_transform)(self->value->transform | WL_OUTPUT_TRANSFORM_180 | WL_OUTPUT_TRANSFORM_FLIPPED);
+      wlr_matrix_project_box(mat, &box, transform, 0, self->value->transform_matrix);
+
+      wlr_output_attach_render(self->value, nullptr);
+      wlr_renderer_begin(renderer, self->value->width, self->value->height);
+      wlr_renderer_clear(renderer, (const float[4]){ 0, 0.0, 0, 1.0 });
+      wlr_render_texture_with_matrix(renderer, render_egl->buffer->getTexture(), mat, 1.0);
+      wlr_renderer_end(renderer);
     } else {
+      wlr_output_attach_render(self->value, nullptr);
       wlr_renderer_begin(renderer, self->value->width, self->value->height);
       wlr_renderer_clear(renderer, (const float[4]){ 0, 0.0, 0, 1.0 });
       wlr_renderer_end(renderer);

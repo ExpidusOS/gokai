@@ -17,10 +17,13 @@ namespace Gokai {
             EGLDisplay display;
             EGLContext context;
             EGLContext resource_context;
+            EGLSurface surface;
+            glm::uvec2 size;
 
             static bool make_current_callback(void* data);
             static bool clear_current_callback(void* data);
             static bool make_resource_current_callback(void* data);
+            static bool present_with_info_callback(void* data, const FlutterPresentInfo* info);
         };
       }
     }

@@ -254,6 +254,10 @@ Engine::~Engine() {
   }
 }
 
+bool Engine::isShutdown() {
+  return this->shutdown;
+}
+
 std::future<std::vector<uint8_t>> Engine::send(std::string channel, std::vector<uint8_t> data) {
   auto promise = new std::promise<std::vector<uint8_t>>();
 

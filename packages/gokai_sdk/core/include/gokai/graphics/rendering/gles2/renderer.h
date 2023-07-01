@@ -2,6 +2,7 @@
 
 #ifdef __cplusplus
 #include <gokai/graphics/renderer.h>
+#include <GLES2/gl2.h>
 
 namespace Gokai {
   namespace Graphics {
@@ -12,13 +13,10 @@ namespace Gokai {
             Renderer(Gokai::ObjectArguments arguments);
 
             FlutterRendererConfig* getConfig() override;
-          protected:
-            void init();
           private:
             FlutterRendererConfig config;
 
-            static bool present_with_info_callback(void* data, const FlutterPresentInfo* info);
-            static uint32_t fbo_callback(void* data);
+            static uint32_t fbo_with_frame_info_callback(void* data, const FlutterFrameInfo* info);
         };
       }
     }
