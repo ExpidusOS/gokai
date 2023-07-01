@@ -12,11 +12,15 @@ namespace Gokai {
         class Renderer : public Gokai::Graphics::Rendering::GLES2::Renderer {
           public:
             Renderer(EGLDisplay display, EGLContext context, Gokai::ObjectArguments arguments);
-
-            FlutterRendererConfig* getConfig() override;
+            ~Renderer();
           private:
             EGLDisplay display;
             EGLContext context;
+            EGLContext resource_context;
+
+            static bool make_current_callback(void* data);
+            static bool clear_current_callback(void* data);
+            static bool make_resource_current_callback(void* data);
         };
       }
     }
