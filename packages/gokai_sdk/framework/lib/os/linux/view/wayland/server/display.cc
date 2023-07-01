@@ -40,7 +40,7 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
   }
 
   auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
-  this->engine = engine_manager->create(this->renderer);
+  this->engine = engine_manager->create(this->renderer, Gokai::Flutter::display, this->getName());
 
   this->mode_listener.notify = Display::mode;
   wl_signal_add(&this->value->events.mode, &this->mode_listener);

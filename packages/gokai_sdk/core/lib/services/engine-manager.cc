@@ -19,6 +19,34 @@ EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(argumen
     if (call.method.compare("getEngineId") == 0) {
       return this->method_codec.encodeSuccessEnvelope(engine_id.str());
     }
+
+    if (call.method.compare("getViewType") == 0) {
+      auto engine_id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto engine = this->get(engine_id);
+      if (engine == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Engine \"{}\" does not exist", engine_id.str()), std::make_any<void*>(nullptr));
+      }
+
+      auto type = engine->getViewType();
+      switch (type) {
+        case Gokai::Flutter::window:
+          return this->method_codec.encodeSuccessEnvelope("window");
+        case Gokai::Flutter::display:
+          return this->method_codec.encodeSuccessEnvelope("display");
+      }
+
+      return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("\"{}\" is not valid", type), std::make_any<void*>(nullptr));
+    }
+
+    if (call.method.compare("getViewName") == 0) {
+      auto engine_id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto engine = this->get(engine_id);
+      if (engine == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Engine \"{}\" does not exist", engine_id.str()), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(engine->getViewName());
+    }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
   });
 }
@@ -29,7 +57,7 @@ std::shared_ptr<Gokai::ServiceChannel> EngineManager::getServiceChannel() {
   return this->service_channel;
 }
 
-std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::Renderer* renderer) {
+std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::Renderer* renderer, Gokai::Flutter::EngineViewType type, std::string name) {
   auto id = xg::newGuid();
 
   auto engine = std::shared_ptr<Gokai::Flutter::Engine>(new Gokai::Flutter::Engine(Gokai::ObjectArguments({
@@ -37,6 +65,8 @@ std::shared_ptr<Gokai::Flutter::Engine> EngineManager::create(Gokai::Graphics::R
     { "logger", this->getLogger() },
     { "context", this->context },
     { "renderer", renderer },
+    { "view-type", type },
+    { "view-name", name },
   })));
 
   this->engines[id] = engine.get();
@@ -60,7 +90,7 @@ std::list<xg::Guid> EngineManager::getIds() {
 Gokai::Flutter::Engine* EngineManager::get(xg::Guid id) {
   auto find = this->engines.find(id);
   if (find == this->engines.end()) {
-    throw std::invalid_argument("Engines " + id.str() + " does not exist");
+    return nullptr;
   }
 
   return find->second;

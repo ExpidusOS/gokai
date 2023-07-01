@@ -112,7 +112,12 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
   }
 }
 
-Engine::Engine(Gokai::ObjectArguments arguments) : Gokai::Loggable(TAG, arguments), thread_id{std::this_thread::get_id()}, shutdown{false} {
+Engine::Engine(Gokai::ObjectArguments arguments)
+    : Gokai::Loggable(TAG, arguments),
+      thread_id{std::this_thread::get_id()},
+      shutdown{false},
+      view_type{std::any_cast<EngineViewType>(arguments.get("view-type"))},
+      view_name{std::any_cast<std::string>(arguments.get("view-name"))} {
   if (arguments.has("id")) {
     this->id = std::any_cast<xg::Guid>(arguments.get("id"));
   } else {
@@ -288,6 +293,14 @@ void Engine::resize(glm::uvec2 size) {
 
 std::thread::id Engine::getThreadId() {
   return this->thread_id;
+}
+
+EngineViewType Engine::getViewType() {
+  return this->view_type;
+}
+
+std::string Engine::getViewName() {
+  return this->view_name;
 }
 
 void Engine::event_callback(uv_timer_t* event_runner) {

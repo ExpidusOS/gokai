@@ -20,6 +20,11 @@ namespace Gokai {
       bool operator()(const EngineTask& a, const EngineTask& b) const;
     };
 
+    enum EngineViewType {
+      window,
+      display,
+    };
+
     class Engine : public Gokai::Loggable {
       public:
         Engine(Gokai::ObjectArguments arguments);
@@ -34,6 +39,8 @@ namespace Gokai {
         FlutterEngine getValue();
         void resize(glm::uvec2 size);
         std::thread::id getThreadId();
+        EngineViewType getViewType();
+        std::string getViewName();
       private:
         bool shutdown;
         xg::Guid id;
@@ -44,6 +51,8 @@ namespace Gokai {
         std::thread::id thread_id;
         uv_timer_t event_runner;
         std::priority_queue<EngineTask, std::vector<EngineTask>, TaskRunnerComp> tasks;
+        EngineViewType view_type;
+        std::string view_name;
 
         Gokai::Graphics::Renderer* renderer;
         std::shared_ptr<Gokai::Context> context;
