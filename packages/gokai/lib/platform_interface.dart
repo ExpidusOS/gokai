@@ -1,6 +1,7 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:gokai/platforms/native.dart';
 import 'package:gokai/constants.dart';
+import 'package:gokai/service.dart';
 
 abstract class GokaiPlatform extends PlatformInterface {
   GokaiPlatform() : super(token: _token);
@@ -14,7 +15,7 @@ abstract class GokaiPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String> getService(String name) {
+  Future<GokaiService> getService(String name) {
     throw UnimplementedError('getService("$name") has not been implemented.');
   }
 

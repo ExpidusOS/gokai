@@ -1,15 +1,26 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:gokai/constants.dart';
+import 'package:gokai/platforms/native/services.dart';
 import 'package:gokai/platform_interface.dart';
+import 'package:gokai/service.dart';
 
 class GokaiNativePlatform extends GokaiPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('Gokai::Context', JSONMethodCodec());
 
   @override
-  Future<String> getService(String name) async
-    => (await methodChannel.invokeMethod<String>('getService', name))!;
+  Future<GokaiService> getService(String name) async {
+    final channel = (await methodChannel.invokeMethod<String>('getService', name))!;
+    final map = {
+      'Gokai::Services::DisplayManager': () => GokaiNativeDisplayManager(),
+      'Gokai::Services::EngineManager': () => const GokaiNativeEngineManager(),
+      'Gokai::Services::InputManager': () => GokaiNativeInputManager(),
+    };
+
+    if (map.containsKey(channel)) return map[channel]!();
+    throw Exception('Service $name on channel $channel has not been mapped');
+  }
 
   @override
   Future<List<String>> getServiceNames() async

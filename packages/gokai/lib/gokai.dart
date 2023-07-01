@@ -1,5 +1,7 @@
 import 'constants.dart';
 import 'platform_interface.dart';
+import 'service.dart';
+export 'service.dart';
 
 class GokaiContext {
   GokaiContext() : _instance = GokaiPlatform.instance;
@@ -8,7 +10,7 @@ class GokaiContext {
   final GokaiPlatform _instance;
   bool _hasInitialized = false;
 
-  Map<String, String> services = {};
+  Map<String, GokaiService> services = {};
   GokaiContextMode mode = GokaiContextMode.invalid;
   late String packageName;
   late String packageDir;

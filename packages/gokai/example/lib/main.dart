@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:gokai/gokai.dart';
+import 'package:gokai/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,45 +14,38 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const displayManager = MethodChannel('Gokai::Services::DisplayManager', JSONMethodCodec());
-  static const engineManager = MethodChannel('Gokai::Services::EngineManager', JSONMethodCodec());
-  static const inputManager = MethodChannel('Gokai::Services::InputManager', JSONMethodCodec());
-
-  late Future<List<String>?> _displayNamesFuture;
-  late Future<List<String>?> _inputNamesFuture;
+  List<String> _displayNames = [];
+  List<String> _inputNames = [];
   GokaiContext? gkContext;
 
   @override
   void initState() {
     super.initState();
 
-    GokaiContext().init().then((ctx) {
+    GokaiContext().init().then((ctx) async {
+      final displayManager = ctx.services['DisplayManager'] as GokaiDisplayManager;
+      displayManager.onChange.add(() {
+        displayManager.getNames().then((value) => setState(() {
+          _displayNames = value;
+        }));
+      });
+
+      final displayNames = await displayManager.getNames();
+
+      final inputManager = ctx.services['InputManager'] as GokaiInputManager;
+      inputManager.onChange.add(() {
+        inputManager.getNames().then((value) => setState(() {
+          _inputNames = value;
+        }));
+      });
+
+      final inputNames = await inputManager.getNames();
+
       setState(() {
         gkContext = ctx;
+        _displayNames = displayNames;
+        _inputNames = inputNames;
       });
-    });
-
-    _displayNamesFuture = displayManager.invokeListMethod<String>('getNames');
-    _inputNamesFuture = inputManager.invokeListMethod<String>('getNames');
-
-    displayManager.setMethodCallHandler((call) async {
-      switch (call.method) {
-        case "changed":
-          setState(() {
-            _displayNamesFuture = displayManager.invokeListMethod<String>('getNames');
-          });
-          break;
-      }
-    });
-
-    inputManager.setMethodCallHandler((call) async {
-      switch (call.method) {
-        case "changed":
-          setState(() {
-            _inputNamesFuture = inputManager.invokeListMethod<String>('getNames');
-          });
-          break;
-      }
     });
   }
 
@@ -69,59 +60,9 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: [
               Text('Service names: ${gkContext != null ? gkContext!.services.keys.join(', ') : ''}'),
-              Text('Service channels: ${gkContext != null ? gkContext!.services.values.join(', ') : ''}'),
-              FutureBuilder(
-                future: engineManager.invokeMethod<String>('getEngineId'),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text('Engine ID: ${snapshot.data!}');
-                  }
-
-                  if (snapshot.hasError) {
-                    return Text('Failed to get engine ID: ${snapshot.error!.toString()}');
-                  }
-                  return const Text('Engine ID: Unknown');
-                },
-              ),
-              FutureBuilder(
-                future: _displayNamesFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(
-                      'Displays: ${snapshot.data!.join(', ')}'
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    return Text('Failed to get displays: ${snapshot.error!.toString()}');
-                  }
-
-                  return const Text('');
-                },
-              ),
-              FutureBuilder(
-                future: _inputNamesFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(
-                      'Inputs: ${snapshot.data!.join(', ')}'
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    return Text('Failed to get inputs: ${snapshot.error!.toString()}');
-                  }
-
-                  return const Text('');
-                },
-              ),
-              TextButton(
-                onPressed: () {
-                  print('Hello, world');
-                },
-                child: const Text('Test Log'),
-              ),
-              const TextField(),
+              Text('Service channels: ${gkContext != null ? gkContext!.services.values.map((e) => e.channelName).join(', ') : ''}'),
+              Text('Displays: ${_displayNames.join(', ')}'),
+              Text('Inputs: ${_inputNames.join(', ')}'),
             ],
           ),
         ),
