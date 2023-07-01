@@ -107,7 +107,10 @@ Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments), method_c
     }
 
     if (call.method.compare("getServiceNames") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(this->getSystemServiceNames());
+      auto names = this->getSystemServiceNames();
+      std::list<std::any> list;
+      for (auto name : names) list.push_back(name);
+      return this->method_codec.encodeSuccessEnvelope(list);
     }
 
     if (call.method.compare("getMode") == 0) {
