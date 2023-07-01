@@ -77,6 +77,9 @@ pkg.generate(libgokai_core,
   libraries: [
     flutter_engine,
   ],
+  extra_cflags: [
+    '-I'+flutter_engine_dir
+  ],
   requires: [
     'spdlog',
     'libuv',
