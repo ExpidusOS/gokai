@@ -22,10 +22,17 @@ class _MyAppState extends State<MyApp> {
 
   late Future<List<String>?> _displayNamesFuture;
   late Future<List<String>?> _inputNamesFuture;
+  late GokaiContext gkContext;
 
   @override
   void initState() {
     super.initState();
+
+    GokaiContext().init().then((ctx) {
+      setState(() {
+        gkContext = ctx;
+      });
+    });
 
     _displayNamesFuture = displayManager.invokeListMethod<String>('getNames');
     _inputNamesFuture = inputManager.invokeListMethod<String>('getNames');
