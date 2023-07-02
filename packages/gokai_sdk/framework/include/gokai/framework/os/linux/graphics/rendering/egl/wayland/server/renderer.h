@@ -30,6 +30,7 @@ namespace Gokai {
                       ~Renderer();
 
                       Gokai::Framework::os::Linux::View::Wayland::Server::EGL::Buffer* buffer;
+                      std::list<Gokai::View::DRect> damage;
 
                       FlutterRendererConfig* getConfig() override;
                       void resize(glm::uvec2 size) override;

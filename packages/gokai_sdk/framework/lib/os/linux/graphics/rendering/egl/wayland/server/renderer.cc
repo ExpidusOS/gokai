@@ -140,5 +140,14 @@ bool Renderer::present_with_info_callback(void* data, const FlutterPresentInfo* 
   if (engine->isShutdown()) return false;
 
   auto self = static_cast<Renderer*>(engine->getRenderer());
+
+  for (size_t i = 0; i < info->frame_damage.num_rects; i++) {
+    auto damage = info->frame_damage.damage[i];
+
+    self->damage.push_back(Gokai::View::DRect(
+      glm::vec2(damage.left, damage.top),
+      glm::vec2(damage.right - damage.left, damage.bottom - damage.top)
+    ));
+  }
   return true;
 }
