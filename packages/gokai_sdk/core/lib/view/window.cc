@@ -10,6 +10,10 @@ Window::Window(Gokai::ObjectArguments arguments) : Object(arguments) {
   }
 }
 
+std::string Window::getDisplayName() {
+  return std::string();
+}
+
 xg::Guid Window::getId() {
   return this->id;
 }

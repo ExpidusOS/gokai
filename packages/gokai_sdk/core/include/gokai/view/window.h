@@ -11,6 +11,8 @@ namespace Gokai {
       public:
         Window(Gokai::ObjectArguments arguments);
 
+        virtual std::string getDisplayName();
+
         xg::Guid getId();
         virtual URect getRect();
         virtual void setRect(URect rect);

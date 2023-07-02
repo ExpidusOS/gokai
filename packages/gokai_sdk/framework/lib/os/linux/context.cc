@@ -4,6 +4,7 @@
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
 #include <gokai/framework/os/linux/context.h>
+#include <gokai/services/texture-manager.h>
 #include <assert.h>
 #include <basedir.h>
 #include <filesystem>
@@ -87,6 +88,11 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   auto self = std::shared_ptr<Gokai::Context>(static_cast<Gokai::Context*>(this));
 
   this->services[Gokai::Services::EngineManager::SERVICE_NAME] = new Gokai::Services::EngineManager(Gokai::ObjectArguments({
+    { "context", self },
+    { "logger", this->getLogger() },
+  }));
+
+  this->services[Gokai::Services::TextureManager::SERVICE_NAME] = new Gokai::Services::TextureManager(Gokai::ObjectArguments({
     { "context", self },
     { "logger", this->getLogger() },
   }));
