@@ -22,6 +22,9 @@ namespace Gokai {
                 public:
                   WindowManager(Gokai::ObjectArguments arguments);
 
+                  std::list<xg::Guid> getIds() override;
+                  Gokai::View::Window* get(xg::Guid id) override;
+
                   struct wlr_compositor* getCompositor();
                   struct wlr_subcompositor* getSubcompositor();
                   struct wlr_xdg_shell* getXdgShell();
@@ -29,6 +32,11 @@ namespace Gokai {
                   struct wlr_compositor* compositor;
                   struct wlr_subcompositor* subcompositor;
                   struct wlr_xdg_shell* xdg_shell;
+                  struct wl_listener new_surface_listener;
+
+                  std::map<xg::Guid, Gokai::View::Window*> windows;
+
+                  static void new_surface_handle(struct wl_listener* listener, void* data);
               };
             }
           }

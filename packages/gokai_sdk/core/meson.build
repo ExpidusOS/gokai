@@ -38,6 +38,7 @@ libgokai_core_src = [
   'lib/view/display.cc',
   'lib/view/displayable.cc',
   'lib/view/rect.cc',
+  'lib/view/window.cc',
 ]
 libgokai_core_inc = [
   include_directories('include'),
