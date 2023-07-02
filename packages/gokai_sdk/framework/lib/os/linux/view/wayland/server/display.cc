@@ -223,6 +223,7 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
       pixman_region32_init_rects(&damage, damage_boxes.data(), damage_boxes.size());
       wlr_output_set_damage(self->value, &damage);
       render_egl->damage.clear();
+      pixman_region32_fini(&damage);
     } else {
       wlr_output_attach_render(self->value, nullptr);
       wlr_renderer_begin(renderer, self->value->width, self->value->height);
