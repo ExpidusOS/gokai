@@ -22,7 +22,7 @@ class GokaiNativeDisplayManager extends GokaiDisplayManager {
 
   @override
   Future<List<String>> getNames() async
-    => (await methodChannel.invokeListMethod<String>('getNames'))!;
+    => (await methodChannel.invokeListMethod<String>('getNames')) ?? [];
 
   Future<GokaiDisplay> get(String name) async {
     final model = (await methodChannel.invokeMethod<String>('getModel', name))!;

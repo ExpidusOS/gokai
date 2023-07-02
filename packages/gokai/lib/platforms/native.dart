@@ -16,6 +16,7 @@ class GokaiNativePlatform extends GokaiPlatform {
       'Gokai::Services::DisplayManager': () => GokaiNativeDisplayManager(),
       'Gokai::Services::EngineManager': () => GokaiNativeEngineManager(),
       'Gokai::Services::InputManager': () => GokaiNativeInputManager(),
+      'Gokai::Services::WindowManager': () => GokaiNativeWindowManager(),
     };
 
     if (map.containsKey(channel)) return map[channel]!();

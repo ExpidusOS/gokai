@@ -26,7 +26,7 @@ class GokaiNativeEngineManager extends GokaiEngineManager {
 
   @override
   Future<List<String>> getIds() async
-    => (await methodChannel.invokeListMethod<String>('getIds'))!;
+    => (await methodChannel.invokeListMethod<String>('getIds')) ?? [];
 
   @override
   Future<GokaiFlutterEngine> get(String id) async {
