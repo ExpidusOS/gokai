@@ -13,12 +13,17 @@ namespace Gokai {
       public:
         WindowManager(Gokai::ObjectArguments arguments);
 
+        std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
+
         std::list<std::function<void()>> changed;
 
         virtual std::list<xg::Guid> getIds();
         virtual Gokai::View::Window* get(xg::Guid id);
 
         static const std::string SERVICE_NAME;
+      private:
+        Gokai::Flutter::Codecs::JSONMethodCodec method_codec;
+        std::shared_ptr<Gokai::ServiceChannel> service_channel;
     };
   }
 }

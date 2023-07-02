@@ -27,6 +27,9 @@ namespace Gokai {
                   std::list<std::function<void()>> destroy;
                 private:
                   struct wlr_surface* value;
+                  struct wl_listener destroy_listener;
+
+                  static void 破壊する(struct wl_listener* listener, void* data);
               };
             }
           }
