@@ -44,6 +44,7 @@
               meson
               ninja
               pkg-config
+              wayland-protocols
             ];
 
             buildInputs = with pkgs; [

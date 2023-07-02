@@ -1,6 +1,7 @@
 libgokai_framework_src = []
 libgokai_framework_deps = [gokai_core]
-libgokai_framework_inc = include_directories('include')
+libgokai_framework_inc = [include_directories('include')]
+libgokai_framework_private_inc = []
 libgokai_framework_cppflags = []
 
 if target_machine.system() == 'linux'
@@ -36,12 +37,24 @@ if target_machine.system() == 'linux'
   libgokai_framework_cppflags += [
     '-DWLR_USE_UNSTABLE=1'
   ]
+
+  libgokai_framework_private_inc += [
+    include_directories('lib/os/linux/services/wayland/server')
+  ]
+
+  wayland = import('unstable-wayland')
+  libgokai_framework_src += wayland.scan_xml(
+    wayland.find_protocol('xdg-shell'),
+    client: false,
+    server: true,
+    public: true
+  )
 endif
 
 libgokai_framework = shared_library('gokai-framework-v1', libgokai_framework_src,
   cpp_args: libgokai_framework_cppflags,
   name_prefix: '',
-  include_directories: libgokai_framework_inc,
+  include_directories: libgokai_framework_inc + libgokai_framework_private_inc,
   dependencies: libgokai_framework_deps,
   install: true,
   install_dir: libdir / 'gokai' / 'frameworks')

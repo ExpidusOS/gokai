@@ -103,8 +103,7 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
 
   this->allocator = wlr_allocator_autocreate(this->backend, this->renderer);
 
-  wlr_compositor_create(this->display, this->renderer);
-  wlr_subcompositor_create(this->display);
+  wlr_renderer_init_wl_display(this->renderer, this->display);
   wlr_data_device_manager_create(this->display);
 
   this->logger->debug("Attaching Wayland Event loop to context event loop");
