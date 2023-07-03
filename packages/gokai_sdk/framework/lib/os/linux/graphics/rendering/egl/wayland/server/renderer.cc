@@ -1,6 +1,7 @@
 #include <gokai/flutter/engine.h>
 #include <gokai/framework/os/linux/graphics/rendering/egl/wayland/server/renderer.h>
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
+#include <gokai/services/texture-manager.h>
 
 using namespace Gokai::Framework::os::Linux::Graphics::Rendering::EGL::Wayland::Server;
 
@@ -68,6 +69,7 @@ Renderer::Renderer(Gokai::ObjectArguments arguments) : Gokai::Graphics::Renderer
   this->config.open_gl.clear_current = Renderer::clear_current_callback;
   this->config.open_gl.make_resource_current = Renderer::make_resource_current_callback;
   this->config.open_gl.present_with_info = Renderer::present_with_info_callback;
+  this->config.open_gl.gl_external_texture_frame_callback = Renderer::gl_external_texture_frame_callback;
 }
 
 Renderer::~Renderer() {
@@ -150,4 +152,20 @@ bool Renderer::present_with_info_callback(void* data, const FlutterPresentInfo* 
     ));
   }
   return true;
+}
+
+bool Renderer::gl_external_texture_frame_callback(void* data, int64_t tid, size_t width, size_t height, FlutterOpenGLTexture* out) {
+  auto engine = static_cast<Gokai::Flutter::Engine*>(data);
+  if (engine->isShutdown()) return false;
+
+  auto self = static_cast<Renderer*>(engine->getRenderer());
+
+  auto texture_manager = reinterpret_cast<Gokai::Services::TextureManager*>(self->gk_context->getSystemService(Gokai::Services::TextureManager::SERVICE_NAME));
+  auto texture = texture_manager->get(tid);
+  if (texture == nullptr) return false;
+
+  Gokai::Flutter::Texture tx_out;
+  auto result = texture->frame(width, height, &tx_out);
+  *out = tx_out.open_gl;
+  return result;
 }

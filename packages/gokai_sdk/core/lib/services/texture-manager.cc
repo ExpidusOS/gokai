@@ -9,15 +9,21 @@ TextureManager::TextureManager(Gokai::ObjectArguments arguments) : Service(argum
   this->next_id = 0;
 }
 
-int64_t TextureManager::allocate() {
+int64_t TextureManager::allocate(std::shared_ptr<Gokai::Graphics::Texture> texture) {
   int64_t id = this->next_id++;
   this->logger->debug("Registering texture {}", id);
-  // TODO: register on all
+  this->map[id] = texture;
   return id;
 }
 
+std::shared_ptr<Gokai::Graphics::Texture> TextureManager::get(int64_t id) {
+  auto find = this->map.find(id);
+  if (find == this->map.end()) return nullptr;
+  return find->second;
+}
+
 void TextureManager::unregister(int64_t id) {
-  // TODO: unregister on all
+  this->map.erase(id);
 }
 
 const std::string TextureManager::SERVICE_NAME = "TextureManager";
