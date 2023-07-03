@@ -1,3 +1,4 @@
+#include <gokai/services/engine-manager.h>
 #include <gokai/services/texture-manager.h>
 
 #define TAG "Gokai::Services::TextureManager"
@@ -13,12 +14,34 @@ int64_t TextureManager::allocate(std::shared_ptr<Gokai::Graphics::Texture> textu
   int64_t id = this->next_id++;
   this->logger->debug("Registering texture {}", id);
   this->map[id] = texture;
+
+  auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
+  for (const auto& engine_id : engine_manager->getIds()) {
+    auto engine = engine_manager->get(engine_id);
+    if (engine == nullptr) continue;
+
+    auto result = FlutterEngineRegisterExternalTexture(engine->getValue(), id);
+    if (result != kSuccess) {
+      throw std::runtime_error("Failed to register the texture");
+    }
+  }
   return id;
 }
 
 std::shared_ptr<Gokai::Graphics::Texture> TextureManager::get(int64_t id) {
   auto find = this->map.find(id);
   if (find == this->map.end()) return nullptr;
+
+  auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
+  for (const auto& engine_id : engine_manager->getIds()) {
+    auto engine = engine_manager->get(engine_id);
+    if (engine == nullptr) continue;
+
+    auto result = FlutterEngineUnregisterExternalTexture(engine->getValue(), id);
+    if (result != kSuccess) {
+      throw std::runtime_error("Failed to register the texture");
+    }
+  }
   return find->second;
 }
 
