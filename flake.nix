@@ -40,6 +40,32 @@
         cipd = pkgs.runCommandLocal "cipd-${cipdCommit}" {}
           "mkdir -p $out/bin && install -m755 ${cipd-binary} $out/bin/cipd";
 
+        vpython = pkgs.stdenvNoCC.mkDerivation {
+          name = "vpython3";
+
+          nativeBuildInputs = [ cipd ];
+
+          unpackPhase = ''
+            mkdir -p $out
+            grep "infra/tools/luci/vpython/" ${depot_tools}/cipd_manifest.txt >$out/cipd_manifest.txt
+            cipd ensure -root $out/bin -ensure-file $out/cipd_manifest.txt
+          '';
+
+          NIX_SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+          GIT_SSL_CAINFO = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+          SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+
+          dontConfigure = true;
+          dontBuild = true;
+          dontInstall = true;
+
+          outputHashAlgo = "sha256";
+          outputHashMode = "recursive";
+
+          # TODO: select hash based on platform
+          outputHash = "sha256-AlEkxjEOh8O7rTDlYl83QKVx9ksLj1E8uE1RwKbDd2c=";
+        };
+
         gclient = pkgs.writeText "flutter-engine.gclient" ''
           solutions = [{
             "managed": False,
@@ -79,6 +105,8 @@
             find $out -name '.git' -exec dirname {} \; | xargs bash -c 'make_deterministic_repo $@' _
             find $out -path '*/.git/*' ! -name 'HEAD' -prune -exec rm -rf {} \;
 
+            echo "3.0.0" >$out/src/third_party/dart/sdk/version
+
             rm -rf $out/.cipd $out/.gclient $out/.gclient_entries $out/.gclient_previous_custom_vars $out/.gclient_previous_sync_commits
           '';
 
@@ -100,7 +128,20 @@
 
           outputHashAlgo = "sha256";
           outputHashMode = "recursive";
-          outputHash = "sha256-0bGbyu0Fs0LJVYFotqqQS8mY4shPudRZusjETKDRsvc=";
+          outputHash = "sha256-x57mRIOPdQ4tXaLcHj5JhGZy+tGH3UVOVUgPXI44QVA=";
+        };
+
+        flutter-engine-toolchain = pkgs.stdenvNoCC.mkDerivation {
+          pname = "flutter-engine-toolchain";
+          version = engineCommit;
+
+          dontUnpack = true;
+          dontConfigure = true;
+          dontBuild = true;
+
+          installPhase = ''
+            mkdir -p $out/bin
+          '';
         };
 
         flutter-engine = pkgs.fetchzip {
@@ -110,7 +151,33 @@
         };
       in {
         packages = {
-          inherit flutter-engine-src;
+          flutter-engine = pkgs.stdenvNoCC.mkDerivation {
+            pname = "flutter-engine";
+            version = engineCommit;
+
+            src = flutter-engine-src;
+
+            nativeBuildInputs = with pkgs; [
+              python3
+              dart
+              patchelf
+              vpython
+            ];
+
+            PYTHONDONTWRITEBYTECODE = "1";
+
+            postUnpack = ''
+              dart ${flutter-engine-src.name}/src/third_party/dart/tools/generate_package_config.dart
+              patchelf ${flutter-engine-src.name}/src/flutter/third_party/gn/gn --set-interpreter ${pkgs.stdenv.cc.libc_lib}/lib/ld-linux-${builtins.replaceStrings ["_"] ["-"] pkgs.targetPlatform.linuxArch}.so.2
+            '';
+
+            configurePhase = ''
+              runHook preConfigure
+              python3 ./src/flutter/tools/gn --no-goma --embedder-for-target --no-prebuilt-dart-sdk --out-dir $out --target-sysroot ${flutter-engine-toolchain}
+              runHook postConfigure
+            '';
+          };
+
           sdk = pkgs.stdenv.mkDerivation {
             pname = "gokai-sdk";
             version = "0.1.0-git+${self.shortRev or "dirty"}";
