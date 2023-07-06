@@ -37,34 +37,48 @@
           sha256 = "2ada6b46ad1cd1350522c5c05899d273f5c894c7665e30104e7f57084a5aeeb9";
         };
 
+        git-revision = pkgs.writeText "git-revision.py" ''
+          #!/usr/bin/env python3
+
+          import sys
+          import subprocess
+          import os
+          import argparse
+
+          def get_repository_version(repository):
+            'Returns the Git HEAD for the supplied repository path as a string.'
+            if not os.path.exists(repository):
+              raise IOError('path does not exist')
+
+            with open(os.path.join(repository, '.git', 'HEAD'), 'r') as head:
+              return head.read().strip()
+
+          def main():
+            parser = argparse.ArgumentParser()
+
+            parser.add_argument(
+              '--repository',
+              action='store',
+              help='Path to the Git repository.',
+              required=True
+            )
+
+            args = parser.parse_args()
+            repository = os.path.abspath(args.repository)
+            version = get_repository_version(repository)
+            print(version.strip())
+
+            return 0
+
+          if __name__ == '__main__':
+            sys.exit(main())
+        '';
+
         cipd = pkgs.runCommandLocal "cipd-${cipdCommit}" {}
           "mkdir -p $out/bin && install -m755 ${cipd-binary} $out/bin/cipd";
 
-        vpython = pkgs.stdenvNoCC.mkDerivation {
-          name = "vpython3";
-
-          nativeBuildInputs = [ cipd ];
-
-          unpackPhase = ''
-            mkdir -p $out
-            grep "infra/tools/luci/vpython/" ${depot_tools}/cipd_manifest.txt >$out/cipd_manifest.txt
-            cipd ensure -root $out/bin -ensure-file $out/cipd_manifest.txt
-          '';
-
-          NIX_SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-          GIT_SSL_CAINFO = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-          SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-
-          dontConfigure = true;
-          dontBuild = true;
-          dontInstall = true;
-
-          outputHashAlgo = "sha256";
-          outputHashMode = "recursive";
-
-          # TODO: select hash based on platform
-          outputHash = "sha256-AlEkxjEOh8O7rTDlYl83QKVx9ksLj1E8uE1RwKbDd2c=";
-        };
+        vpython = pkgs.runCommandLocal "vpython3" {}
+          "mkdir -p $out/bin && install -m755 ${pkgs.python3}/bin/python $out/bin/vpython3";
 
         gclient = pkgs.writeText "flutter-engine.gclient" ''
           solutions = [{
@@ -140,7 +154,10 @@
           dontBuild = true;
 
           installPhase = ''
-            mkdir -p $out/bin
+            mkdir -p $out/lib/pkgconfig
+
+            find ${pkgs.libglvnd}/lib -name '*.so' -exec cp {} $out/lib \;
+            find ${pkgs.libglvnd.dev}/lib/pkgconfig -name '*.pc' -exec cp {} $out/lib/pkgconfig \;
           '';
         };
 
@@ -157,18 +174,43 @@
 
             src = flutter-engine-src;
 
+            inherit vpython;
+
             nativeBuildInputs = with pkgs; [
               python3
               dart
               patchelf
               vpython
+              git
+              pkg-config
+            ];
+
+            buildInputs = with pkgs; [
+              freetype
+              xorg.libX11
+              gtk3
             ];
 
             PYTHONDONTWRITEBYTECODE = "1";
 
+            patchtools = [
+              "flutter/third_party/gn/gn"
+              "third_party/dart/tools/sdks/dart-sdk/bin/dart"
+            ];
+
             postUnpack = ''
               dart ${flutter-engine-src.name}/src/third_party/dart/tools/generate_package_config.dart
-              patchelf ${flutter-engine-src.name}/src/flutter/third_party/gn/gn --set-interpreter ${pkgs.stdenv.cc.libc_lib}/lib/ld-linux-${builtins.replaceStrings ["_"] ["-"] pkgs.targetPlatform.linuxArch}.so.2
+              cp ${git-revision} ${flutter-engine-src.name}/src/flutter/build/git_revision.py
+
+              for patchtool in ''${patchtools[@]}; do
+                patchelf ${flutter-engine-src.name}/src/$patchtool --set-interpreter ${pkgs.stdenv.cc.libc_lib}/lib/ld-linux-${builtins.replaceStrings ["_"] ["-"] pkgs.targetPlatform.linuxArch}.so.2
+              done
+
+              pushd ${flutter-engine-src.name}/src/third_party/dart
+              rm -rf .git
+              git init
+              git add .
+              popd
             '';
 
             configurePhase = ''
