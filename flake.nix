@@ -118,6 +118,8 @@
             python3 $depot_tools/gclient.py sync --no-history --shallow --nohooks
             find $out -name '.git' -exec dirname {} \; | xargs bash -c 'make_deterministic_repo $@' _
             find $out -path '*/.git/*' ! -name 'HEAD' -prune -exec rm -rf {} \;
+            find $out -name '.git' -exec mkdir {}/logs \;
+            find $out -name '.git' -exec cp {}/HEAD {}/logs/HEAD \;
 
             echo "3.0.0" >$out/src/third_party/dart/sdk/version
 
@@ -142,7 +144,7 @@
 
           outputHashAlgo = "sha256";
           outputHashMode = "recursive";
-          outputHash = "sha256-x57mRIOPdQ4tXaLcHj5JhGZy+tGH3UVOVUgPXI44QVA=";
+          outputHash = "sha256-oj4vEl6bX1tyoC+0tDKI+9hHxt1OegbnIjcs+jhWbu0=";
         };
 
         flutter-engine-toolchain = pkgs.stdenvNoCC.mkDerivation {
@@ -154,10 +156,19 @@
           dontBuild = true;
 
           installPhase = ''
-            mkdir -p $out/lib/pkgconfig
+            mkdir -p $out/usr/lib/pkgconfig $out/usr/include
+            cp -r ${pkgs.libglvnd.dev}/include/* $out/usr/include
+            cp -r ${pkgs.libepoxy.dev}/include/* $out/usr/include/epoxy
 
-            find ${pkgs.libglvnd}/lib -name '*.so' -exec cp {} $out/lib \;
-            find ${pkgs.libglvnd.dev}/lib/pkgconfig -name '*.pc' -exec cp {} $out/lib/pkgconfig \;
+            find ${pkgs.libglvnd}/lib -name '*.so' -exec cp {} $out/usr/lib \;
+            find ${pkgs.libepoxy}/lib -name '*.so' -exec cp {} $out/usr/lib \;
+
+            for pkgconfig in $(find ${pkgs.libglvnd.dev}/lib/pkgconfig -name '*.pc') $(find ${pkgs.libepoxy.dev}/lib/pkgconfig -name '*.pc'); do
+              cp $pkgconfig $out/usr/lib/pkgconfig/$(basename $pkgconfig)
+              sed -i "s|prefix=/.*|prefix=$out/usr|g" $out/usr/lib/pkgconfig/$(basename $pkgconfig)
+              sed -i "s|libdir=.*|libdir=$out/usr/lib|g" $out/usr/lib/pkgconfig/$(basename $pkgconfig)
+              sed -i "s|includedir=.*|includedir=$out/usr/include|g" $out/usr/lib/pkgconfig/$(basename $pkgconfig)
+            done
           '';
         };
 
@@ -183,6 +194,7 @@
               vpython
               git
               pkg-config
+              ninja
             ];
 
             buildInputs = with pkgs; [
@@ -198,26 +210,52 @@
               "third_party/dart/tools/sdks/dart-sdk/bin/dart"
             ];
 
+            runtimeModes = [
+              "debug"
+              "profile"
+              "release"
+              "jit_release"
+            ];
+
             postUnpack = ''
               dart ${flutter-engine-src.name}/src/third_party/dart/tools/generate_package_config.dart
               cp ${git-revision} ${flutter-engine-src.name}/src/flutter/build/git_revision.py
+              cp ${./pkg-config.py} ${flutter-engine-src.name}/src/build/config/linux/pkg-config.py
 
               for patchtool in ''${patchtools[@]}; do
                 patchelf ${flutter-engine-src.name}/src/$patchtool --set-interpreter ${pkgs.stdenv.cc.libc_lib}/lib/ld-linux-${builtins.replaceStrings ["_"] ["-"] pkgs.targetPlatform.linuxArch}.so.2
               done
 
               pushd ${flutter-engine-src.name}/src/third_party/dart
+              rev=$(cat .git/HEAD)
               rm -rf .git
               git init
               git add .
+              mkdir -p .git/logs
+              echo $rev >.git/logs/HEAD
               popd
             '';
 
             configurePhase = ''
               runHook preConfigure
-              python3 ./src/flutter/tools/gn --no-goma --embedder-for-target --no-prebuilt-dart-sdk --out-dir $out --target-sysroot ${flutter-engine-toolchain}
+
+              for mode in ''${runtimeModes[@]}; do
+                python3 ./src/flutter/tools/gn --no-goma --runtime-mode $mode --embedder-for-target --no-prebuilt-dart-sdk --out-dir $out --target-sysroot ${flutter-engine-toolchain}
+                python3 ./src/flutter/tools/gn --no-goma --runtime-mode $mode --embedder-for-target --no-prebuilt-dart-sdk --out-dir $out --target-sysroot ${flutter-engine-toolchain} --unoptimized
+              done
+
               runHook postConfigure
             '';
+
+            buildPhase = ''
+              runHook preBuild
+              for dir in $out/out/*; do
+                ninja -C $dir -j$NIX_BUILD_CORES
+              done
+              runHook postBuild
+            '';
+
+            dontInstall = true;
           };
 
           sdk = pkgs.stdenv.mkDerivation {
