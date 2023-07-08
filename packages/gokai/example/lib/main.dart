@@ -65,6 +65,9 @@ class _MyAppState extends State<MyApp> {
 
       final windows = await windowManager.getAll();
 
+      final accountManager = ctx.services['AccountManager'] as GokaiAccountManager;
+      print(await accountManager.getIds());
+
       setState(() {
         gkContext = ctx;
         _displayNames = displayNames;

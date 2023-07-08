@@ -387,7 +387,7 @@
             dontInstall = true;
           };
 
-          sdk = pkgs.stdenv.mkDerivation {
+          sdk = pkgs.stdenv.mkDerivation rec {
             pname = "gokai-sdk";
             version = "0.1.0-git+${self.shortRev or "dirty"}";
 
@@ -427,7 +427,10 @@
               libuuid
               jsoncpp
               libxkbcommon
+              accountsservice
             ];
+
+            propagatedBuildInputs = buildInputs;
           };
 
           sdk-debug = self.packages.${system}.sdk.overrideAttrs (_: _: {
@@ -451,7 +454,7 @@
               pkg-config
               self.packages.${system}.sdk-debug
               gdb
-            ] ++ self.packages.${system}.sdk.buildInputs;
+            ];
 
             LIBGL_DRIVERS_PATH = "${pkgs.mesa.drivers}/lib/dri";
             VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
