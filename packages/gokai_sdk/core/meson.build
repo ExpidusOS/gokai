@@ -28,6 +28,7 @@ libgokai_core_src = [
   'lib/input/keyboard.cc',
   'lib/input/pointer.cc',
   'lib/input/touch.cc',
+  'lib/services/account-manager.cc',
   'lib/services/compositor.cc',
   'lib/services/compositor-input-method.cc',
   'lib/services/display-manager.cc',
