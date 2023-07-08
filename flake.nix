@@ -257,12 +257,6 @@
             done
           '';
         };
-
-        flutter-engine = pkgs.fetchzip {
-          url = "https://storage.googleapis.com/flutter_infra_release/flutter/${engineCommit}/linux-x64/linux-x64-embedder.zip";
-          stripRoot = false;
-          sha256 = "sha256-WjCJzoTUF/Po2JMS4T2Z/SGQA/c/AZDik5kg4KHFGHM=";
-        };
       in {
         packages = {
           flutter-engine = pkgs.stdenvNoCC.mkDerivation {
@@ -400,8 +394,12 @@
             src = "${cleanSource self}/packages/gokai_sdk";
 
             mesonFlags = [
-              "-Dflutter-engine=${flutter-engine}"
+              "-Dflutter-engine=${self.packages.${system}.flutter-engine}/out/host_release"
             ];
+
+            postInstall = ''
+              cp ${self.packages.${system}.flutter-engine}/out/host_release/libflutter_engine.so $out/lib
+            '';
 
             nativeBuildInputs = with pkgs; [
               wayland-scanner
@@ -431,6 +429,16 @@
               libxkbcommon
             ];
           };
+
+          sdk-debug = self.packages.${system}.sdk.overrideAttrs (_: _: {
+            mesonFlags = [
+              "-Dflutter-engine=${self.packages.${system}.flutter-engine}/out/host_debug"
+            ];
+
+            postInstall = ''
+              cp ${self.packages.${system}.flutter-engine}/out/host_debug/libflutter_engine.so $out/lib
+            '';
+          });
         };
 
         devShells = {
@@ -441,7 +449,7 @@
               flutter
               pkgs.wayland
               pkg-config
-              self.packages.${system}.sdk
+              self.packages.${system}.sdk-debug
               gdb
             ] ++ self.packages.${system}.sdk.buildInputs;
 
@@ -452,7 +460,7 @@
           sdk = pkgs.mkShell {
             name = "gokai-sdk";
 
-            inherit (self.packages.${system}.sdk) mesonFlags;
+            inherit (self.packages.${system}.sdk-debug) mesonFlags;
 
             packages = self.packages.${system}.sdk.nativeBuildInputs
               ++ self.packages.${system}.sdk.buildInputs;
