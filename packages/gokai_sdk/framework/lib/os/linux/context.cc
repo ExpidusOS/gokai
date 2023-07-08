@@ -3,6 +3,7 @@
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
+#include <gokai/framework/os/linux/services/account-manager.h>
 #include <gokai/framework/os/linux/context.h>
 #include <gokai/services/texture-manager.h>
 #include <assert.h>
@@ -98,6 +99,11 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   }));
 
   this->services[Gokai::Services::PackageManager::SERVICE_NAME] = new Services::PackageManager(Gokai::ObjectArguments({
+    { "context", self },
+    { "logger", this->getLogger() },
+  }));
+
+  this->services[Gokai::Services::AccountManager::SERVICE_NAME] = new Services::AccountManager(Gokai::ObjectArguments({
     { "context", self },
     { "logger", this->getLogger() },
   }));

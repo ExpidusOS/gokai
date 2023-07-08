@@ -16,6 +16,7 @@ if target_machine.system() == 'linux'
     'lib/os/linux/services/wayland/server/display-manager.cc',
     'lib/os/linux/services/wayland/server/input-manager.cc',
     'lib/os/linux/services/wayland/server/window-manager.cc',
+    'lib/os/linux/services/account-manager.cc',
     'lib/os/linux/services/package-manager.cc',
     'lib/os/linux/view/wayland/server/egl/buffer.cc',
     'lib/os/linux/view/wayland/server/display.cc',
