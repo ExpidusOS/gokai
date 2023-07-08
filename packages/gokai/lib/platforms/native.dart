@@ -13,6 +13,7 @@ class GokaiNativePlatform extends GokaiPlatform {
   Future<GokaiService> getService(String name) async {
     final channel = (await methodChannel.invokeMethod<String>('getService', name))!;
     final map = {
+      'Gokai::Services::AccountManager': () => GokaiNativeAccountManager(),
       'Gokai::Services::DisplayManager': () => GokaiNativeDisplayManager(),
       'Gokai::Services::EngineManager': () => GokaiNativeEngineManager(),
       'Gokai::Services::InputManager': () => GokaiNativeInputManager(),
