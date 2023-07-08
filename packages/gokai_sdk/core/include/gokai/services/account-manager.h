@@ -2,6 +2,8 @@
 
 #ifdef __cplusplus
 #include <gokai/flutter/codecs/json.h>
+#include <gokai/user/account.h>
+#include <gokai/user/id.h>
 #include <gokai/context.h>
 #include <gokai/service.h>
 
@@ -12,6 +14,8 @@ namespace Gokai {
         AccountManager(Gokai::ObjectArguments arguments);
 
         std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
+
+        virtual std::list<Gokai::User::ID> getIds();
 
         static const std::string SERVICE_NAME;
       private:

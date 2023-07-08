@@ -18,6 +18,7 @@ if target_machine.system() == 'linux'
     'lib/os/linux/services/wayland/server/window-manager.cc',
     'lib/os/linux/services/account-manager.cc',
     'lib/os/linux/services/package-manager.cc',
+    'lib/os/linux/user/account.cc',
     'lib/os/linux/view/wayland/server/egl/buffer.cc',
     'lib/os/linux/view/wayland/server/display.cc',
     'lib/os/linux/view/wayland/server/window.cc',
@@ -27,6 +28,7 @@ if target_machine.system() == 'linux'
   ]
 
   libgokai_framework_deps += [
+    dependency('accountsservice'),
     dependency('libxdg-basedir'),
     dependency('packagekit-glib2'),
     dependency('pixman-1'),
