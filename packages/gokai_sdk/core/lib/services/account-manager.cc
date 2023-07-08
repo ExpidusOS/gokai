@@ -1,4 +1,5 @@
 #include <gokai/services/account-manager.h>
+#include <gokai/services/engine-manager.h>
 
 #define TAG "Gokai::Services::AccountManager"
 
@@ -23,6 +24,13 @@ AccountManager::AccountManager(Gokai::ObjectArguments arguments) : Service(argum
       return this->method_codec.encodeSuccessEnvelope(list);
     }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+  });
+
+  this->changed.push_back([this]() {
+    auto engine_manager = reinterpret_cast<EngineManager*>(this->context->getSystemService(EngineManager::SERVICE_NAME));
+    auto call = Gokai::Flutter::MethodCall();
+    call.method = "changed";
+    engine_manager->sendAll(TAG, this->method_codec.encodeMethodCall(call));
   });
 }
 

@@ -6,6 +6,7 @@
 #include <gokai/user/id.h>
 #include <gokai/context.h>
 #include <gokai/service.h>
+#include <functional>
 
 namespace Gokai {
   namespace Services {
@@ -16,6 +17,8 @@ namespace Gokai {
         std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
 
         virtual std::list<Gokai::User::ID> getIds();
+
+        std::list<std::function<void()>> changed;
 
         static const std::string SERVICE_NAME;
       private:

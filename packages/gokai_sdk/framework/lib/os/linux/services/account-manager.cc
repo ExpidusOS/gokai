@@ -33,5 +33,5 @@ std::list<Gokai::User::ID> AccountManager::getIds() {
 
 void AccountManager::user_changed(ActUser* user, gpointer user_data) {
   auto self = reinterpret_cast<AccountManager*>(user_data);
-  self->logger->debug("Changed");
+  for (const auto& func : self->changed) func();
 }
