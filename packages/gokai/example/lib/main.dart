@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gokai/flutter/engine.dart';
+import 'package:gokai/user/id.dart';
 import 'package:gokai/view/window.dart';
 import 'package:gokai/gokai.dart';
 import 'package:gokai/services.dart';
@@ -22,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   GokaiFlutterEngine? _engine;
   List<GokaiFlutterEngine> _engines = [];
   List<GokaiWindow> _windows = [];
+  List<GokaiUserID> _users = [];
 
   @override
   void initState() {
@@ -66,7 +68,13 @@ class _MyAppState extends State<MyApp> {
       final windows = await windowManager.getAll();
 
       final accountManager = ctx.services['AccountManager'] as GokaiAccountManager;
-      print(await accountManager.getIds());
+      accountManager.onChange.add(() {
+        accountManager.getIds().then((value) => setState(() {
+          _users = value;
+        }));
+      });
+
+      final users = await accountManager.getIds();
 
       setState(() {
         gkContext = ctx;
@@ -75,6 +83,7 @@ class _MyAppState extends State<MyApp> {
         _engine = engine;
         _engines = engines;
         _windows = windows;
+        _users = users;
       });
     });
   }
@@ -96,6 +105,7 @@ class _MyAppState extends State<MyApp> {
               Text(_engine == null ? '' : 'Current engine: ${_engine!.id}'),
               ..._engines.map((engine) => Text('Engine ${engine.id}: ${engine.viewType.name}, ${engine.viewName}')),
               Text('Windows: ${_windows.map((window) => window.id).join(', ')}'),
+              Text('Users: ${_users.map((user) => user.toString()).join(', ')}'),
             ],
           ),
         ),

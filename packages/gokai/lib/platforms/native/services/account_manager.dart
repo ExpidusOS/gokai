@@ -7,7 +7,17 @@ class GokaiNativeAccountManager extends GokaiAccountManager {
   @visibleForTesting
   final methodChannel = const MethodChannel('Gokai::Services::AccountManager', JSONMethodCodec());
 
-  GokaiNativeAccountManager() : super();
+  GokaiNativeAccountManager() : super() {
+    methodChannel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case 'changed':
+          for (final func in onChange) {
+            func();
+          }
+          break;
+      }
+    });
+  }
 
   @override
   Future<List<GokaiUserID>> getIds() async
