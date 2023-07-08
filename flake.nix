@@ -155,19 +155,105 @@
           dontConfigure = true;
           dontBuild = true;
 
+          includeInputs = with pkgs; [
+            libglvnd.dev
+            libepoxy.dev
+            xorg.libxcb.dev
+            xorg.libX11.dev
+            xorg.libXcursor.dev
+            xorg.libXrandr.dev
+            xorg.libXrender.dev
+            xorg.libXinerama.dev
+            xorg.libXi.dev
+            xorg.libXext.dev
+            xorg.libXfixes.dev
+            xorg.libXxf86vm.dev
+            gtk3.dev
+            freetype.dev
+            pango.dev
+            glib.dev
+            harfbuzz.dev
+            cairo.dev
+            gdk-pixbuf.dev
+            at-spi2-atk.dev
+            wayland.dev
+            zlib.dev
+            xorg.xorgproto
+            stdenv.cc.libc_dev
+          ];
+
+          libInputs = with pkgs; [
+            libglvnd
+            libepoxy
+            xorg.libxcb
+            xorg.libX11
+            xorg.libXcursor
+            xorg.libXrandr
+            xorg.libXrender
+            xorg.libXinerama
+            xorg.libXi
+            xorg.libXext
+            xorg.libXfixes
+            xorg.libXxf86vm
+            freetype
+            gtk3
+            pango.out
+            glib.out
+            harfbuzz
+            cairo
+            gdk-pixbuf
+            at-spi2-atk
+            wayland.out
+            zlib
+            stdenv.cc.libc_lib
+          ];
+
+          pkgconfigInputs = with pkgs; [
+            libglvnd.dev
+            libepoxy.dev
+            xorg.libX11.dev
+            xorg.xorgproto
+            freetype.dev
+            gtk3.dev
+            pango.dev
+            glib.dev
+            harfbuzz.dev
+            cairo.dev
+            gdk-pixbuf.dev
+            at-spi2-atk.dev
+            wayland.dev
+          ];
+
           installPhase = ''
-            mkdir -p $out/usr/lib/pkgconfig $out/usr/include
-            cp -r ${pkgs.libglvnd.dev}/include/* $out/usr/include
-            cp -r ${pkgs.libepoxy.dev}/include/* $out/usr/include/epoxy
+            mkdir -p $out/usr/lib/pkgconfig $out/usr/include $out/usr/share/pkgconfig $out/nix/store
 
-            find ${pkgs.libglvnd}/lib -name '*.so' -exec cp {} $out/usr/lib \;
-            find ${pkgs.libepoxy}/lib -name '*.so' -exec cp {} $out/usr/lib \;
+            for includeInput in ''${includeInputs[@]}; do
+              cp --no-preserve=mode,ownership -r $includeInput/include/* $out/usr/include/
+            done
 
-            for pkgconfig in $(find ${pkgs.libglvnd.dev}/lib/pkgconfig -name '*.pc') $(find ${pkgs.libepoxy.dev}/lib/pkgconfig -name '*.pc'); do
-              cp $pkgconfig $out/usr/lib/pkgconfig/$(basename $pkgconfig)
-              sed -i "s|prefix=/.*|prefix=$out/usr|g" $out/usr/lib/pkgconfig/$(basename $pkgconfig)
-              sed -i "s|libdir=.*|libdir=$out/usr/lib|g" $out/usr/lib/pkgconfig/$(basename $pkgconfig)
-              sed -i "s|includedir=.*|includedir=$out/usr/include|g" $out/usr/lib/pkgconfig/$(basename $pkgconfig)
+            for libInput in ''${libInputs[@]}; do
+              if [[ -d $libInput/lib ]]; then
+                cp --no-preserve=mode,ownership -r $libInput/lib/* $out/usr/lib/
+                cp -r $libInput $out/$libInput
+              fi
+            done
+
+            for pkgconfigInput in ''${pkgconfigInputs[@]}; do
+              if [[ -d $pkgconfigInput/lib/pkgconfig ]]; then
+                for pkgconfig in $(find $pkgconfigInput/lib/pkgconfig -name '*.pc'); do
+                  cp $pkgconfig $out/usr/lib/pkgconfig/$(basename $pkgconfig)
+                  sed -i "s|prefix=/.*|prefix=$out/usr|g" $out/usr/lib/pkgconfig/$(basename $pkgconfig)
+                  sed -i "s|includedir=.*|includedir=$out/usr/include|g" $out/usr/lib/pkgconfig/$(basename $pkgconfig)
+                done
+              fi
+
+              if [[ -d $pkgconfigInput/share/pkgconfig ]]; then
+                for pkgconfig in $(find $pkgconfigInput/share/pkgconfig -name '*.pc'); do
+                  cp $pkgconfig $out/usr/share/pkgconfig/$(basename $pkgconfig)
+                  sed -i "s|prefix=/.*|prefix=$out/usr|g" $out/usr/share/pkgconfig/$(basename $pkgconfig)
+                  sed -i "s|includedir=.*|includedir=$out/usr/include|g" $out/usr/share/pkgconfig/$(basename $pkgconfig)
+                done
+              fi
             done
           '';
         };
@@ -197,17 +283,53 @@
               ninja
             ];
 
-            buildInputs = with pkgs; [
-              freetype
-              xorg.libX11
-              gtk3
-            ];
-
             PYTHONDONTWRITEBYTECODE = "1";
 
             patchtools = [
+              "buildtools/linux-x64/clang/bin/clang-16"
+              "buildtools/linux-x64/clang/bin/clang-apply-replacements"
+              "buildtools/linux-x64/clang/bin/clang-doc"
+              "buildtools/linux-x64/clang/bin/clang-format"
+              "buildtools/linux-x64/clang/bin/clang-include-fixer"
+              "buildtools/linux-x64/clang/bin/clang-refactor"
+              "buildtools/linux-x64/clang/bin/clang-scan-deps"
+              "buildtools/linux-x64/clang/bin/clang-tidy"
+              "buildtools/linux-x64/clang/bin/clangd"
+              "buildtools/linux-x64/clang/bin/dsymutil"
+              "buildtools/linux-x64/clang/bin/find-all-symbols"
+              "buildtools/linux-x64/clang/bin/lld"
+              "buildtools/linux-x64/clang/bin/llvm-ar"
+              "buildtools/linux-x64/clang/bin/llvm-bolt"
+              "buildtools/linux-x64/clang/bin/llvm-cov"
+              "buildtools/linux-x64/clang/bin/llvm-cxxfilt"
+              "buildtools/linux-x64/clang/bin/llvm-debuginfod-find"
+              "buildtools/linux-x64/clang/bin/llvm-dwarfdump"
+              "buildtools/linux-x64/clang/bin/llvm-dwp"
+              "buildtools/linux-x64/clang/bin/llvm-gsymutil"
+              "buildtools/linux-x64/clang/bin/llvm-ifs"
+              "buildtools/linux-x64/clang/bin/llvm-libtool-darwin"
+              "buildtools/linux-x64/clang/bin/llvm-lipo"
+              "buildtools/linux-x64/clang/bin/llvm-ml"
+              "buildtools/linux-x64/clang/bin/llvm-mt"
+              "buildtools/linux-x64/clang/bin/llvm-nm"
+              "buildtools/linux-x64/clang/bin/llvm-objcopy"
+              "buildtools/linux-x64/clang/bin/llvm-objdump"
+              "buildtools/linux-x64/clang/bin/llvm-pdbutil"
+              "buildtools/linux-x64/clang/bin/llvm-profdata"
+              "buildtools/linux-x64/clang/bin/llvm-rc"
+              "buildtools/linux-x64/clang/bin/llvm-readobj"
+              "buildtools/linux-x64/clang/bin/llvm-size"
+              "buildtools/linux-x64/clang/bin/llvm-symbolizer"
+              "buildtools/linux-x64/clang/bin/llvm-undname"
+              "buildtools/linux-x64/clang/bin/llvm-xray"
+              "buildtools/linux-x64/clang/bin/sancov"
+              "flutter/prebuilts/linux-x64/dart-sdk/bin/dart"
               "flutter/third_party/gn/gn"
               "third_party/dart/tools/sdks/dart-sdk/bin/dart"
+            ];
+
+            patchgit = [
+              "third_party/dart"
             ];
 
             runtimeModes = [
@@ -226,22 +348,30 @@
                 patchelf ${flutter-engine-src.name}/src/$patchtool --set-interpreter ${pkgs.stdenv.cc.libc_lib}/lib/ld-linux-${builtins.replaceStrings ["_"] ["-"] pkgs.targetPlatform.linuxArch}.so.2
               done
 
-              pushd ${flutter-engine-src.name}/src/third_party/dart
-              rev=$(cat .git/HEAD)
-              rm -rf .git
-              git init
-              git add .
-              mkdir -p .git/logs
-              echo $rev >.git/logs/HEAD
-              popd
+              for dir in ''${patchgit[@]}; do
+                pushd ${flutter-engine-src.name}/src/$dir
+                rev=$(cat .git/HEAD)
+                rm -rf .git
+                git init
+                git add .
+                mkdir -p .git/logs
+                echo $rev >.git/logs/HEAD
+                echo "# pack-refs with: peeled fully-peeled sorted" >.git/packed-refs
+                echo "$rev refs/remotes/origin/master" >>.git/packed-refs
+                popd
+              done
+
+              rm -rf ${flutter-engine-src.name}/src/third_party/angle/.git
+              python3 ${flutter-engine-src.name}/src/flutter/tools/pub_get_offline.py
             '';
 
+            # NOTE: Once https://github.com/flutter/flutter/issues/127606 is fixed, use "--no-prebuilt-dart-sdk"
             configurePhase = ''
               runHook preConfigure
 
               for mode in ''${runtimeModes[@]}; do
-                python3 ./src/flutter/tools/gn --no-goma --runtime-mode $mode --embedder-for-target --no-prebuilt-dart-sdk --out-dir $out --target-sysroot ${flutter-engine-toolchain}
-                python3 ./src/flutter/tools/gn --no-goma --runtime-mode $mode --embedder-for-target --no-prebuilt-dart-sdk --out-dir $out --target-sysroot ${flutter-engine-toolchain} --unoptimized
+                python3 ./src/flutter/tools/gn --no-goma --runtime-mode $mode --embedder-for-target --prebuilt-dart-sdk --out-dir $out --target-sysroot ${flutter-engine-toolchain}
+                python3 ./src/flutter/tools/gn --no-goma --runtime-mode $mode --embedder-for-target --prebuilt-dart-sdk --out-dir $out --target-sysroot ${flutter-engine-toolchain} --unoptimized
               done
 
               runHook postConfigure
@@ -250,6 +380,11 @@
             buildPhase = ''
               runHook preBuild
               for dir in $out/out/*; do
+                for tool in flatc scenec gen_snapshot blobcat impellerc; do
+                  ninja -C $dir -j$NIX_BUILD_CORES $tool
+                  patchelf $dir/$tool --set-interpreter ${pkgs.stdenv.cc.libc_lib}/lib/ld-linux-${builtins.replaceStrings ["_"] ["-"] pkgs.targetPlatform.linuxArch}.so.2
+                done
+
                 ninja -C $dir -j$NIX_BUILD_CORES
               done
               runHook postBuild
