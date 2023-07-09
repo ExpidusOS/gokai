@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:gokai/services/account_manager.dart';
+import 'package:gokai/user/account.dart';
 import 'package:gokai/user/id.dart';
 
 class GokaiNativeAccountManager extends GokaiAccountManager {
@@ -22,4 +23,13 @@ class GokaiNativeAccountManager extends GokaiAccountManager {
   @override
   Future<List<GokaiUserID>> getIds() async
     => ((await methodChannel.invokeListMethod('getIds')) ?? []).map((e) => GokaiUserID.dynamic(e)).toList();
+
+  @override
+  Future<GokaiUserAccount> get(GokaiUserID id) async {
+    final language = (await methodChannel.invokeMethod<String>('getLanguage', id.value))!;
+    return GokaiUserAccount(
+      id: id,
+      language: language
+    );
+  }
 }
