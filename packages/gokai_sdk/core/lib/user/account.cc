@@ -11,3 +11,19 @@ ID Account::getId() {
 std::locale Account::getLanguage() {
   return std::locale("");
 }
+
+std::string Account::getDisplayName() {
+  return std::string();
+}
+
+std::string Account::getPicture() {
+  return std::string();
+}
+
+bool Account::isSystem() {
+  return false;
+}
+
+bool Account::isAdministrator() {
+  return false;
+}

@@ -34,6 +34,47 @@ AccountManager::AccountManager(Gokai::ObjectArguments arguments) : Service(argum
       auto lang = user->getLanguage();
       return this->method_codec.encodeSuccessEnvelope(lang.name());
     }
+
+    if (call.method.compare("getDisplayName") == 0) {
+      auto id = Gokai::User::ID(call.arguments);
+      auto user = this->get(id);
+      if (user == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(user->getDisplayName());
+    }
+
+    if (call.method.compare("getPicture") == 0) {
+      auto id = Gokai::User::ID(call.arguments);
+      auto user = this->get(id);
+      if (user == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+      }
+
+      auto value = user->getPicture();
+      return this->method_codec.encodeSuccessEnvelope(value.length() == 0 ? std::any(nullptr) : std::any(value));
+    }
+
+    if (call.method.compare("isSystem") == 0) {
+      auto id = Gokai::User::ID(call.arguments);
+      auto user = this->get(id);
+      if (user == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(user->isSystem());
+    }
+
+    if (call.method.compare("isAdministrator") == 0) {
+      auto id = Gokai::User::ID(call.arguments);
+      auto user = this->get(id);
+      if (user == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(user->isAdministrator());
+    }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
   });
 

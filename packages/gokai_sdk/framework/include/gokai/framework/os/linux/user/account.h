@@ -19,6 +19,10 @@ namespace Gokai {
 
               Gokai::User::ID getId() override;
               std::locale getLanguage() override;
+              std::string getDisplayName() override;
+              std::string getPicture() override;
+              bool isSystem() override;
+              bool isAdministrator() override;
 
               ActUser* getValue();
             private:

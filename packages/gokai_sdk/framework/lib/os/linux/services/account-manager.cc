@@ -1,4 +1,5 @@
 #include <gokai/framework/os/linux/services/account-manager.h>
+#include <gokai/framework/os/linux/user/account.h>
 #include <stdexcept>
 
 using namespace Gokai::Framework::os::Linux::Services;
@@ -41,7 +42,7 @@ Gokai::User::Account* AccountManager::get(Gokai::User::ID id) {
     auto user = act_user_manager_get_user_by_id(this->manager, id.data.uid);
     if (user == nullptr) return nullptr;
 
-    auto account = new Gokai::User::Account(Gokai::ObjectArguments({
+    auto account = new Gokai::Framework::os::Linux::User::Account(Gokai::ObjectArguments({
       { "value", user }
     }));
     this->cache[id] = account;

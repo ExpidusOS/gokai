@@ -13,6 +13,10 @@ namespace Gokai {
 
         virtual ID getId();
         virtual std::locale getLanguage();
+        virtual std::string getDisplayName();
+        virtual std::string getPicture();
+        virtual bool isSystem();
+        virtual bool isAdministrator();
     };
   }
 }
