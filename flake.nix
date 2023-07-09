@@ -144,7 +144,7 @@
 
           outputHashAlgo = "sha256";
           outputHashMode = "recursive";
-          outputHash = "sha256-oj4vEl6bX1tyoC+0tDKI+9hHxt1OegbnIjcs+jhWbu0=";
+          outputHash = "sha256-CDabtah9CZla8CrA6L/L04UXrFGd0Uq12a3QEPPX5Ww=";
         };
 
         flutter-engine-toolchain = pkgs.stdenvNoCC.mkDerivation {
