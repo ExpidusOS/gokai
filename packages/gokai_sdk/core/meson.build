@@ -6,6 +6,8 @@ libgokai_core_src = [
   'lib/object.cc',
   'lib/object-arguments.cc',
   'lib/object-factory.cc',
+  'lib/plugin.cc',
+  'lib/plugin-module.cc',
   'lib/service.cc',
   'lib/service-channel.cc',
   'lib/flutter/codecs/json.cc',
@@ -69,6 +71,7 @@ libgokai_core_headers_exclude = []
 
 if target_machine.system() == 'linux'
   libgokai_core_src += [
+    'lib/os/linux/dynamic-library.cc',
     'lib/os/linux/paths.cc'
   ]
 

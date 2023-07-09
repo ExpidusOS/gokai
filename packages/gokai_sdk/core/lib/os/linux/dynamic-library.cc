@@ -1,5 +1,6 @@
 #include <gokai/os/linux/dynamic-library.h>
 #include <fmt/core.h>
+#include <dlfcn.h>
 #include <stdexcept>
 
 using namespace Gokai::os::Linux;
@@ -7,7 +8,7 @@ using namespace Gokai::os::Linux;
 DynamicLibrary::DynamicLibrary(Gokai::ObjectArguments arguments) : Gokai::os::DynamicLibrary(arguments) {
   char* path = nullptr;
   if (arguments.has("path")) {
-    path = std::any_cast<std::string>(arguments.get("path")).c_str();
+    path = (char*)(std::any_cast<std::string>(arguments.get("path")).c_str());
   }
 
   this->handle = dlopen(path, RTLD_LAZY);
