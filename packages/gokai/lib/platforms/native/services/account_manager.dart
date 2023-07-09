@@ -27,9 +27,18 @@ class GokaiNativeAccountManager extends GokaiAccountManager {
   @override
   Future<GokaiUserAccount> get(GokaiUserID id) async {
     final language = (await methodChannel.invokeMethod<String>('getLanguage', id.value))!;
+    final displayName = (await methodChannel.invokeMethod<String>('getDisplayName', id.value))!;
+    final picture = await methodChannel.invokeMethod<String>('getPicture', id.value);
+    final isSystem = (await methodChannel.invokeMethod<bool>('isSystem', id.value))!;
+    final isAdministrator = (await methodChannel.invokeMethod<bool>('isAdministrator', id.value))!;
+
     return GokaiUserAccount(
       id: id,
-      language: language
+      language: language,
+      displayName: displayName,
+      picture: picture,
+      isSystem: isSystem,
+      isAdministrator: isAdministrator,
     );
   }
 }

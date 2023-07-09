@@ -105,7 +105,7 @@ class _MyAppState extends State<MyApp> {
               Text(_engine == null ? '' : 'Current engine: ${_engine!.id}'),
               ..._engines.map((engine) => Text('Engine ${engine.id}: ${engine.viewType.name}, ${engine.viewName}')),
               Text('Windows: ${_windows.map((window) => window.id).join(', ')}'),
-              Text('Accounts: ${_accounts.map((acc) => '${acc.id}: ${acc.language}').join(', ')}'),
+              Text('Accounts: ${_accounts.map((acc) => '${acc.id} ${acc.displayName} (${acc.picture ?? 'No picture'}): ${acc.language}').join(', ')}'),
             ],
           ),
         ),
