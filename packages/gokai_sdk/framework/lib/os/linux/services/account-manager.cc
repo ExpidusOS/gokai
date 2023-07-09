@@ -31,7 +31,36 @@ std::list<Gokai::User::ID> AccountManager::getIds() {
   return list;
 }
 
+Gokai::User::Account* AccountManager::get(Gokai::User::ID id) {
+  auto find = this->cache.find(id);
+  if (find == this->cache.end()) {
+    if (id.type != Gokai::User::uid) {
+      throw std::runtime_error("Invalid user ID type");
+    }
+
+    auto user = act_user_manager_get_user_by_id(this->manager, id.data.uid);
+    if (user == nullptr) return nullptr;
+
+    auto account = new Gokai::User::Account(Gokai::ObjectArguments({
+      { "value", user }
+    }));
+    this->cache[id] = account;
+    return account;
+  }
+  return find->second;
+}
+
 void AccountManager::user_changed(ActUser* user, gpointer user_data) {
   auto self = reinterpret_cast<AccountManager*>(user_data);
+  auto ids = self->getIds();
+
+  for (const auto& entry : self->cache) {
+    auto find = std::find(ids.begin(), ids.end(), entry.first);
+    if (find == ids.end()) {
+      delete entry.second;
+      self->cache.erase(entry.first);
+    }
+  }
+
   for (const auto& func : self->changed) func();
 }

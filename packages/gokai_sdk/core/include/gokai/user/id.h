@@ -25,6 +25,10 @@ namespace Gokai {
       ID(std::any value);
 
       std::any toAny();
+
+      bool operator>(const ID& b) const;
+      bool operator<(const ID& b) const;
+      bool operator==(const ID& b) const;
     };
   }
 }

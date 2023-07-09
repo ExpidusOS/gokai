@@ -23,6 +23,17 @@ AccountManager::AccountManager(Gokai::ObjectArguments arguments) : Service(argum
       for (auto& id : ids) list.push_back(id.toAny());
       return this->method_codec.encodeSuccessEnvelope(list);
     }
+
+    if (call.method.compare("getLanguage") == 0) {
+      auto id = Gokai::User::ID(call.arguments);
+      auto user = this->get(id);
+      if (user == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+      }
+
+      auto lang = user->getLanguage();
+      return this->method_codec.encodeSuccessEnvelope(lang.name());
+    }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
   });
 
@@ -40,6 +51,18 @@ std::shared_ptr<Gokai::ServiceChannel> AccountManager::getServiceChannel() {
 
 std::list<Gokai::User::ID> AccountManager::getIds() {
   return std::list<Gokai::User::ID>();
+}
+
+Gokai::User::Account* AccountManager::get(Gokai::User::ID id) {
+  return nullptr;
+}
+
+Gokai::User::Account* AccountManager::get(xg::Guid guid) {
+  return this->get(Gokai::User::ID(guid));
+}
+
+Gokai::User::Account* AccountManager::get(uint32_t uid) {
+  return this->get(Gokai::User::ID(uid));
 }
 
 const std::string AccountManager::SERVICE_NAME = "AccountManager";

@@ -2,6 +2,7 @@
 
 #ifdef __cplusplus
 #include <gokai/services/account-manager.h>
+#include <gokai/user/account.h>
 
 extern "C" {
 #include <act/act.h>
@@ -18,7 +19,9 @@ namespace Gokai {
               ~AccountManager();
 
               std::list<Gokai::User::ID> getIds() override;
+              Gokai::User::Account* get(Gokai::User::ID id) override;
             private:
+              std::map<Gokai::User::ID, Gokai::User::Account*> cache;
               ActUserManager* manager;
               gulong user_changed_id;
 
