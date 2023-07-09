@@ -6,6 +6,7 @@
 #include <gokai/framework/os/linux/services/account-manager.h>
 #include <gokai/framework/os/linux/context.h>
 #include <gokai/os/paths.h>
+#include <gokai/services/plugin-manager.h>
 #include <gokai/services/texture-manager.h>
 #include <assert.h>
 #include <basedir.h>
@@ -88,6 +89,11 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
 
   this->services = std::map<std::string, Gokai::Service*>();
   auto self = std::shared_ptr<Gokai::Context>(static_cast<Gokai::Context*>(this));
+
+  this->services[Gokai::Services::PluginManager::SERVICE_NAME] = new Gokai::Services::PluginManager(Gokai::ObjectArguments({
+    { "context", self },
+    { "logger", this->getLogger() },
+  }));
 
   this->services[Gokai::Services::EngineManager::SERVICE_NAME] = new Gokai::Services::EngineManager(Gokai::ObjectArguments({
     { "context", self },
