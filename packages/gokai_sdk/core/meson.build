@@ -28,6 +28,7 @@ libgokai_core_src = [
   'lib/input/keyboard.cc',
   'lib/input/pointer.cc',
   'lib/input/touch.cc',
+  'lib/os/dynamic-library.cc',
   'lib/services/account-manager.cc',
   'lib/services/compositor.cc',
   'lib/services/compositor-input-method.cc',
@@ -69,6 +70,14 @@ if target_machine.system() == 'linux'
   libgokai_core_src += [
     'lib/os/linux/paths.cc'
   ]
+
+  libgokai_core_inc += [
+    include_directories('include-linux')
+  ]
+
+  install_subdir('include-linux/gokai',
+    strip_directory: true,
+    install_dir: includedir / 'gokai')
 endif
 
 libgokai_core = library('gokai-core', libgokai_core_src,
