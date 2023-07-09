@@ -1,5 +1,6 @@
 #include <gokai/api/os/linux/binder.h>
 #include <gokai/api/os/linux/binder-manager.h>
+#include <gokai/os/paths.h>
 #include <spdlog/spdlog.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -14,28 +15,11 @@
 
 using namespace Gokai::API::os::Linux;
 
-static std::filesystem::path get_runtime_libdir() {
-  struct stat sb;
-  lstat("/proc/self/exe", &sb);
-
-  size_t linksize = sb.st_size + 1;
-  if (linksize == 1) linksize = PATH_MAX;
-
-  char* link_path = reinterpret_cast<char*>(malloc(linksize));
-  assert(link_path != nullptr);
-
-  size_t read_size = readlink("/proc/self/exe", link_path, linksize);
-  if (read_size < 0) {
-    throw std::runtime_error("Failed to readlink /proc/self/exe");
-  }
-  return std::filesystem::path(link_path).parent_path() / "lib" / "gokai" / "frameworks";
-}
-
 BinderManager::BinderManager(Gokai::ObjectArguments arguments) : Gokai::API::BinderManager(arguments) {
   if (this->binder_default == nullptr) {
     spdlog::debug("Trying to load from application's runtime directory");
 
-    auto runtime_dir = get_runtime_libdir();
+    auto runtime_dir = std::filesystem::path(Gokai::os::Paths::getRuntimePath()) / "lib" / "gokai" / "frameworks";
     struct stat info;
     if (stat(runtime_dir.c_str(), &info) == 0) {
       spdlog::debug("Loading from {}", runtime_dir.c_str());
@@ -77,7 +61,7 @@ Gokai::API::Binder* BinderManager::load(std::string name) {
 std::map<std::string, Gokai::API::Binder*> BinderManager::getAll() {
   auto basepaths = std::vector<std::string>();
   basepaths.push_back(std::string(GOKAI_API_LIBDIR) + "/gokai/frameworks");
-  basepaths.push_back(get_runtime_libdir());
+  basepaths.push_back(std::filesystem::path(Gokai::os::Paths::getRuntimePath()) / "lib" / "gokai" / "frameworks");
 
   for (auto basepath : basepaths) {
     struct stat info;
@@ -98,5 +82,5 @@ std::map<std::string, Gokai::API::Binder*> BinderManager::getAll() {
 }
 
 Gokai::API::BinderManager* Gokai::API::BinderManager::create(ObjectArguments arguments) {
-  return new BinderManager(arguments);
+  return new Gokai::API::os::Linux::BinderManager(arguments);
 }

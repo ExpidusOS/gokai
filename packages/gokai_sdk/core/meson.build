@@ -65,6 +65,12 @@ libgokai_core_deps = [
 ]
 libgokai_core_headers_exclude = []
 
+if target_machine.system() == 'linux'
+  libgokai_core_src += [
+    'lib/os/linux/paths.cc'
+  ]
+endif
+
 libgokai_core = library('gokai-core', libgokai_core_src,
   include_directories: libgokai_core_inc,
   dependencies: libgokai_core_deps,
