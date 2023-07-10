@@ -154,8 +154,8 @@ Engine::Engine(Gokai::ObjectArguments arguments)
   }
 
   this->args = {};
-  this->args.command_line_argc = argc;
-  this->args.command_line_argv = argv;
+  this->args.dart_entrypoint_argc = argc;
+  this->args.dart_entrypoint_argv = argv;
 
   this->args.struct_size = sizeof (FlutterProjectArgs);
   this->args.assets_path = strdup((path / "data" / "flutter_assets").c_str());
