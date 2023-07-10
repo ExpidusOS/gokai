@@ -17,6 +17,9 @@ class GokaiAccountManager extends GokaiService {
     return accounts;
   }
 
+  Future<GokaiUserAccount> getCurrent() async =>
+    await get(await getCurrentId());
+
   Future<GokaiUserID> getCurrentId() {
     throw UnimplementedError('getCurrentId() has not been implemented');
   }
