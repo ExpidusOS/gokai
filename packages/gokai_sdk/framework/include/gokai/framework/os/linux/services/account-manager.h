@@ -18,6 +18,7 @@ namespace Gokai {
               AccountManager(Gokai::ObjectArguments arguments);
               ~AccountManager();
 
+              Gokai::User::ID getCurrentId() override;
               std::list<Gokai::User::ID> getIds() override;
               Gokai::User::Account* get(Gokai::User::ID id) override;
             private:

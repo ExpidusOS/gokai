@@ -17,6 +17,10 @@ AccountManager::AccountManager(Gokai::ObjectArguments arguments) : Service(argum
   this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::vector<uint8_t> message) {
     auto call = this->method_codec.decodeMethodCall(message);
 
+    if (call.method.compare("getCurrentId") == 0) {
+      return this->method_codec.encodeSuccessEnvelope(this->getCurrentId().toAny());
+    }
+
     if (call.method.compare("getIds") == 0) {
       auto ids = this->getIds();
       std::list<std::any> list;
@@ -88,6 +92,10 @@ AccountManager::AccountManager(Gokai::ObjectArguments arguments) : Service(argum
 
 std::shared_ptr<Gokai::ServiceChannel> AccountManager::getServiceChannel() {
   return this->service_channel;
+}
+
+Gokai::User::ID AccountManager::getCurrentId() {
+  return Gokai::User::ID(-1);
 }
 
 std::list<Gokai::User::ID> AccountManager::getIds() {

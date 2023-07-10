@@ -16,6 +16,7 @@ namespace Gokai {
 
         std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
 
+        virtual Gokai::User::ID getCurrentId();
         virtual std::list<Gokai::User::ID> getIds();
         virtual Gokai::User::Account* get(Gokai::User::ID id);
         Gokai::User::Account* get(xg::Guid guid);

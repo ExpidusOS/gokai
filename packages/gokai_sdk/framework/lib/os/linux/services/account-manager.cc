@@ -20,6 +20,10 @@ AccountManager::~AccountManager() {
   g_clear_object(&this->manager);
 }
 
+Gokai::User::ID AccountManager::getCurrentId() {
+  return Gokai::User::ID(geteuid());
+}
+
 std::list<Gokai::User::ID> AccountManager::getIds() {
   std::list<Gokai::User::ID> list;
 
