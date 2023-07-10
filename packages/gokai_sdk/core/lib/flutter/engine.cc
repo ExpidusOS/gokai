@@ -150,8 +150,7 @@ Engine::Engine(Gokai::ObjectArguments arguments)
 
   size_t i = 0;
   for (const auto& arg : args) {
-    argv[i] = (char*)arg.c_str();
-    i++;
+    argv[i++] = (char*)strdup(arg.c_str());
   }
 
   this->args = {};
