@@ -38,7 +38,7 @@ extern "C" FLUTTER_PLUGIN_EXPORT int main(int argc, char** argv) {
 
   std::list<std::string> args;
   for (int i = 0; i < argc; i++) {
-    args.push_back(argv[i]);
+    args.push_back(strdup(argv[i]));
   }
 
   try {
