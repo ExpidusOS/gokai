@@ -21,6 +21,10 @@ class GokaiNativeAccountManager extends GokaiAccountManager {
   }
 
   @override
+  Future<GokaiUserID> getCurrentId() async
+    => GokaiUserID.dynamic(await methodChannel.invokeMethod('getCurrentId'));
+
+  @override
   Future<List<GokaiUserID>> getIds() async
     => ((await methodChannel.invokeListMethod('getIds')) ?? []).map((e) => GokaiUserID.dynamic(e)).toList();
 
