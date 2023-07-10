@@ -98,15 +98,19 @@ bool CompositorInputMethod::sendStateUpdate(xg::Guid engine_id) {
   auto engine = engine_manager->get(engine_id);
   if (engine == nullptr) return false;
 
-  auto args = std::map<std::string, std::any>();
+  auto value_map = std::map<std::string, std::any>();
   auto selection = this->model.getSelection();
-  args["composingBase"] = -1;
-  args["composingExtent"] = -1;
-  args["selectionAffinity"] = "TextAffinity.downstream";
-  args["selectionBase"] = selection.getBase();
-  args["selectionExtent"] = selection.getExtent();
-  args["selectionIsDirectional"] = false;
-  args["text"] = strdup(this->model.getText().c_str());
+  value_map["composingBase"] = -1;
+  value_map["composingExtent"] = -1;
+  value_map["selectionAffinity"] = "TextAffinity.downstream";
+  value_map["selectionBase"] = selection.getBase();
+  value_map["selectionExtent"] = selection.getExtent();
+  value_map["selectionIsDirectional"] = false;
+  value_map["text"] = strdup(this->model.getText().c_str());
+
+  std::list<std::any> args;
+  args.push_back(this->client_id);
+  args.push_back(value_map);
 
   auto value = this->method_codec.encodeMethodCall(Gokai::Flutter::MethodCall("TextInputClient.updateEditingState", args));
   this->logger->debug("{}", std::string(value.begin(), value.end()));
