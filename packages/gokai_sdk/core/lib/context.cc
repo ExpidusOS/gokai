@@ -198,7 +198,7 @@ Service* Context::getSystemService(std::string serviceName) {
 }
 
 std::string Context::getPackageName() {
-  return std::string();
+  return this->getManifest().id;
 }
 
 std::string Context::getPackageDir() {
