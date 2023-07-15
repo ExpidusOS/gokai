@@ -15,6 +15,11 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
             func();
           }
           break;
+        case 'commit':
+          for (final func in onCommit) {
+            func(call.arguments);
+          }
+          break;
       }
     });
   }
@@ -25,8 +30,10 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
 
   @override
   Future<GokaiWindow> get(String id) async {
+    final texture = await methodChannel.invokeMethod<int>('getTexture', id);
     return GokaiWindow(
       id: id,
+      texture: texture,
     );
   }
 }

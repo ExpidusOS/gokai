@@ -4,6 +4,7 @@ import 'package:gokai/user/account.dart';
 import 'package:gokai/view/window.dart';
 import 'package:gokai/gokai.dart';
 import 'package:gokai/services.dart';
+import 'package:gokai/widgets.dart';
 
 void main() {
   runApp(const MyApp());
@@ -65,6 +66,12 @@ class _MyAppState extends State<MyApp> {
         }));
       });
 
+      windowManager.onCommit.add((id) {
+        windowManager.getAll().then((value) => setState(() {
+          _windows = value;
+        }));
+      });
+
       final windows = await windowManager.getAll();
 
       final accountManager = ctx.services['AccountManager'] as GokaiAccountManager;
@@ -106,6 +113,22 @@ class _MyAppState extends State<MyApp> {
               ..._engines.map((engine) => Text('Engine ${engine.id}: ${engine.viewType.name}, ${engine.viewName}')),
               Text('Windows: ${_windows.map((window) => window.id).join(', ')}'),
               Text('Accounts: ${_accounts.map((acc) => '${acc.id} ${acc.displayName} (${acc.picture ?? 'No picture'}): ${acc.language}').join(', ')}'),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(8),
+                  children: (_windows..removeWhere((e) => e.texture == null))
+                    .map(
+                      (e) => SizedBox(
+                        width: 800,
+                        height: 400,
+                        child: GokaiWindowView(
+                          id: e.id,
+                          windowManager: gkContext!.services['WindowManager'] as GokaiWindowManager
+                        ),
+                      ),
+                    ).toList(),
+                ),
+              ),
             ],
           ),
         ),

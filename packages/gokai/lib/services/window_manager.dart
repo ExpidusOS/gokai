@@ -2,10 +2,13 @@ import 'dart:ui';
 import 'package:gokai/view/window.dart';
 import 'package:gokai/service.dart';
 
+typedef GokaiWindowCommitCallback = void Function(String id);
+
 class GokaiWindowManager extends GokaiService {
   GokaiWindowManager() : super(serviceName: 'WindowManager');
 
   List<VoidCallback> onChange = [];
+  List<GokaiWindowCommitCallback> onCommit = [];
 
   Future<List<GokaiWindow>> getAll() async {
     final ids = await getIds();

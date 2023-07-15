@@ -65,6 +65,7 @@
               libxkbcommon
               accountsservice
               pam
+              libdrm
             ];
 
             propagatedBuildInputs = buildInputs;
