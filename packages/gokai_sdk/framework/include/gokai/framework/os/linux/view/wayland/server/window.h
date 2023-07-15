@@ -38,6 +38,8 @@ namespace Gokai {
 
                   Gokai::View::URect getRect() override;
                   void setRect(Gokai::View::URect rect) override;
+                  bool isActive() override;
+                  void setActive(bool value) override;
 
                   std::string getTitle() override;
 

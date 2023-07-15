@@ -39,6 +39,15 @@ void Window::setMapped(bool value) {
   for (const auto& func : this->onMapped) func();
 }
 
+bool Window::isActive() {
+  return this->is_active;
+}
+
+void Window::setActive(bool value) {
+  this->is_active = value;
+  for (const auto& func : this->onActive) func();
+}
+
 xg::Guid Window::getId() {
   return this->id;
 }

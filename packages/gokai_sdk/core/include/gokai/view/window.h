@@ -16,6 +16,7 @@ namespace Gokai {
         std::list<std::function<void()>> onMapped;
         std::list<std::function<void()>> onEnter;
         std::list<std::function<void()>> onLeave;
+        std::list<std::function<void()>> onActive;
 
         virtual bool isToplevel();
         virtual std::string getRole();
@@ -28,6 +29,8 @@ namespace Gokai {
         virtual std::shared_ptr<Gokai::Graphics::Texture> getTexture();
         virtual bool isMapped();
         virtual void setMapped(bool value);
+        virtual bool isActive();
+        virtual void setActive(bool value);
 
         xg::Guid getId();
         virtual URect getRect();
@@ -38,6 +41,7 @@ namespace Gokai {
         xg::Guid id;
         URect rect;
         bool is_mapped;
+        bool is_active;
     };
   }
 }

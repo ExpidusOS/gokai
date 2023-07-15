@@ -207,6 +207,50 @@ std::string Window::getTitle() {
   return "";
 }
 
+bool Window::isActive() {
+  auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+  auto xdg = window_manager->getXdg(this->getId());
+  if (xdg != nullptr) {
+    if (xdg->getValue()->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
+      return xdg->getValue()->toplevel->current.activated;
+    }
+  }
+  return Gokai::View::Window::isActive();
+}
+
+void Window::setActive(bool value) {
+  auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+  auto xdg = window_manager->getXdg(this->getId());
+  if (xdg != nullptr) {
+    if (xdg->getValue()->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
+      auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(this->context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
+      auto seat = input_manager->getSeat();
+      auto prev_surface = seat->keyboard_state.focused_surface == nullptr ? seat->pointer_state.focused_surface : seat->keyboard_state.focused_surface;
+
+      if (prev_surface != nullptr && prev_surface != this->value && value) {
+        auto prev_win = reinterpret_cast<Window*>(prev_surface->data);
+        prev_win->setActive(false);
+      }
+
+      wlr_xdg_toplevel_set_activated(xdg->getValue()->toplevel, value);
+      if (value) {
+        auto kb = wlr_seat_get_keyboard(seat);
+        if (kb != nullptr) {
+          wlr_seat_keyboard_enter(seat, this->value, kb->keycodes, kb->num_keycodes, &kb->modifiers);
+        }
+
+        wlr_seat_pointer_notify_enter(seat, this->value, 0, 0);
+      }
+
+      for (const auto& func : this->onActive) func();
+      return;
+    }
+  }
+
+  Gokai::View::Window::setActive(value);
+  for (const auto& func : this->onActive) func();
+}
+
 void Window::commit_handler(struct wl_listener* listener, void* data) {
   Window* self = wl_container_of(listener, self, commit_listener);
 

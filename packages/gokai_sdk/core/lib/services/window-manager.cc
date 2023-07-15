@@ -34,6 +34,30 @@ WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Service(argumen
       return this->method_codec.encodeSuccessEnvelope(win->isToplevel());
     }
 
+
+    if (call.method.compare("isActive") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(win->isActive());
+    }
+
+    if (call.method.compare("setActive") == 0) {
+      auto map = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+      auto id = xg::Guid(std::any_cast<std::string>(map["id"]));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      auto value = std::any_cast<bool>(map["value"]);
+      win->setActive(value);
+      return this->method_codec.encodeSuccessEnvelope(nullptr);
+    }
+
     if (call.method.compare("isMapped") == 0) {
       auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
       auto win = this->get(id);
