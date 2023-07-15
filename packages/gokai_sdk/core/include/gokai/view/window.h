@@ -17,6 +17,7 @@ namespace Gokai {
         std::list<std::function<void()>> onLeave;
 
         virtual std::string getDisplayName();
+        virtual bool hasDecorations();
         virtual bool hasTexture();
         virtual int64_t getTextureId();
         virtual std::shared_ptr<Gokai::Graphics::Texture> getTexture();
@@ -24,6 +25,8 @@ namespace Gokai {
         xg::Guid getId();
         virtual URect getRect();
         virtual void setRect(URect rect);
+
+        virtual std::string getTitle();
       private:
         xg::Guid id;
         URect rect;

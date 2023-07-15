@@ -24,6 +24,53 @@ WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Service(argumen
       return this->method_codec.encodeSuccessEnvelope(list);
     }
 
+    if (call.method.compare("getRect") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      auto rect = win->getRect();
+      std::map<std::string, std::any> map;
+      map["x"] = rect.pos.x;
+      map["y"] = rect.pos.y;
+      map["width"] = rect.size.x;
+      map["height"] = rect.size.y;
+      return this->method_codec.encodeSuccessEnvelope(map);
+    }
+
+    if (call.method.compare("setRect") == 0) {
+      auto map = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+      auto id = xg::Guid(std::any_cast<std::string>(map["id"]));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      Gokai::View::URect rect(
+        glm::uvec2(
+          std::any_cast<int>(map["x"]),
+          std::any_cast<int>(map["y"])
+        ),
+        glm::uvec2(
+          std::any_cast<int>(map["width"]),
+          std::any_cast<int>(map["height"])
+        )
+      );
+      win->setRect(rect);
+      return this->method_codec.encodeSuccessEnvelope(nullptr);
+    }
+
+    if (call.method.compare("hasDecorations") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+      return this->method_codec.encodeSuccessEnvelope(win->hasDecorations());
+    }
+
     if (call.method.compare("hasTexture") == 0) {
       auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
       auto win = this->get(id);
@@ -67,6 +114,20 @@ WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Service(argumen
 
       for (const auto& func : win->onLeave) func();
       return this->method_codec.encodeSuccessEnvelope(nullptr);
+    }
+
+    if (call.method.compare("getTitle") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      auto title = win->getTitle();
+      if (title.empty()) {
+        return this->method_codec.encodeSuccessEnvelope(nullptr);
+      }
+      return this->method_codec.encodeSuccessEnvelope(title);
     }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
   });

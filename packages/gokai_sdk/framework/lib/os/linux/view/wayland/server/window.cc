@@ -47,6 +47,8 @@ Window::Window(Gokai::ObjectArguments arguments) : Gokai::View::Window(arguments
     auto output = wlr_output_layout_output_at(display_manager->getLayout(), rect.pos.x, rect.pos.y);
     if (output != nullptr) wlr_surface_send_leave(this->value, output);
   });
+
+  this->value->data = this;
 }
 
 Window::~Window() {
@@ -64,6 +66,15 @@ std::string Window::getDisplayName() {
   auto output = wlr_output_layout_output_at(display_manager->getLayout(), rect.pos.x, rect.pos.y);
   if (output == nullptr) return nullptr;
   return output->name;
+}
+
+bool Window::hasDecorations() {
+  auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+  auto xdg = window_manager->getXdgDecoration(this->getId());
+  if (xdg != nullptr) {
+    return !xdg->isServerSide();
+  }
+  return false;
 }
 
 bool Window::hasTexture() {
@@ -90,6 +101,54 @@ std::shared_ptr<Gokai::Graphics::Texture> Window::getTexture() {
 
   this->texture.reset();
   return nullptr;
+}
+
+Gokai::View::URect Window::getRect() {
+  auto rect = Gokai::View::Window::getRect();
+
+  auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+  auto xdg = window_manager->getXdg(this->getId());
+  if (xdg != nullptr) {
+    struct wlr_box box;
+    wlr_xdg_surface_get_geometry(xdg->getValue(), &box);
+
+    rect.pos.x = box.x;
+    rect.pos.y = box.y;
+    rect.size.x = box.width;
+    rect.size.y = box.height;
+  }
+  return rect;
+}
+
+void Window::setRect(Gokai::View::URect rect) {
+  Gokai::View::Window::setRect(rect);
+
+  auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+  auto xdg = window_manager->getXdg(this->getId());
+  if (xdg != nullptr) {
+    if (xdg->getValue()->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
+      wlr_xdg_toplevel_set_size(xdg->getValue()->toplevel, rect.size.x, rect.size.y);
+    } else if (xdg->getValue()->role == WLR_XDG_SURFACE_ROLE_POPUP) {
+      struct wlr_box box = {
+        .x = rect.pos.x,
+        .y = rect.pos.y,
+        .width = rect.size.x,
+        .height = rect.size.y,
+      };
+      wlr_xdg_popup_unconstrain_from_box(xdg->getValue()->popup, &box);
+    }
+  }
+}
+
+std::string Window::getTitle() {
+  auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+  auto xdg = window_manager->getXdg(this->getId());
+  if (xdg != nullptr) {
+    if (xdg->getValue()->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
+      return xdg->getValue()->toplevel->title;
+    }
+  }
+  return "";
 }
 
 void Window::commit_handler(struct wl_listener* listener, void* data) {

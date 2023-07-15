@@ -26,6 +26,10 @@ void Window::setRect(URect rect) {
   this->rect = rect;
 }
 
+bool Window::hasDecorations() {
+  return false;
+}
+
 bool Window::hasTexture() {
   return false;
 }
@@ -36,4 +40,8 @@ int64_t Window::getTextureId() {
 
 std::shared_ptr<Gokai::Graphics::Texture> Window::getTexture() {
   return nullptr;
+}
+
+std::string Window::getTitle() {
+  return "";
 }

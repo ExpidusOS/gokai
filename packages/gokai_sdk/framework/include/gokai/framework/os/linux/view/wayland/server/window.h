@@ -27,9 +27,15 @@ namespace Gokai {
                   ~Window();
 
                   std::string getDisplayName() override;
+                  bool hasDecorations() override;
                   bool hasTexture() override;
                   int64_t getTextureId() override;
                   std::shared_ptr<Gokai::Graphics::Texture> getTexture() override;
+
+                  Gokai::View::URect getRect() override;
+                  void setRect(Gokai::View::URect rect) override;
+
+                  std::string getTitle() override;
 
                   std::list<std::function<void()>> destroy;
                 private:

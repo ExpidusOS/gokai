@@ -23,6 +23,8 @@ if target_machine.system() == 'linux'
     'lib/os/linux/view/wayland/server/egl/buffer.cc',
     'lib/os/linux/view/wayland/server/display.cc',
     'lib/os/linux/view/wayland/server/window.cc',
+    'lib/os/linux/wm/wayland/server/xdg-decoration.cc',
+    'lib/os/linux/wm/wayland/server/xdg-surface.cc',
     'lib/os/linux/context.cc',
     'lib/os/linux/logging.cc',
     'lib/os/linux/object-factory.cc',
