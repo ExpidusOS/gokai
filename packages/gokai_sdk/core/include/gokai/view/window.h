@@ -13,6 +13,8 @@ namespace Gokai {
         Window(Gokai::ObjectArguments arguments);
 
         std::list<std::function<void()>> onCommit;
+        std::list<std::function<void()>> onEnter;
+        std::list<std::function<void()>> onLeave;
 
         virtual std::string getDisplayName();
         virtual bool hasTexture();

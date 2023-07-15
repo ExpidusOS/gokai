@@ -46,6 +46,28 @@ WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Service(argumen
       }
       return this->method_codec.encodeSuccessEnvelope(tex);
     }
+
+    if (call.method.compare("enter") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      for (const auto& func : win->onEnter) func();
+      return this->method_codec.encodeSuccessEnvelope(nullptr);
+    }
+
+    if (call.method.compare("leave") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      for (const auto& func : win->onLeave) func();
+      return this->method_codec.encodeSuccessEnvelope(nullptr);
+    }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
   });
 

@@ -33,6 +33,20 @@ Window::Window(Gokai::ObjectArguments arguments) : Gokai::View::Window(arguments
 
   this->destroy_listener.notify = Window::破壊する;
   wl_signal_add(&this->value->events.destroy, &this->destroy_listener);
+
+  this->onEnter.push_back([this]() {
+    auto rect = this->getRect();
+    auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(this->context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+    auto output = wlr_output_layout_output_at(display_manager->getLayout(), rect.pos.x, rect.pos.y);
+    if (output != nullptr) wlr_surface_send_enter(this->value, output);
+  });
+
+  this->onLeave.push_back([this]() {
+    auto rect = this->getRect();
+    auto display_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::DisplayManager*>(this->context->getSystemService(Gokai::Services::DisplayManager::SERVICE_NAME));
+    auto output = wlr_output_layout_output_at(display_manager->getLayout(), rect.pos.x, rect.pos.y);
+    if (output != nullptr) wlr_surface_send_leave(this->value, output);
+  });
 }
 
 Window::~Window() {
