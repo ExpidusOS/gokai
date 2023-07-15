@@ -41,6 +41,7 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
     final role = await methodChannel.invokeMethod<String>('getRole', id);
     final isToplevel = (await methodChannel.invokeMethod<bool>('isToplevel', id))!;
     final isMapped = (await methodChannel.invokeMethod<bool>('isMapped', id))!;
+    final isActive = (await methodChannel.invokeMethod<bool>('isActive', id))!;
     final hasDecorations = (await methodChannel.invokeMethod<bool>('hasDecorations', id))!;
     final childrenAbove = await methodChannel.invokeListMethod<String>('getChildrenAbove', id) ?? [];
     final childrenBelow = await methodChannel.invokeListMethod<String>('getChildrenBelow', id) ?? [];
@@ -52,11 +53,16 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
       role: role,
       isToplevel: isToplevel,
       isMapped: isMapped,
+      isActive: isActive,
       hasDecorations: hasDecorations,
       childrenAbove: childrenAbove,
       childrenBelow: childrenBelow,
       enter: () => methodChannel.invokeMethod('enter', id),
       leave: () => methodChannel.invokeMethod('leave', id),
+      setActive: (value) => methodChannel.invokeMethod('setActive', {
+        'id': id,
+        'value': value,
+      }),
       setRect: (rect) => methodChannel.invokeMethod('setRect', {
         'id': id,
         'x': rect.left.round(),

@@ -105,6 +105,13 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
               ),
             );
 
+            if (widget.interactive) {
+              child = Focus(
+                onFocusChange: snapshot.data!.setActive,
+                child: child,
+              );
+            }
+
             if (!snapshot.data!.isToplevel) {
               child = Positioned.fromRect(
                 rect: snapshot.data!.rect,

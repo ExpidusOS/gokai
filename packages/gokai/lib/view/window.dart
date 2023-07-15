@@ -8,12 +8,14 @@ class GokaiWindow {
     this.role,
     required this.isToplevel,
     required this.isMapped,
+    required this.isActive,
     required this.childrenAbove,
     required this.childrenBelow,
     required this.hasDecorations,
     required this.rect,
     required this.enter,
     required this.leave,
+    required this.setActive,
     required this.setRect,
   });
 
@@ -23,11 +25,13 @@ class GokaiWindow {
   final String? role;
   final bool isToplevel;
   final bool isMapped;
+  final bool isActive;
   final List<String> childrenAbove;
   final List<String> childrenBelow;
   final Rect rect;
   final bool hasDecorations;
   final VoidCallback enter;
   final VoidCallback leave;
+  final void Function(bool value) setActive;
   final void Function(Rect rect) setRect;
 }
