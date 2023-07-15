@@ -61,18 +61,24 @@ class _MyAppState extends State<MyApp> {
 
       final windowManager = ctx.services['WindowManager'] as GokaiWindowManager;
       windowManager.onChange.add(() {
-        windowManager.getAll().then((value) => setState(() {
+        windowManager.getViewable().then((value) => setState(() {
+          _windows = value;
+        }));
+      });
+
+      windowManager.onMapped.add((id) {
+        windowManager.getViewable().then((value) => setState(() {
           _windows = value;
         }));
       });
 
       windowManager.onCommit.add((id) {
-        windowManager.getAll().then((value) => setState(() {
+        windowManager.getViewable().then((value) => setState(() {
           _windows = value;
         }));
       });
 
-      final windows = await windowManager.getAll();
+      final windows = await windowManager.getViewable();
 
       final accountManager = ctx.services['AccountManager'] as GokaiAccountManager;
       accountManager.onChange.add(() {
@@ -116,25 +122,27 @@ class _MyAppState extends State<MyApp> {
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(8),
-                  children: (_windows..removeWhere((e) => e.texture == null))
-                    .map(
-                      (e) => GokaiWindowView(
-                        id: e.id,
-                        windowManager: gkContext!.services['WindowManager'] as GokaiWindowManager,
-                        decorationBuilder: (context, child, win) => Column(
-                          children: [
-                            Card(
+                  children: _windows.map(
+                    (e) => GokaiWindowView(
+                      id: e.id,
+                      windowManager: gkContext!.services['WindowManager'] as GokaiWindowManager,
+                      decorationBuilder: (context, child, win) => Column(
+                        children: [
+                          SizedBox(
+                            width: win.rect.width,
+                            child: Card(
                               child: Row(
                                 children: [
                                   Text(win.title ?? 'Untitled Window'),
                                 ],
                               ),
                             ),
-                            child,
-                          ],
-                        ),
+                          ),
+                          child,
+                        ],
                       ),
-                    ).toList(),
+                    ),
+                  ).toList(),
                 ),
               ),
             ],

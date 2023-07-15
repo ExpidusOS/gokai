@@ -20,6 +20,11 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
             func(call.arguments);
           }
           break;
+        case 'mapped':
+          for (final func in onMapped) {
+            func(call.arguments);
+          }
+          break;
       }
     });
   }
@@ -33,13 +38,23 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
     final rect = (await methodChannel.invokeMapMethod<String, int>('getRect', id))!;
     final title = await methodChannel.invokeMethod<String>('getTitle', id);
     final texture = await methodChannel.invokeMethod<int>('getTexture', id);
+    final role = await methodChannel.invokeMethod<String>('getRole', id);
+    final isToplevel = (await methodChannel.invokeMethod<bool>('isToplevel', id))!;
+    final isMapped = (await methodChannel.invokeMethod<bool>('isMapped', id))!;
     final hasDecorations = (await methodChannel.invokeMethod<bool>('hasDecorations', id))!;
+    final childrenAbove = await methodChannel.invokeListMethod<String>('getChildrenAbove', id) ?? [];
+    final childrenBelow = await methodChannel.invokeListMethod<String>('getChildrenBelow', id) ?? [];
     return GokaiWindow(
       id: id,
       rect: Rect.fromLTWH(rect['x']!.roundToDouble(), rect['y']!.roundToDouble(), rect['width']!.roundToDouble(), rect['height']!.roundToDouble()),
       title: title,
       texture: texture,
+      role: role,
+      isToplevel: isToplevel,
+      isMapped: isMapped,
       hasDecorations: hasDecorations,
+      childrenAbove: childrenAbove,
+      childrenBelow: childrenBelow,
       enter: () => methodChannel.invokeMethod('enter', id),
       leave: () => methodChannel.invokeMethod('leave', id),
       setRect: (rect) => methodChannel.invokeMethod('setRect', {

@@ -7,6 +7,7 @@ class GokaiWindowView extends StatefulWidget {
     super.key,
     required this.id,
     required this.windowManager,
+    this.interactive = true,
     this.size,
     this.decorationBuilder,
     this.errorBuilder,
@@ -16,6 +17,7 @@ class GokaiWindowView extends StatefulWidget {
   final String id;
   final GokaiWindowManager windowManager;
   final Size? size;
+  final bool interactive;
   final Widget Function(BuildContext context, Widget child, GokaiWindow win)? decorationBuilder;
   final Widget Function(BuildContext context, Object error)? errorBuilder;
   final WidgetBuilder? progressBuilder;
@@ -26,8 +28,14 @@ class GokaiWindowView extends StatefulWidget {
 
 class _GokaiWindowViewState extends State<GokaiWindowView> {
   UniqueKey key = UniqueKey();
-  GokaiWindow? window;
-  Object? error;
+
+  void _onMapped(String id) {
+    if (id == widget.id) {
+      setState(() {
+        key = UniqueKey();
+      });
+    }
+  }
 
   void _onCommit(String id) {
     if (id == widget.id) {
@@ -41,12 +49,15 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
   void initState() {
     super.initState();
 
+    widget.windowManager.onMapped.add(_onMapped);
     widget.windowManager.onCommit.add(_onCommit);
   }
 
   @override
   void dispose() {
     super.dispose();
+
+    widget.windowManager.onMapped.remove(_onMapped);
     widget.windowManager.onCommit.remove(_onCommit);
   }
 
@@ -69,17 +80,38 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
                    ? MediaQuery.sizeOf(context)
                    : snapshot.data!.rect.size);
 
-            final child = SizedBox.fromSize(
+            Widget child = SizedBox.fromSize(
               size: size,
-              child: MouseRegion(
-                onEnter: (ev) => snapshot.data!.enter(),
-                onExit: (ev) => snapshot.data!.leave(),
-                child: Texture(
-                  textureId: snapshot.data!.texture!,
-                  key: key,
-                ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  ...snapshot.data!.childrenBelow.map(
+                    (child) => GokaiWindowView(
+                      id: child,
+                      windowManager: widget.windowManager,
+                    ),
+                  ).toList(),
+                  Texture(
+                    key: key,
+                    filterQuality: FilterQuality.medium,
+                    textureId: snapshot.data!.texture!,
+                  ),
+                  ...snapshot.data!.childrenAbove.map(
+                    (child) => GokaiWindowView(
+                      id: child,
+                      windowManager: widget.windowManager,
+                    ),
+                  ).toList(),
+                ],
               ),
             );
+
+            if (!snapshot.data!.isToplevel) {
+              child = Positioned.fromRect(
+                rect: snapshot.data!.rect,
+                child: child,
+              );
+            }
 
             if (context.mounted) {
               final box = context.findRenderObject() as RenderBox;
@@ -89,7 +121,7 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
             }
 
             if (widget.decorationBuilder != null && !snapshot.data!.hasDecorations) {
-              return widget.decorationBuilder!(context, child, snapshot.data!);
+              child = widget.decorationBuilder!(context, child, snapshot.data!);
             }
             return child;
           }
@@ -99,7 +131,7 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
           return widget.progressBuilder!(context);
         }
 
-        return const CircularProgressIndicator();
+        return const SizedBox();
       },
     );
 }
