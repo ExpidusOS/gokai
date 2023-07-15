@@ -94,6 +94,10 @@
               gdb
             ];
 
+            shellHook = ''
+              cd packages/gokai
+            '';
+
             LIBGL_DRIVERS_PATH = "${pkgs.mesa.drivers}/lib/dri";
             VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
           };
@@ -105,6 +109,10 @@
 
             packages = self.packages.${system}.sdk.nativeBuildInputs
               ++ self.packages.${system}.sdk.buildInputs;
+
+            shellHook = ''
+              cd packages/gokai_sdk
+            '';
           };
         };
       });

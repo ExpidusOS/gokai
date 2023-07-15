@@ -7,12 +7,16 @@ class GokaiWindowView extends StatefulWidget {
     super.key,
     required this.id,
     required this.windowManager,
+    this.size,
+    this.decorationBuilder,
     this.errorBuilder,
     this.progressBuilder,
   });
 
   final String id;
   final GokaiWindowManager windowManager;
+  final Size? size;
+  final Widget Function(BuildContext context, Widget child, GokaiWindow win)? decorationBuilder;
   final Widget Function(BuildContext context, Object error)? errorBuilder;
   final WidgetBuilder? progressBuilder;
 
@@ -60,13 +64,34 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
 
         if (snapshot.hasData) {
           if (snapshot.data!.texture != null) {
-            return MouseRegion(
-              onEnter: (ev) => snapshot.data!.enter(),
-              onExit: (ev) => snapshot.data!.leave(),
-              child: Texture(
-                textureId: snapshot.data!.texture!,
+            final size = widget.size
+              ?? (snapshot.data!.rect.size.isEmpty
+                   ? MediaQuery.sizeOf(context)
+                   : snapshot.data!.rect.size);
+
+            final child = SizedBox.fromSize(
+              size: size,
+              child: MouseRegion(
+                onEnter: (ev) => snapshot.data!.enter(),
+                onExit: (ev) => snapshot.data!.leave(),
+                child: Texture(
+                  textureId: snapshot.data!.texture!,
+                  key: key,
+                ),
               ),
             );
+
+            if (context.mounted) {
+              final box = context.findRenderObject() as RenderBox;
+              // TODO: get the display and input its position
+              final pos = box.localToGlobal(Offset.zero);
+              snapshot.data!.setRect(pos & size);
+            }
+
+            if (widget.decorationBuilder != null && !snapshot.data!.hasDecorations) {
+              return widget.decorationBuilder!(context, child, snapshot.data!);
+            }
+            return child;
           }
         }
 

@@ -118,12 +118,20 @@ class _MyAppState extends State<MyApp> {
                   padding: const EdgeInsets.all(8),
                   children: (_windows..removeWhere((e) => e.texture == null))
                     .map(
-                      (e) => SizedBox(
-                        width: 800,
-                        height: 400,
-                        child: GokaiWindowView(
-                          id: e.id,
-                          windowManager: gkContext!.services['WindowManager'] as GokaiWindowManager
+                      (e) => GokaiWindowView(
+                        id: e.id,
+                        windowManager: gkContext!.services['WindowManager'] as GokaiWindowManager,
+                        decorationBuilder: (context, child, win) => Column(
+                          children: [
+                            Card(
+                              child: Row(
+                                children: [
+                                  Text(win.title ?? 'Untitled Window'),
+                                ],
+                              ),
+                            ),
+                            child,
+                          ],
                         ),
                       ),
                     ).toList(),

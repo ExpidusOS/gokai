@@ -30,12 +30,25 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
 
   @override
   Future<GokaiWindow> get(String id) async {
+    final rect = (await methodChannel.invokeMapMethod<String, int>('getRect', id))!;
+    final title = await methodChannel.invokeMethod<String>('getTitle', id);
     final texture = await methodChannel.invokeMethod<int>('getTexture', id);
+    final hasDecorations = (await methodChannel.invokeMethod<bool>('hasDecorations', id))!;
     return GokaiWindow(
       id: id,
+      rect: Rect.fromLTWH(rect['x']!.roundToDouble(), rect['y']!.roundToDouble(), rect['width']!.roundToDouble(), rect['height']!.roundToDouble()),
+      title: title,
       texture: texture,
+      hasDecorations: hasDecorations,
       enter: () => methodChannel.invokeMethod('enter', id),
       leave: () => methodChannel.invokeMethod('leave', id),
+      setRect: (rect) => methodChannel.invokeMethod('setRect', {
+        'id': id,
+        'x': rect.left.round(),
+        'y': rect.top.round(),
+        'width': rect.width,
+        'height': rect.height,
+      }),
     );
   }
 }
