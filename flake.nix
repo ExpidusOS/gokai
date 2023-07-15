@@ -34,7 +34,7 @@
             ];
 
             postInstall = ''
-              cp ${pkgs.flutter-engine}.flutter-engine}/out/host_release/libflutter_engine.so $out/lib
+              cp ${pkgs.flutter-engine}/out/host_release/libflutter_engine.so $out/lib
             '';
 
             nativeBuildInputs = with pkgs; [
