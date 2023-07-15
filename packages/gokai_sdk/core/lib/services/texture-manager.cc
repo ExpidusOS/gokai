@@ -7,7 +7,7 @@ using namespace Gokai::Services;
 
 TextureManager::TextureManager(Gokai::ObjectArguments arguments) : Service(arguments), Loggable(TAG, arguments) {
   this->logger->debug("Service created");
-  this->next_id = 0;
+  this->next_id = 1;
 }
 
 int64_t TextureManager::allocate(std::shared_ptr<Gokai::Graphics::Texture> texture) {
@@ -23,6 +23,11 @@ int64_t TextureManager::allocate(std::shared_ptr<Gokai::Graphics::Texture> textu
     auto result = FlutterEngineRegisterExternalTexture(engine->getValue(), id);
     if (result != kSuccess) {
       throw std::runtime_error("Failed to register the texture");
+    }
+
+    result = FlutterEngineMarkExternalTextureFrameAvailable(engine->getValue(), id);
+    if (result != kSuccess) {
+      throw std::runtime_error("Failed to make the texture available");
     }
   }
   return id;

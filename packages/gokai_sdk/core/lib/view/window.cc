@@ -30,6 +30,10 @@ bool Window::hasTexture() {
   return false;
 }
 
-Gokai::Graphics::Texture* Window::getTexture() {
+int64_t Window::getTextureId() {
+  return 0;
+}
+
+std::shared_ptr<Gokai::Graphics::Texture> Window::getTexture() {
   return nullptr;
 }

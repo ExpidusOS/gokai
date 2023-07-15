@@ -343,6 +343,9 @@ void Engine::event_callback(uv_timer_t* event_runner) {
     auto task = self->tasks.top();
     self->tasks.pop();
     self->logger->debug("Executing task {}", task.second.task);
-    FlutterEngineRunTask(self->getValue(), &task.second);
+    auto result = FlutterEngineRunTask(self->getValue(), &task.second);
+    if (result != kSuccess) {
+      self->logger->warn("Failed to execute task {}: {}", task.second.task, result);
+    }
   }
 }

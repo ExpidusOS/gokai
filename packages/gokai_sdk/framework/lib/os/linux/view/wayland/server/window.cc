@@ -1,6 +1,7 @@
 #include <gokai/framework/os/linux/graphics/wayland/server/texture.h>
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
+#include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
 #include <gokai/framework/os/linux/view/wayland/server/window.h>
 #include <gokai/services/texture-manager.h>
 #include <time.h>
@@ -28,6 +29,11 @@ Window::Window(Gokai::ObjectArguments arguments) : Gokai::View::Window(arguments
 
 Window::~Window() {
   for (const auto& func : this->destroy) func();
+
+  auto texture_manager = reinterpret_cast<Gokai::Services::TextureManager*>(this->context->getSystemService(Gokai::Services::TextureManager::SERVICE_NAME));
+  if (this->texture_id > 0) {
+    texture_manager->unregister(this->texture_id);
+  }
 }
 
 std::string Window::getDisplayName() {
@@ -42,18 +48,25 @@ bool Window::hasTexture() {
   return wlr_surface_has_buffer(this->value);
 }
 
-Gokai::Graphics::Texture* Window::getTexture() {
+int64_t Window::getTextureId() {
+  return this->texture_id;
+}
+
+std::shared_ptr<Gokai::Graphics::Texture> Window::getTexture() {
   if (wlr_surface_has_buffer(this->value)) {
-    this->texture = std::shared_ptr<Gokai::Graphics::Texture>(std::move(new Gokai::Framework::os::Linux::Graphics::Wayland::Server::Texture(Gokai::ObjectArguments({
+    this->texture.reset(std::move(new Gokai::Framework::os::Linux::Graphics::Wayland::Server::Texture(Gokai::ObjectArguments({
       { "value", wlr_surface_get_texture(this->value) },
+      { "buffer", this->value->buffer->source },
     }))));
     this->texture->onFrame.push_back([this]() {
       struct timespec now;
       clock_gettime(CLOCK_MONOTONIC, &now);
       wlr_surface_send_frame_done(this->value, &now);
     });
-    return this->texture.get();
+    return this->texture;
   }
+
+  this->texture.reset();
   return nullptr;
 }
 
@@ -63,12 +76,13 @@ void Window::commit_handler(struct wl_listener* listener, void* data) {
   auto texture_manager = reinterpret_cast<Gokai::Services::TextureManager*>(self->context->getSystemService(Gokai::Services::TextureManager::SERVICE_NAME));
 
   if (self->hasTexture() && self->texture_id == 0) {
-    self->getTexture();
-    self->texture_id = texture_manager->allocate(self->texture);
+    self->texture_id = texture_manager->allocate(self->getTexture());
   } else if (!self->hasTexture() && self->texture_id > 0) {
     texture_manager->unregister(self->texture_id);
     self->texture_id = 0;
   }
+
+  for (const auto& func : self->onCommit) func();
 }
 
 void Window::破壊する(struct wl_listener* listener, void* data) {

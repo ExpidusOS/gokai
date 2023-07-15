@@ -37,6 +37,7 @@ if target_machine.system() == 'linux'
     dependency('wayland-server'),
     dependency('libsystemd'),
     dependency('xkbcommon'),
+    dependency('libdrm'),
   ]
 
   libgokai_framework_cppflags += [

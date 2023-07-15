@@ -1,6 +1,7 @@
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
 #include <gokai/framework/os/linux/view/wayland/server/window.h>
+#include <gokai/services/engine-manager.h>
 
 using namespace Gokai::Framework::os::Linux::Services::Wayland::Server;
 
@@ -51,6 +52,14 @@ void WindowManager::new_surface_handle(struct wl_listener* listener, void* data)
     { "context", self->context },
     { "value", surface },
   }));
+
+  window->onCommit.push_back([self, id]() {
+    auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(self->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
+    auto call = Gokai::Flutter::MethodCall();
+    call.method = "commit";
+    call.arguments = id.str();
+    engine_manager->sendAll("Gokai::Services::WindowManager", self->method_codec.encodeMethodCall(call));
+  });
 
   window->destroy.push_back([self, id]() {
     self->windows.erase(id);

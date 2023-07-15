@@ -7,6 +7,7 @@ extern "C" {
 #define static
 #include <wlr/render/gles2.h>
 #include <wlr/render/wlr_texture.h>
+#include <wlr/types/wlr_buffer.h>
 #undef static
 }
 
@@ -21,9 +22,11 @@ namespace Gokai {
                 public:
                   Texture(Gokai::ObjectArguments arguments);
 
+                  struct wlr_buffer* getBuffer();
                   struct wlr_texture* getValue();
                   bool frame(Gokai::Flutter::Engine* engine, size_t width, size_t height, Gokai::Flutter::Texture* out) override;
                 private:
+                  struct wlr_buffer* buffer;
                   struct wlr_texture* value;
               };
             }

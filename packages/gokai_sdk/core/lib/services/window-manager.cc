@@ -24,6 +24,28 @@ WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Service(argumen
       return this->method_codec.encodeSuccessEnvelope(list);
     }
 
+    if (call.method.compare("hasTexture") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+      return this->method_codec.encodeSuccessEnvelope(win->hasTexture());
+    }
+
+    if (call.method.compare("getTexture") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      auto tex = win->getTextureId();
+      if (tex < 1) {
+        return this->method_codec.encodeSuccessEnvelope(nullptr);
+      }
+      return this->method_codec.encodeSuccessEnvelope(tex);
+    }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
   });
 

@@ -12,9 +12,12 @@ namespace Gokai {
       public:
         Window(Gokai::ObjectArguments arguments);
 
+        std::list<std::function<void()>> onCommit;
+
         virtual std::string getDisplayName();
         virtual bool hasTexture();
-        virtual Gokai::Graphics::Texture* getTexture();
+        virtual int64_t getTextureId();
+        virtual std::shared_ptr<Gokai::Graphics::Texture> getTexture();
 
         xg::Guid getId();
         virtual URect getRect();

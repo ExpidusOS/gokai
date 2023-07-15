@@ -28,7 +28,8 @@ namespace Gokai {
 
                   std::string getDisplayName() override;
                   bool hasTexture() override;
-                  Gokai::Graphics::Texture* getTexture() override;
+                  int64_t getTextureId() override;
+                  std::shared_ptr<Gokai::Graphics::Texture> getTexture() override;
 
                   std::list<std::function<void()>> destroy;
                 private:

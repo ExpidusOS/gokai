@@ -21,7 +21,7 @@ namespace Gokai {
         virtual Gokai::View::Window* get(xg::Guid id);
 
         static const std::string SERVICE_NAME;
-      private:
+      protected:
         Gokai::Flutter::Codecs::JSONMethodCodec method_codec;
         std::shared_ptr<Gokai::ServiceChannel> service_channel;
     };
