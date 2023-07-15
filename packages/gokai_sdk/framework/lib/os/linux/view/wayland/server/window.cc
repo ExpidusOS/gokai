@@ -3,6 +3,7 @@
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
 #include <gokai/framework/os/linux/view/wayland/server/window.h>
+#include <gokai/services/engine-manager.h>
 #include <gokai/services/texture-manager.h>
 #include <linux/dma-buf.h>
 #include <sys/ioctl.h>
@@ -31,6 +32,9 @@ Window::Window(Gokai::ObjectArguments arguments) : Gokai::View::Window(arguments
   this->commit_listener.notify = Window::commit_handler;
   wl_signal_add(&this->value->events.commit, &this->commit_listener);
 
+  this->new_subsurface_listener.notify = Window::new_subsurface_handler;
+  wl_signal_add(&this->value->events.new_subsurface, &this->new_subsurface_listener);
+
   this->destroy_listener.notify = Window::破壊する;
   wl_signal_add(&this->value->events.destroy, &this->destroy_listener);
 
@@ -48,6 +52,15 @@ Window::Window(Gokai::ObjectArguments arguments) : Gokai::View::Window(arguments
     if (output != nullptr) wlr_surface_send_leave(this->value, output);
   });
 
+  struct wlr_subsurface* subsurface;
+  wl_list_for_each(subsurface, &this->value->current.subsurfaces_below, current.link) {
+    Window::new_subsurface_handler(&this->new_subsurface_listener, subsurface);
+  }
+
+  wl_list_for_each(subsurface, &this->value->current.subsurfaces_above, current.link) {
+    Window::new_subsurface_handler(&this->new_subsurface_listener, subsurface);
+  }
+
   this->value->data = this;
 }
 
@@ -58,6 +71,38 @@ Window::~Window() {
   if (this->texture_id > 0) {
     texture_manager->unregister(this->texture_id);
   }
+}
+
+bool Window::isToplevel() {
+  return !wlr_surface_is_subsurface(this->value);
+}
+
+std::string Window::getRole() {
+  if (wlr_surface_is_xdg_surface(this->value)) return "xdg-surface";
+  else if (wlr_surface_is_subsurface(this->value)) return "subsurface";
+  return "";
+}
+
+std::list<xg::Guid> Window::getChildrenAbove() {
+  std::list<xg::Guid> list;
+  struct wlr_subsurface* subsurface;
+
+  wl_list_for_each(subsurface, &this->value->current.subsurfaces_above, current.link) {
+    auto inst = static_cast<Window*>(subsurface->surface->data);
+    list.push_back(inst->getId());
+  }
+  return list;
+}
+
+std::list<xg::Guid> Window::getChildrenBelow() {
+  std::list<xg::Guid> list;
+  struct wlr_subsurface* subsurface;
+
+  wl_list_for_each(subsurface, &this->value->current.subsurfaces_below, current.link) {
+    auto inst = static_cast<Window*>(subsurface->surface->data);
+    list.push_back(inst->getId());
+  }
+  return list;
 }
 
 std::string Window::getDisplayName() {
@@ -72,7 +117,7 @@ bool Window::hasDecorations() {
   auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
   auto xdg = window_manager->getXdgDecoration(this->getId());
   if (xdg != nullptr) {
-    return !xdg->isServerSide();
+    return xdg->isClientSide();
   }
   return false;
 }
@@ -87,15 +132,17 @@ int64_t Window::getTextureId() {
 
 std::shared_ptr<Gokai::Graphics::Texture> Window::getTexture() {
   if (wlr_surface_has_buffer(this->value)) {
-    this->texture.reset(std::move(new Gokai::Framework::os::Linux::Graphics::Wayland::Server::Texture(Gokai::ObjectArguments({
-      { "value", wlr_surface_get_texture(this->value) },
-      { "buffer", &this->value->buffer->base },
-    }))));
-    this->texture->onFrame.push_back([this]() {
-      struct timespec now;
-      clock_gettime(CLOCK_MONOTONIC, &now);
-      wlr_surface_send_frame_done(this->value, &now);
-    });
+    if (this->texture == nullptr) {
+      this->texture.reset(new Gokai::Framework::os::Linux::Graphics::Wayland::Server::Texture(Gokai::ObjectArguments({
+        { "value", &this->value->buffer->base },
+      })));
+      this->texture->onFrame.push_back([this]() {
+        struct timespec now;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        wlr_surface_send_frame_done(this->value, &now);
+      });
+    } else {
+    }
     return this->texture;
   }
 
@@ -105,6 +152,15 @@ std::shared_ptr<Gokai::Graphics::Texture> Window::getTexture() {
 
 Gokai::View::URect Window::getRect() {
   auto rect = Gokai::View::Window::getRect();
+  rect.size.x = this->value->current.width;
+  rect.size.y = this->value->current.height;
+
+  if (wlr_surface_is_subsurface(this->value)) {
+    auto subsurface = wlr_subsurface_from_wlr_surface(this->value);
+    rect.pos.x = subsurface->current.x;
+    rect.pos.y = subsurface->current.y;
+    return rect;
+  }
 
   auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
   auto xdg = window_manager->getXdg(this->getId());
@@ -192,9 +248,51 @@ void Window::commit_handler(struct wl_listener* listener, void* data) {
   } else if (!self->hasTexture() && self->texture_id > 0) {
     texture_manager->unregister(self->texture_id);
     self->texture_id = 0;
+  } else if (self->hasTexture() && self->texture_id > 0) {
+    static_cast<Gokai::Framework::os::Linux::Graphics::Wayland::Server::Texture*>(self->texture.get())->commit(&self->value->buffer->base);
   }
 
   for (const auto& func : self->onCommit) func();
+}
+
+void Window::new_subsurface_handler(struct wl_listener* listener, void* data) {
+  Window* self = wl_container_of(listener, self, new_subsurface_listener);
+  auto subsurface = reinterpret_cast<struct wlr_subsurface*>(data);
+
+  auto window_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::WindowManager*>(self->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+
+  auto id = xg::newGuid();
+  window_manager->logger->debug("New subsurface {}", id.str());
+  auto window = new Gokai::Framework::os::Linux::View::Wayland::Server::Window(Gokai::ObjectArguments({
+    { "logger", self->getLogger() },
+    { "id", id },
+    { "context", self->context },
+    { "value", subsurface->surface },
+  }));
+
+  window->onMapped.push_back([self, window_manager, id]() {
+    auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(self->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
+    auto call = Gokai::Flutter::MethodCall();
+    call.method = "mapped";
+    call.arguments = id.str();
+    engine_manager->sendAll("Gokai::Services::WindowManager", window_manager->method_codec.encodeMethodCall(call));
+  });
+
+  window->onCommit.push_back([self, window_manager, id]() {
+    auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(self->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
+    auto call = Gokai::Flutter::MethodCall();
+    call.method = "commit";
+    call.arguments = id.str();
+    engine_manager->sendAll("Gokai::Services::WindowManager", window_manager->method_codec.encodeMethodCall(call));
+  });
+
+  window->destroy.push_back([window_manager, id]() {
+    window_manager->windows.erase(id);
+    for (const auto& func : window_manager->changed) func();
+  });
+
+  window_manager->windows[id] = window;
+  for (const auto& func : window_manager->changed) func();
 }
 
 void Window::破壊する(struct wl_listener* listener, void* data) {

@@ -10,8 +10,33 @@ Window::Window(Gokai::ObjectArguments arguments) : Object(arguments) {
   }
 }
 
+bool Window::isToplevel() {
+  return false;
+}
+
+std::string Window::getRole() {
+  return "";
+}
+
+std::list<xg::Guid> Window::getChildrenAbove() {
+  return std::list<xg::Guid>();
+}
+
+std::list<xg::Guid> Window::getChildrenBelow() {
+  return std::list<xg::Guid>();
+}
+
 std::string Window::getDisplayName() {
   return std::string();
+}
+
+bool Window::isMapped() {
+  return this->is_mapped;
+}
+
+void Window::setMapped(bool value) {
+  this->is_mapped = value;
+  for (const auto& func : this->onMapped) func();
 }
 
 xg::Guid Window::getId() {

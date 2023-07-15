@@ -24,6 +24,66 @@ WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Service(argumen
       return this->method_codec.encodeSuccessEnvelope(list);
     }
 
+    if (call.method.compare("isToplevel") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(win->isToplevel());
+    }
+
+    if (call.method.compare("isMapped") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(win->isMapped());
+    }
+
+    if (call.method.compare("getRole") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      auto role = win->getRole();
+      if (role.empty()) {
+        return this->method_codec.encodeSuccessEnvelope(nullptr);
+      }
+      return this->method_codec.encodeSuccessEnvelope(role);
+    }
+
+    if (call.method.compare("getChildrenAbove") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      std::list<std::any> list;
+      auto ids = win->getChildrenAbove();
+      for (const auto& id : ids) list.push_back(id.str());
+      return this->method_codec.encodeSuccessEnvelope(list);
+    }
+
+    if (call.method.compare("getChildrenBelow") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto win = this->get(id);
+      if (win == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Window \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      std::list<std::any> list;
+      auto ids = win->getChildrenBelow();
+      for (const auto& id : ids) list.push_back(id.str());
+      return this->method_codec.encodeSuccessEnvelope(list);
+    }
+
     if (call.method.compare("getRect") == 0) {
       auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
       auto win = this->get(id);

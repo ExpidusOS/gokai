@@ -25,6 +25,8 @@ namespace Gokai {
                 public:
                   WindowManager(Gokai::ObjectArguments arguments);
 
+                  std::map<xg::Guid, Gokai::View::Window*> windows;
+
                   std::list<xg::Guid> getIds() override;
                   Gokai::View::Window* get(xg::Guid id) override;
 
@@ -44,7 +46,6 @@ namespace Gokai {
                   struct wl_listener new_xdg_surface_listener;
                   struct wl_listener new_toplevel_decoration_listener;
 
-                  std::map<xg::Guid, Gokai::View::Window*> windows;
                   std::map<xg::Guid, Gokai::Framework::os::Linux::WM::Wayland::Server::XdgDecoration*> xdg_decorations;
                   std::map<xg::Guid, Gokai::Framework::os::Linux::WM::Wayland::Server::XdgSurface*> xdg_surfaces;
 

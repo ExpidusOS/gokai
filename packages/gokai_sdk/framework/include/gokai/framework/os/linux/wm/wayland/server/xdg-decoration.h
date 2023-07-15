@@ -27,7 +27,7 @@ namespace Gokai {
 
                   std::list<std::function<void()>> destroy;
 
-                  bool isServerSide();
+                  bool isClientSide();
 
                   xg::Guid getId();
                   struct wlr_xdg_toplevel_decoration_v1* getValue();
@@ -35,7 +35,7 @@ namespace Gokai {
                   struct wl_listener destroy_listener;
                   struct wl_listener mode_listener;
 
-                  bool is_server_side;
+                  bool is_client_side;
 
                   xg::Guid id;
                   struct wlr_xdg_toplevel_decoration_v1* value;

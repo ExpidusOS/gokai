@@ -13,14 +13,21 @@ namespace Gokai {
         Window(Gokai::ObjectArguments arguments);
 
         std::list<std::function<void()>> onCommit;
+        std::list<std::function<void()>> onMapped;
         std::list<std::function<void()>> onEnter;
         std::list<std::function<void()>> onLeave;
 
+        virtual bool isToplevel();
+        virtual std::string getRole();
+        virtual std::list<xg::Guid> getChildrenAbove();
+        virtual std::list<xg::Guid> getChildrenBelow();
         virtual std::string getDisplayName();
         virtual bool hasDecorations();
         virtual bool hasTexture();
         virtual int64_t getTextureId();
         virtual std::shared_ptr<Gokai::Graphics::Texture> getTexture();
+        virtual bool isMapped();
+        virtual void setMapped(bool value);
 
         xg::Guid getId();
         virtual URect getRect();
@@ -30,6 +37,7 @@ namespace Gokai {
       private:
         xg::Guid id;
         URect rect;
+        bool is_mapped;
     };
   }
 }

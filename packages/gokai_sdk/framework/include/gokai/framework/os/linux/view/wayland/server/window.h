@@ -26,6 +26,10 @@ namespace Gokai {
                   Window(Gokai::ObjectArguments arguments);
                   ~Window();
 
+                  bool isToplevel() override;
+                  std::string getRole() override;
+                  std::list<xg::Guid> getChildrenAbove() override;
+                  std::list<xg::Guid> getChildrenBelow() override;
                   std::string getDisplayName() override;
                   bool hasDecorations() override;
                   bool hasTexture() override;
@@ -42,11 +46,13 @@ namespace Gokai {
                   std::shared_ptr<Gokai::Context> context;
                   struct wlr_surface* value;
                   struct wl_listener commit_listener;
+                  struct wl_listener new_subsurface_listener;
                   struct wl_listener destroy_listener;
                   int64_t texture_id;
                   std::shared_ptr<Gokai::Graphics::Texture> texture;
 
                   static void commit_handler(struct wl_listener* listener, void* data);
+                  static void new_subsurface_handler(struct wl_listener* listener, void* data);
                   static void 破壊する(struct wl_listener* listener, void* data);
               };
             }

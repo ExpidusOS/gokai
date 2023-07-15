@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <gokai/graphics/surface-buffer-chain.h>
 #include <gokai/graphics/texture.h>
 
 extern "C" {
@@ -22,12 +23,10 @@ namespace Gokai {
                 public:
                   Texture(Gokai::ObjectArguments arguments);
 
-                  struct wlr_buffer* getBuffer();
-                  struct wlr_texture* getValue();
+                  Gokai::Graphics::SurfaceBufferChain<struct wlr_buffer> chain;
+
+                  void commit(struct wlr_buffer* buffer);
                   bool frame(Gokai::Flutter::Engine* engine, size_t width, size_t height, Gokai::Flutter::Texture* out) override;
-                private:
-                  struct wlr_buffer* buffer;
-                  struct wlr_texture* value;
               };
             }
           }

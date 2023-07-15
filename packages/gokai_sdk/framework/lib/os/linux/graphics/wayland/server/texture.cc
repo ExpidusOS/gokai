@@ -3,21 +3,22 @@
 
 using namespace Gokai::Framework::os::Linux::Graphics::Wayland::Server;
 
-Texture::Texture(Gokai::ObjectArguments arguments) : Gokai::Graphics::Texture(arguments), buffer{std::any_cast<struct wlr_buffer*>(arguments.get("buffer"))}, value{std::any_cast<struct wlr_texture*>(arguments.get("value"))} {
+Texture::Texture(Gokai::ObjectArguments arguments) : Gokai::Graphics::Texture(arguments) {
+  this->commit(std::any_cast<struct wlr_buffer*>(arguments.get("value")));
 }
 
-struct wlr_buffer* Texture::getBuffer() {
-  return this->buffer;
-}
-
-struct wlr_texture* Texture::getValue() {
-  return this->value;
+void Texture::commit(struct wlr_buffer* buffer) {
+  this->chain.commitBuffer(std::shared_ptr<struct wlr_buffer>(wlr_buffer_lock(buffer), [buffer](auto _) {
+    wlr_buffer_unlock(buffer);
+  }));
 }
 
 bool Texture::frame(Gokai::Flutter::Engine* engine, size_t width, size_t height, Gokai::Flutter::Texture* out) {
-  if (wlr_texture_is_gles2(this->value)) {
+  auto client_buffer = wlr_client_buffer_get(this->chain.startRead());
+
+  if (wlr_texture_is_gles2(client_buffer->texture)) {
     struct wlr_gles2_texture_attribs attribs;
-    wlr_gles2_texture_get_attribs(this->value, &attribs);
+    wlr_gles2_texture_get_attribs(client_buffer->texture, &attribs);
 
     out->open_gl = {
       .target = attribs.target,
@@ -25,9 +26,12 @@ bool Texture::frame(Gokai::Flutter::Engine* engine, size_t width, size_t height,
       .format = GL_RGBA8,
       .user_data = this,
       .destruction_callback = [](void* user_data) {
+        // FIXME: causes segfaults with release to the shared_ptr
+        //auto self = reinterpret_cast<Texture*>(user_data);
+        //self->chain.endRead();
       },
-      .width = this->value->width,
-      .height = this->value->height,
+      .width = client_buffer->texture->width,
+      .height = client_buffer->texture->height,
     };
     return true;
   }
