@@ -60,8 +60,12 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
 
         if (snapshot.hasData) {
           if (snapshot.data!.texture != null) {
-            return Texture(
-              textureId: snapshot.data!.texture!,
+            return MouseRegion(
+              onEnter: (ev) => snapshot.data!.enter(),
+              onExit: (ev) => snapshot.data!.leave(),
+              child: Texture(
+                textureId: snapshot.data!.texture!,
+              ),
             );
           }
         }

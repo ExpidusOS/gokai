@@ -34,6 +34,8 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
     return GokaiWindow(
       id: id,
       texture: texture,
+      enter: () => methodChannel.invokeMethod('enter', id),
+      leave: () => methodChannel.invokeMethod('leave', id),
     );
   }
 }
