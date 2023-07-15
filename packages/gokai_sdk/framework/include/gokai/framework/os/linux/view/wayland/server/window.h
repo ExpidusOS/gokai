@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <gokai/graphics/texture.h>
 #include <gokai/view/window.h>
 #include <gokai/context.h>
 #include <gokai/logging.h>
@@ -26,6 +27,8 @@ namespace Gokai {
                   ~Window();
 
                   std::string getDisplayName() override;
+                  bool hasTexture() override;
+                  Gokai::Graphics::Texture* getTexture() override;
 
                   std::list<std::function<void()>> destroy;
                 private:
@@ -33,6 +36,8 @@ namespace Gokai {
                   struct wlr_surface* value;
                   struct wl_listener commit_listener;
                   struct wl_listener destroy_listener;
+                  int64_t texture_id;
+                  std::shared_ptr<Gokai::Graphics::Texture> texture;
 
                   static void commit_handler(struct wl_listener* listener, void* data);
                   static void 破壊する(struct wl_listener* listener, void* data);

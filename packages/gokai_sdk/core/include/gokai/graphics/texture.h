@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <gokai/flutter/engine.h>
 #include <gokai/flutter/texture.h>
 #include <gokai/object.h>
 
@@ -10,7 +11,8 @@ namespace Gokai {
       public:
         Texture(Gokai::ObjectArguments arguments);
 
-        virtual bool frame(size_t width, size_t height, Gokai::Flutter::Texture* out);
+        std::list<std::function<void()>> onFrame;
+        virtual bool frame(Gokai::Flutter::Engine* engine, size_t width, size_t height, Gokai::Flutter::Texture* out);
     };
   }
 }

@@ -112,6 +112,7 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
   uv_poll_start(&this->event_poll, UV_READABLE | UV_WRITABLE, Compositor::poll_event_handle);
 
   this->socket = wl_display_add_socket_auto(this->display);
+  setenv("WAYLAND_DISPLAY", this->socket, true);
   this->logger->info("Wayland is running on display \"{}\"", this->socket);
 }
 

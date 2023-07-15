@@ -28,6 +28,8 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
       { "logger", self->getLogger() },
       { "value", value },
     }));
+
+    wlr_output_create_global(value);
     self->displays.push_back(display);
 
     display->destroy.push_back([display, self]() {

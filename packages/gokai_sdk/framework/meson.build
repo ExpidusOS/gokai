@@ -7,6 +7,7 @@ libgokai_framework_cppflags = []
 if target_machine.system() == 'linux'
   libgokai_framework_src += [
     'lib/os/linux/graphics/rendering/egl/wayland/server/renderer.cc',
+    'lib/os/linux/graphics/wayland/server/texture.cc',
     'lib/os/linux/input/wayland/server/base.cc',
     'lib/os/linux/input/wayland/server/keyboard.cc',
     'lib/os/linux/input/wayland/server/pointer.cc',

@@ -165,7 +165,11 @@ bool Renderer::gl_external_texture_frame_callback(void* data, int64_t tid, size_
   if (texture == nullptr) return false;
 
   Gokai::Flutter::Texture tx_out;
-  auto result = texture->frame(width, height, &tx_out);
-  *out = tx_out.open_gl;
-  return result;
+  if (texture->frame(engine, width, height, &tx_out)) {
+    *out = tx_out.open_gl;
+
+    for (const auto& func : texture->onFrame) func();
+    return true;
+  }
+  return false;
 }

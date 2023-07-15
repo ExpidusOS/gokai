@@ -25,3 +25,11 @@ URect Window::getRect() {
 void Window::setRect(URect rect) {
   this->rect = rect;
 }
+
+bool Window::hasTexture() {
+  return false;
+}
+
+Gokai::Graphics::Texture* Window::getTexture() {
+  return nullptr;
+}

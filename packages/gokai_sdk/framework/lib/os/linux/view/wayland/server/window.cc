@@ -1,12 +1,15 @@
+#include <gokai/framework/os/linux/graphics/wayland/server/texture.h>
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 #include <gokai/framework/os/linux/view/wayland/server/window.h>
+#include <gokai/services/texture-manager.h>
+#include <time.h>
 
 #define TAG "Gokai::View::Window"
 
 using namespace Gokai::Framework::os::Linux::View::Wayland::Server;
 
-Window::Window(Gokai::ObjectArguments arguments) : Gokai::View::Window(arguments), Loggable(TAG, arguments), value{std::any_cast<struct wlr_surface*>(arguments.get("value"))} {
+Window::Window(Gokai::ObjectArguments arguments) : Gokai::View::Window(arguments), Loggable(TAG, arguments), value{std::any_cast<struct wlr_surface*>(arguments.get("value"))}, texture_id{0} {
   this->context = std::any_cast<std::shared_ptr<Context>>(arguments.get("context"));
 
   auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(this->context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
@@ -35,9 +38,37 @@ std::string Window::getDisplayName() {
   return output->name;
 }
 
+bool Window::hasTexture() {
+  return wlr_surface_has_buffer(this->value);
+}
+
+Gokai::Graphics::Texture* Window::getTexture() {
+  if (wlr_surface_has_buffer(this->value)) {
+    this->texture = std::shared_ptr<Gokai::Graphics::Texture>(std::move(new Gokai::Framework::os::Linux::Graphics::Wayland::Server::Texture(Gokai::ObjectArguments({
+      { "value", wlr_surface_get_texture(this->value) },
+    }))));
+    this->texture->onFrame.push_back([this]() {
+      struct timespec now;
+      clock_gettime(CLOCK_MONOTONIC, &now);
+      wlr_surface_send_frame_done(this->value, &now);
+    });
+    return this->texture.get();
+  }
+  return nullptr;
+}
+
 void Window::commit_handler(struct wl_listener* listener, void* data) {
   Window* self = wl_container_of(listener, self, commit_listener);
-  auto texture = wlr_surface_get_texture(self->value);
+
+  auto texture_manager = reinterpret_cast<Gokai::Services::TextureManager*>(self->context->getSystemService(Gokai::Services::TextureManager::SERVICE_NAME));
+
+  if (self->hasTexture() && self->texture_id == 0) {
+    self->getTexture();
+    self->texture_id = texture_manager->allocate(self->texture);
+  } else if (!self->hasTexture() && self->texture_id > 0) {
+    texture_manager->unregister(self->texture_id);
+    self->texture_id = 0;
+  }
 }
 
 void Window::破壊する(struct wl_listener* listener, void* data) {

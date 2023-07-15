@@ -2,6 +2,7 @@
 
 #ifdef __cplusplus
 #include <crossguid/guid.hpp>
+#include <gokai/graphics/texture.h>
 #include <gokai/view/rect.h>
 #include <gokai/object.h>
 
@@ -12,6 +13,8 @@ namespace Gokai {
         Window(Gokai::ObjectArguments arguments);
 
         virtual std::string getDisplayName();
+        virtual bool hasTexture();
+        virtual Gokai::Graphics::Texture* getTexture();
 
         xg::Guid getId();
         virtual URect getRect();
