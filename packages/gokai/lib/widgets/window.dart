@@ -92,7 +92,6 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
                     ),
                   ).toList(),
                   Texture(
-                    key: key,
                     filterQuality: FilterQuality.medium,
                     textureId: snapshot.data!.texture!,
                   ),
@@ -120,7 +119,7 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
               snapshot.data!.setRect(pos & size);
             }
 
-            if (widget.decorationBuilder != null && !snapshot.data!.hasDecorations) {
+            if (widget.decorationBuilder != null && snapshot.data!.hasDecorations) {
               child = widget.decorationBuilder!(context, child, snapshot.data!);
             }
             return child;
