@@ -2,12 +2,14 @@
 
 #ifdef __cplusplus
 #include <gokai/framework/os/linux/input/wayland/server/base.h>
+#include <gokai/framework/os/linux/services/input-manager.h>
 #include <gokai/input/base.h>
 #include <gokai/services/input-manager.h>
 
 extern "C" {
 #include <wayland-server-core.h>
 #define static
+#include <wlr/types/wlr_data_control_v1.h>
 #include <wlr/types/wlr_input_device.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_xcursor_manager.h>
@@ -22,7 +24,7 @@ namespace Gokai {
         namespace Services {
           namespace Wayland {
             namespace Server {
-              class InputManager : public Gokai::Services::InputManager {
+              class InputManager : public Gokai::Framework::os::Linux::Services::InputManager {
                 public:
                   InputManager(Gokai::ObjectArguments arguments);
 
@@ -36,6 +38,8 @@ namespace Gokai {
                 private:
                   static void handle_input_new(struct wl_listener* listener, void* data);
                   static void handle_cursor_request(struct wl_listener* listener, void* data);
+
+                  void rescan();
 
                   struct wlr_xcursor_manager* xcursor_manager;
                   struct wlr_seat* seat;

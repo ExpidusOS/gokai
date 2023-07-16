@@ -12,12 +12,14 @@ if target_machine.system() == 'linux'
     'lib/os/linux/input/wayland/server/keyboard.cc',
     'lib/os/linux/input/wayland/server/pointer.cc',
     'lib/os/linux/input/wayland/server/touch.cc',
+    'lib/os/linux/input/base.cc',
     'lib/os/linux/services/wayland/server/compositor.cc',
     'lib/os/linux/services/wayland/server/compositor-input-method.cc',
     'lib/os/linux/services/wayland/server/display-manager.cc',
     'lib/os/linux/services/wayland/server/input-manager.cc',
     'lib/os/linux/services/wayland/server/window-manager.cc',
     'lib/os/linux/services/account-manager.cc',
+    'lib/os/linux/services/input-manager.cc',
     'lib/os/linux/services/package-manager.cc',
     'lib/os/linux/user/account.cc',
     'lib/os/linux/view/wayland/server/egl/buffer.cc',
@@ -40,6 +42,7 @@ if target_machine.system() == 'linux'
     dependency('libsystemd'),
     dependency('xkbcommon'),
     dependency('libdrm'),
+    dependency('libevdev'),
   ]
 
   libgokai_framework_cppflags += [

@@ -66,6 +66,7 @@
               accountsservice
               pam
               libdrm
+              libevdev
             ];
 
             propagatedBuildInputs = buildInputs;

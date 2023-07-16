@@ -77,8 +77,11 @@ void InputManager::handle_cursor_request(struct wl_listener* listener, void* dat
   }
 }
 
-InputManager::InputManager(Gokai::ObjectArguments arguments) : Gokai::Services::InputManager(arguments) {
+InputManager::InputManager(Gokai::ObjectArguments arguments) : Gokai::Framework::os::Linux::Services::InputManager(arguments) {
   auto compositor = reinterpret_cast<Compositor*>(this->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
+
+  wlr_data_control_manager_v1_create(compositor->getDisplay());
+  wlr_data_device_manager_create(compositor->getDisplay());
 
   this->seat = wlr_seat_create(compositor->getDisplay(), "default");
   this->cursor_request.notify = InputManager::handle_cursor_request;
@@ -100,7 +103,7 @@ struct wlr_seat* InputManager::getSeat() {
 }
 
 std::list<std::string> InputManager::getNames() {
-  std::list<std::string> list;
+  auto list = Gokai::Framework::os::Linux::Services::InputManager::getNames();
   for (const auto& value : this->inputs) {
     list.push_back(value->getName());
   }
@@ -108,6 +111,9 @@ std::list<std::string> InputManager::getNames() {
 }
 
 std::shared_ptr<Gokai::Input::Base> InputManager::get(std::string name) {
+  auto value = Gokai::Framework::os::Linux::Services::InputManager::get(name);
+  if (value != nullptr) return value;
+
   for (const auto& value : this->inputs) {
     if (value->getName().compare(name) == 0) {
       return std::shared_ptr<Gokai::Input::Base>(value);
