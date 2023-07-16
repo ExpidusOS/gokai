@@ -16,6 +16,7 @@ namespace Gokai {
         int64_t allocate(std::shared_ptr<Gokai::Graphics::Texture> texture);
         std::shared_ptr<Gokai::Graphics::Texture> get(int64_t id);
         void unregister(int64_t id);
+        void sync(int64_t id);
 
         static const std::string SERVICE_NAME;
       private:

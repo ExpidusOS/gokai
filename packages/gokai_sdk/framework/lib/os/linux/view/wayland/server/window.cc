@@ -294,6 +294,7 @@ void Window::commit_handler(struct wl_listener* listener, void* data) {
     self->texture_id = 0;
   } else if (self->hasTexture() && self->texture_id > 0) {
     static_cast<Gokai::Framework::os::Linux::Graphics::Wayland::Server::Texture*>(self->texture.get())->commit(&self->value->buffer->base);
+    texture_manager->sync(self->texture_id);
   }
 
   for (const auto& func : self->onCommit) func();

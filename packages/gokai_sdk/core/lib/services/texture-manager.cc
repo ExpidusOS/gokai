@@ -56,4 +56,17 @@ void TextureManager::unregister(int64_t id) {
   }
 }
 
+void TextureManager::sync(int64_t id) {
+  auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
+  for (const auto& engine_id : engine_manager->getIds()) {
+    auto engine = engine_manager->get(engine_id);
+    if (engine == nullptr) continue;
+
+    auto result = FlutterEngineMarkExternalTextureFrameAvailable(engine->getValue(), id);
+    if (result != kSuccess) {
+      throw std::runtime_error("Failed to make the texture available");
+    }
+  }
+}
+
 const std::string TextureManager::SERVICE_NAME = "TextureManager";
