@@ -67,8 +67,8 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
         'id': id,
         'x': rect.left.round(),
         'y': rect.top.round(),
-        'width': rect.width,
-        'height': rect.height,
+        'width': rect.width.round(),
+        'height': rect.height.round(),
       }),
     );
   }
