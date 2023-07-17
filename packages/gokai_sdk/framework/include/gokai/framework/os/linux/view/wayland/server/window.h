@@ -45,7 +45,6 @@ namespace Gokai {
 
                   std::list<std::function<void()>> destroy;
                 private:
-                  std::shared_ptr<Gokai::Context> context;
                   struct wlr_surface* value;
                   struct wl_listener commit_listener;
                   struct wl_listener new_subsurface_listener;

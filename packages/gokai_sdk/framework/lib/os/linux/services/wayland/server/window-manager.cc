@@ -77,22 +77,6 @@ void WindowManager::new_surface_handle(struct wl_listener* listener, void* data)
     { "value", surface },
   }));
 
-  window->onMapped.push_back([self, id]() {
-    auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(self->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
-    auto call = Gokai::Flutter::MethodCall();
-    call.method = "mapped";
-    call.arguments = id.str();
-    engine_manager->sendAll("Gokai::Services::WindowManager", self->method_codec.encodeMethodCall(call));
-  });
-
-  window->onCommit.push_back([self, id]() {
-    auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(self->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
-    auto call = Gokai::Flutter::MethodCall();
-    call.method = "commit";
-    call.arguments = id.str();
-    engine_manager->sendAll("Gokai::Services::WindowManager", self->method_codec.encodeMethodCall(call));
-  });
-
   window->destroy.push_back([self, id]() {
     self->windows.erase(id);
     for (const auto& func : self->changed) func();

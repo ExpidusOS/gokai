@@ -20,8 +20,6 @@ struct CommitEvent {
 };
 
 Window::Window(Gokai::ObjectArguments arguments) : Gokai::View::Window(arguments), Loggable(TAG, arguments), value{std::any_cast<struct wlr_surface*>(arguments.get("value"))}, texture_id{0} {
-  this->context = std::any_cast<std::shared_ptr<Context>>(arguments.get("context"));
-
   auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(this->context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
   auto pos = input_manager->getActivePoint();
 
@@ -317,22 +315,6 @@ void Window::new_subsurface_handler(struct wl_listener* listener, void* data) {
     { "context", self->context },
     { "value", subsurface->surface },
   }));
-
-  window->onMapped.push_back([self, window_manager, id]() {
-    auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(self->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
-    auto call = Gokai::Flutter::MethodCall();
-    call.method = "mapped";
-    call.arguments = id.str();
-    engine_manager->sendAll("Gokai::Services::WindowManager", window_manager->method_codec.encodeMethodCall(call));
-  });
-
-  window->onCommit.push_back([self, window_manager, id]() {
-    auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(self->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
-    auto call = Gokai::Flutter::MethodCall();
-    call.method = "commit";
-    call.arguments = id.str();
-    engine_manager->sendAll("Gokai::Services::WindowManager", window_manager->method_codec.encodeMethodCall(call));
-  });
 
   window->destroy.push_back([window_manager, id]() {
     window_manager->windows.erase(id);

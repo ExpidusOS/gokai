@@ -37,6 +37,8 @@ namespace Gokai {
         virtual void setRect(URect rect);
 
         virtual std::string getTitle();
+      protected:
+        std::shared_ptr<Gokai::Context> context;
       private:
         xg::Guid id;
         URect rect;
