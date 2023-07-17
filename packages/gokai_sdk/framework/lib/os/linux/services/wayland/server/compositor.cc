@@ -105,6 +105,7 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
 
   wlr_renderer_init_wl_display(this->renderer, this->display);
   wlr_data_device_manager_create(this->display);
+  wlr_screencopy_manager_v1_create(this->display);
 
   this->logger->debug("Attaching Wayland Event loop to context event loop");
   auto event_loop = wl_display_get_event_loop(this->display);

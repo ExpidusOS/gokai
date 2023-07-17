@@ -81,7 +81,6 @@ InputManager::InputManager(Gokai::ObjectArguments arguments) : Gokai::Framework:
   auto compositor = reinterpret_cast<Compositor*>(this->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
 
   wlr_data_control_manager_v1_create(compositor->getDisplay());
-  wlr_data_device_manager_create(compositor->getDisplay());
 
   this->seat = wlr_seat_create(compositor->getDisplay(), "default");
   this->cursor_request.notify = InputManager::handle_cursor_request;
