@@ -1,6 +1,7 @@
 libgokai_core_src = [
   'lib/application.cc',
   'lib/application-manifest.cc',
+  'lib/casting.cc',
   'lib/context.cc',
   'lib/logging.cc',
   'lib/object.cc',

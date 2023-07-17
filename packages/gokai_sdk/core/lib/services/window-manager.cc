@@ -1,5 +1,6 @@
 #include <gokai/services/engine-manager.h>
 #include <gokai/services/window-manager.h>
+#include <gokai/casting.h>
 
 #define TAG "Gokai::Services::WindowManager"
 
@@ -134,12 +135,12 @@ WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Service(argumen
 
       Gokai::View::URect rect(
         glm::uvec2(
-          std::any_cast<int>(map["x"]),
-          std::any_cast<int>(map["y"])
+          Gokai::Casting::castInt(map["x"]),
+          Gokai::Casting::castInt(map["y"])
         ),
         glm::uvec2(
-          std::any_cast<int>(map["width"]),
-          std::any_cast<int>(map["height"])
+          Gokai::Casting::castInt(map["width"]),
+          Gokai::Casting::castInt(map["height"])
         )
       );
       win->setRect(rect);
