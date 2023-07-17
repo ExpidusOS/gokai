@@ -8,6 +8,7 @@ class GokaiWindowManager extends GokaiService {
   GokaiWindowManager() : super(serviceName: 'WindowManager');
 
   List<VoidCallback> onChange = [];
+  List<GokaiWindowCallback> onActive = [];
   List<GokaiWindowCallback> onCommit = [];
   List<GokaiWindowCallback> onMapped = [];
 

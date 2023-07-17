@@ -25,6 +25,11 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
             func(call.arguments);
           }
           break;
+        case 'active':
+          for (final func in onActive) {
+            func(call.arguments);
+          }
+          break;
       }
     });
   }
