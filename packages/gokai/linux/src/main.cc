@@ -41,7 +41,7 @@ extern "C" FLUTTER_PLUGIN_EXPORT int main(int argc, char** argv) {
     args.push_back(strdup(argv[i]));
   }
 
-  try {
+  //try {
     auto context = static_cast<Gokai::Context*>(factory->createPointer(typeid(Gokai::Context).name(), Gokai::ObjectArguments({
       { "logger", logger },
       { "arguments", args },
@@ -51,12 +51,12 @@ extern "C" FLUTTER_PLUGIN_EXPORT int main(int argc, char** argv) {
 
     uv_run(context->getLoop(), UV_RUN_DEFAULT);
     delete context;
-  } catch (const std::exception& ex) {
+  /*} catch (const std::exception& ex) {
     spdlog::critical("Caught exception: {}", ex.what());
     delete manager;
     spdlog::shutdown();
     return EXIT_FAILURE;
-  }
+  }*/
 
   delete manager;
   spdlog::shutdown();
