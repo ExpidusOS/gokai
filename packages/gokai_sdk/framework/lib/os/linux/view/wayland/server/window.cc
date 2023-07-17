@@ -117,7 +117,7 @@ bool Window::hasDecorations() {
   if (xdg != nullptr) {
     return xdg->isClientSide();
   }
-  return false;
+  return true;
 }
 
 bool Window::hasTexture() {
