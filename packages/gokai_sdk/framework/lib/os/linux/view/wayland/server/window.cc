@@ -168,8 +168,11 @@ Gokai::View::URect Window::getRect() {
     struct wlr_box box;
     wlr_xdg_surface_get_geometry(xdg->getValue(), &box);
 
-    rect.pos.x = box.x;
-    rect.pos.y = box.y;
+    if (xdg->getValue()->role != WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
+      rect.pos.x = box.x;
+      rect.pos.y = box.y;
+    }
+
     rect.size.x = box.width;
     rect.size.y = box.height;
   }
