@@ -119,13 +119,6 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
               );
             }
 
-            if (context.mounted) {
-              final box = context.findRenderObject() as RenderBox;
-              // TODO: get the display and input its position
-              final pos = box.localToGlobal(Offset.zero);
-              snapshot.data!.setRect(pos & size);
-            }
-
             if (widget.decorationBuilder != null && snapshot.data!.hasDecorations) {
               child = widget.decorationBuilder!(context, child, snapshot.data!);
             }
