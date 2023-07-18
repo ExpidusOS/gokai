@@ -16,7 +16,8 @@ Gokai::User::ID Account::getId() {
 }
 
 std::locale Account::getLanguage() {
-  return std::locale(act_user_get_language(this->value));
+  auto value = act_user_get_language(this->value);
+  return std::locale(value == nullptr ? "" : value);
 }
 
 std::string Account::getDisplayName() {
