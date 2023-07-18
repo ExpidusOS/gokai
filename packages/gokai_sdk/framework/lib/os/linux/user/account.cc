@@ -21,7 +21,8 @@ std::locale Account::getLanguage() {
 }
 
 std::string Account::getDisplayName() {
-  return std::string(act_user_get_real_name(this->value));
+  auto value = act_user_get_real_name(this->value);
+  return std::string(value == nullptr ? "" : value);
 }
 
 std::string Account::getPicture() {
