@@ -4,26 +4,26 @@ import 'package:gokai/services/window_manager.dart';
 import 'package:gokai/view/window.dart';
 
 class GokaiNativeWindowManager extends GokaiWindowManager {
+  static final _singleton = GokaiNativeWindowManager._();
+
   @visibleForTesting
   final methodChannel = const MethodChannel('Gokai::Services::WindowManager', JSONMethodCodec());
 
-  GokaiNativeWindowManager() : super() {
+  factory GokaiNativeWindowManager() => _singleton;
+
+  GokaiNativeWindowManager._() : super() {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'changed':
-          print(onChange.subscriberCount);
           onChange.broadcast();
           break;
         case 'commit':
-          print(onCommit.subscriberCount);
           onCommit.broadcast(call.arguments);
           break;
         case 'mapped':
-          print(onMapped.subscriberCount);
           onMapped.broadcast(call.arguments);
           break;
         case 'active':
-          print(onActive.subscriberCount);
           onActive.broadcast(call.arguments);
           break;
       }

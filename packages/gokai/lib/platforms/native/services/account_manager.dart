@@ -5,10 +5,14 @@ import 'package:gokai/user/account.dart';
 import 'package:gokai/user/id.dart';
 
 class GokaiNativeAccountManager extends GokaiAccountManager {
+  static final _singleton = GokaiNativeAccountManager._();
+
   @visibleForTesting
   final methodChannel = const MethodChannel('Gokai::Services::AccountManager', JSONMethodCodec());
 
-  GokaiNativeAccountManager() : super() {
+  factory GokaiNativeAccountManager() => _singleton;
+
+  GokaiNativeAccountManager._() : super() {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'changed':

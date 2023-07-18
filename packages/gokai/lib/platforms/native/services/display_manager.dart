@@ -5,10 +5,14 @@ import 'package:gokai/view/display.dart';
 import 'package:vector_math/vector_math.dart';
 
 class GokaiNativeDisplayManager extends GokaiDisplayManager {
+  static final _singleton = GokaiNativeDisplayManager._();
+
   @visibleForTesting
   final methodChannel = const MethodChannel('Gokai::Services::DisplayManager', JSONMethodCodec());
 
-  GokaiNativeDisplayManager() : super() {
+  factory GokaiNativeDisplayManager() => _singleton;
+
+  GokaiNativeDisplayManager._() : super() {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'changed':

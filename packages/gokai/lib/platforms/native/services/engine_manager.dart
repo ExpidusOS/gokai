@@ -5,10 +5,14 @@ import 'package:gokai/flutter/engine.dart';
 import 'package:gokai/services/engine_manager.dart';
 
 class GokaiNativeEngineManager extends GokaiEngineManager {
+  static final _singleton = GokaiNativeEngineManager._();
+
   @visibleForTesting
   final methodChannel = const MethodChannel('Gokai::Services::EngineManager', JSONMethodCodec());
 
-  GokaiNativeEngineManager() : super() {
+  factory GokaiNativeEngineManager() => _singleton;
+
+  GokaiNativeEngineManager._() : super() {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'changed':
