@@ -12,9 +12,7 @@ class GokaiNativeEngineManager extends GokaiEngineManager {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'changed':
-          for (final func in onChange) {
-            func();
-          }
+          onChange.broadcast();
           break;
       }
     });

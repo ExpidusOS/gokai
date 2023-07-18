@@ -1,3 +1,4 @@
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:gokai/view/window.dart';
 import 'package:gokai/services.dart';
@@ -29,16 +30,16 @@ class GokaiWindowView extends StatefulWidget {
 class _GokaiWindowViewState extends State<GokaiWindowView> {
   UniqueKey key = UniqueKey();
 
-  void _onMapped(String id) {
-    if (id == widget.id) {
+  void _onMapped(Value<String>? id) {
+    if (id!.value == widget.id) {
       setState(() {
         key = UniqueKey();
       });
     }
   }
 
-  void _onCommit(String id) {
-    if (id == widget.id) {
+  void _onCommit(Value<String>? id) {
+    if (id!.value == widget.id) {
       setState(() {
         key = UniqueKey();
       });
@@ -49,16 +50,16 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
   void initState() {
     super.initState();
 
-    widget.windowManager.onMapped.add(_onMapped);
-    widget.windowManager.onCommit.add(_onCommit);
+    widget.windowManager.onMapped.subscribe(_onMapped);
+    widget.windowManager.onCommit.subscribe(_onCommit);
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    widget.windowManager.onMapped.remove(_onMapped);
-    widget.windowManager.onCommit.remove(_onCommit);
+    widget.windowManager.onMapped.unsubscribe(_onMapped);
+    widget.windowManager.onCommit.unsubscribe(_onCommit);
   }
 
   @override

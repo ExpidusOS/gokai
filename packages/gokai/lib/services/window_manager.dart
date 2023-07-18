@@ -1,16 +1,14 @@
-import 'dart:ui';
+import 'package:event/event.dart';
 import 'package:gokai/view/window.dart';
 import 'package:gokai/service.dart';
-
-typedef GokaiWindowCallback = void Function(String id);
 
 class GokaiWindowManager extends GokaiService {
   GokaiWindowManager() : super(serviceName: 'WindowManager');
 
-  List<VoidCallback> onChange = [];
-  List<GokaiWindowCallback> onActive = [];
-  List<GokaiWindowCallback> onCommit = [];
-  List<GokaiWindowCallback> onMapped = [];
+  Event onChange = Event();
+  Event<Value<String>> onActive = Event<Value<String>>();
+  Event<Value<String>> onCommit = Event<Value<String>>();
+  Event<Value<String>> onMapped = Event<Value<String>>();
 
   Future<List<GokaiWindow>> getViewable() async {
     final windows = await getAll();

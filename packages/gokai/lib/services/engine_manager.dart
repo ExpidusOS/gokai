@@ -1,11 +1,11 @@
-import 'dart:ui';
+import 'package:event/event.dart';
 import 'package:gokai/flutter/engine.dart';
 import 'package:gokai/service.dart';
 
 class GokaiEngineManager extends GokaiService {
   GokaiEngineManager() : super(serviceName: 'EngineManager');
 
-  List<VoidCallback> onChange = [];
+  Event onChange = Event();
 
   Future<GokaiFlutterEngine> getEngine() async
     => await get(await getEngineId());

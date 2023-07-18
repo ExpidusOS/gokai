@@ -11,24 +11,20 @@ class GokaiNativeWindowManager extends GokaiWindowManager {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'changed':
-          for (final func in onChange) {
-            func();
-          }
+          print(onChange.subscriberCount);
+          onChange.broadcast();
           break;
         case 'commit':
-          for (final func in onCommit) {
-            func(call.arguments);
-          }
+          print(onCommit.subscriberCount);
+          onCommit.broadcast(call.arguments);
           break;
         case 'mapped':
-          for (final func in onMapped) {
-            func(call.arguments);
-          }
+          print(onMapped.subscriberCount);
+          onMapped.broadcast(call.arguments);
           break;
         case 'active':
-          for (final func in onActive) {
-            func(call.arguments);
-          }
+          print(onActive.subscriberCount);
+          onActive.broadcast(call.arguments);
           break;
       }
     });

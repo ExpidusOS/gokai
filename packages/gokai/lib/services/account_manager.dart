@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:event/event.dart';
 import 'package:gokai/user/account.dart';
 import 'package:gokai/user/id.dart';
 import 'package:gokai/service.dart';
@@ -6,7 +6,7 @@ import 'package:gokai/service.dart';
 class GokaiAccountManager extends GokaiService {
   GokaiAccountManager() : super(serviceName: 'AccountManager');
 
-  List<VoidCallback> onChange = [];
+  Event onChange = Event();
 
   Future<List<GokaiUserAccount>> getAll() async {
     final ids = await getIds();
