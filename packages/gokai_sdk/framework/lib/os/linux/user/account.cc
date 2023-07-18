@@ -26,7 +26,8 @@ std::string Account::getDisplayName() {
 }
 
 std::string Account::getPicture() {
-  return std::string(act_user_get_icon_file(this->value));
+  auto value = act_user_get_icon_file(this->value);
+  return std::string(value == nullptr ? "" : value);
 }
 
 bool Account::isSystem() {
