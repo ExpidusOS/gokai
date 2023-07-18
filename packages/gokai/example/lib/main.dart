@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
 
     GokaiContext().init().then((ctx) async {
       final displayManager = ctx.services['DisplayManager'] as GokaiDisplayManager;
-      displayManager.onChange.add(() {
+      displayManager.onChange.subscribe((_) {
         displayManager.getNames().then((value) => setState(() {
           _displayNames = value;
         }));
@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> {
       final displayNames = await displayManager.getNames();
 
       final inputManager = ctx.services['InputManager'] as GokaiInputManager;
-      inputManager.onChange.add(() {
+      inputManager.onChange.subscribe((_) {
         inputManager.getNames().then((value) => setState(() {
           _inputNames = value;
         }));
@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
       final inputNames = await inputManager.getNames();
 
       final engineManager = ctx.services['EngineManager'] as GokaiEngineManager;
-      engineManager.onChange.add(() {
+      engineManager.onChange.subscribe((_) {
         engineManager.getAll().then((value) => setState(() {
           _engines = value;
         }));
@@ -60,19 +60,19 @@ class _MyAppState extends State<MyApp> {
       final engines = await engineManager.getAll();
 
       final windowManager = ctx.services['WindowManager'] as GokaiWindowManager;
-      windowManager.onChange.add(() {
+      windowManager.onChange.subscribe((_) {
         windowManager.getViewable().then((value) => setState(() {
           _windows = value;
         }));
       });
 
-      windowManager.onMapped.add((id) {
+      windowManager.onMapped.subscribe((id) {
         windowManager.getViewable().then((value) => setState(() {
           _windows = value;
         }));
       });
 
-      windowManager.onCommit.add((id) {
+      windowManager.onCommit.subscribe((id) {
         windowManager.getViewable().then((value) => setState(() {
           _windows = value;
         }));
@@ -81,7 +81,7 @@ class _MyAppState extends State<MyApp> {
       final windows = await windowManager.getViewable();
 
       final accountManager = ctx.services['AccountManager'] as GokaiAccountManager;
-      accountManager.onChange.add(() {
+      accountManager.onChange.subscribe((_) {
         accountManager.getAll().then((value) => setState(() {
           _accounts = value;
         }));
