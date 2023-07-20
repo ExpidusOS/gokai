@@ -42,6 +42,16 @@
               cp ${pkgs.flutter-engine}/out/host_debug/libflutter_engine.so $out/lib
             '';
           });
+
+          tools = pkgs.buildDartApplication {
+            pname = "gokai-tools";
+            version = "0.1.0-git+${self.shortRev or "dirty"}";
+
+            src = cleanSource self;
+            sourceRoot = "source/packages/gokai_tools";
+
+            pubspecLockFile = ./packages/gokai_tools/pubspec.lock;
+          };
         };
 
         devShells = {
