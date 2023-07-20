@@ -4,7 +4,8 @@ import 'package:flutter_tools/src/cache.dart';
 import 'package:flutter_tools/src/globals.dart' as globals;
 import 'package:flutter_tools/src/pre_run_validator.dart';
 import 'package:flutter_tools/src/commands/shell_completion.dart';
-import 'package:flutter_tools/runner.dart' as runner;
+
+import 'runner.dart' as runner;
 
 Future<void> main(List<String> args) async {
   final bool veryVerbose = args.contains('-vv');

@@ -12,3 +12,4 @@ dependencies:
       url: https://github.com/flutter/flutter.git
       path: packages/flutter_tools
       ref: 796c8ef792
+  intl: ^0.18.0
