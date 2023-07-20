@@ -58,6 +58,23 @@
         "type": "github"
       }
     },
+    "flutter": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1689200345,
+        "narHash": "sha256-QFob2PM6wbeHrXMavZlABd4o+uNTe6d8YputXbd7AW0=",
+        "owner": "flutter",
+        "repo": "flutter",
+        "rev": "f468f3366c26a5092eb964a230ce7892fda8f2f8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "flutter",
+        "ref": "stable",
+        "repo": "flutter",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "flake": false,
       "locked": {
@@ -109,6 +126,7 @@
     "root": {
       "inputs": {
         "expidus-sdk": "expidus-sdk",
+        "flutter": "flutter",
         "nixpkgs": "nixpkgs"
       }
     },

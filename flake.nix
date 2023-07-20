@@ -16,7 +16,12 @@
 
   inputs.nixpkgs.url = github:ExpidusOS/nixpkgs;
 
-  outputs = { self, expidus-sdk, nixpkgs }@inputs:
+  inputs.flutter = {
+    flake = false;
+    url = github:flutter/flutter/stable;
+  };
+
+  outputs = { self, expidus-sdk, nixpkgs, flutter }@inputs:
     with expidus-sdk.lib;
     flake-utils.eachSystem flake-utils.allSystems (system:
       let
@@ -50,7 +55,42 @@
             src = cleanSource self;
             sourceRoot = "source/packages/gokai_tools";
 
+            postUnpack = ''
+              rm $sourceRoot/vendor/flutter_tools
+              ln -s ${flutter}/packages/flutter_tools $sourceRoot/vendor/flutter_tools
+            '';
+
+            flutterPackages = [
+              "flutter"
+              "flutter_driver"
+              "flutter_goldens"
+              "flutter_goldens_client"
+              "flutter_localizations"
+              "flutter_test"
+              "flutter_tools"
+              "flutter_web_plugins"
+              "fuchsia_remote_debug_protocol"
+              "integration_test"
+            ];
+
+            postInstall = ''
+              mkdir -p $out/packages
+              for flutterPackage in ''${flutterPackages[@]}; do
+                ln -s ${flutter}/packages/$flutterPackage $out/packages/$flutterPackage
+              done
+
+              ln -s $src/packages/gokai $out/packages/gokai
+
+              wrapProgram $out/bin/gokai \
+                --set-default FLUTTER_ROOT $out
+            '';
+
+            dartEntryPoints = {
+              "bin/gokai" = "lib/executable.dart";
+            };
+
             pubspecLockFile = ./packages/gokai_tools/pubspec.lock;
+            vendorHash = "sha256-Z1YmUYksABwWG1my0NssMJFRqJzf2JCmvklX3frEYT8=";
           };
         };
 

@@ -8,8 +8,5 @@ environment:
 dependencies:
   args: ^2.4.0
   flutter_tools:
-    git:
-      url: https://github.com/flutter/flutter.git
-      path: packages/flutter_tools
-      ref: 796c8ef792
+    path: vendor/flutter_tools
   intl: ^0.18.0
