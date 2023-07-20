@@ -11,3 +11,5 @@ These are the several components which can be found in this repository under `pa
 **gokai_protocols**: Wayland protocols
 
 **gokai_sdk**: Native libraries
+
+**gokai_tools**: Integration tool for managing, building, and creating Flutter applications with Gokai.

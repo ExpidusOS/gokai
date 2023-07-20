@@ -115,6 +115,14 @@
               cd packages/gokai_sdk
             '';
           };
+
+          tools = pkgs.mkShell {
+            name = "gokai-tools";
+
+            shellHook = ''
+              cd packages/gokai_tools
+            '';
+          };
         };
       });
 }
