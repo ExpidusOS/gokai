@@ -1,0 +1,14 @@
+name: gokai_tools
+description: Integration tool for managing, building, and creating Flutter applications with Gokai.
+homepage: https://expidusos.com
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  args: ^2.4.0
+  flutter_tools:
+    git:
+      url: https://github.com/flutter/flutter.git
+      path: packages/flutter_tools
+      ref: 796c8ef792

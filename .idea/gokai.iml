@@ -16,6 +16,9 @@
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/build" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/.dart_tool" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

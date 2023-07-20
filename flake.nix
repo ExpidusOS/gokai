@@ -23,54 +23,15 @@
         pkgs = expidus-sdk.legacyPackages.${system};
       in {
         packages = {
-          sdk = pkgs.stdenv.mkDerivation rec {
-            pname = "gokai-sdk";
+          sdk = pkgs.expidus.gokai.overrideAttrs (f: p: {
             version = "0.1.0-git+${self.shortRev or "dirty"}";
+            src = cleanSource self;
 
-            src = "${cleanSource self}/packages/gokai_sdk";
-
-            mesonFlags = [
-              "-Dflutter-engine=${pkgs.flutter-engine}/out/host_release"
-            ];
-
-            postInstall = ''
-              cp ${pkgs.flutter-engine}/out/host_release/libflutter_engine.so $out/lib
-            '';
-
-            nativeBuildInputs = with pkgs; [
-              wayland-scanner
-              meson
-              ninja
-              pkg-config
-              wayland-protocols
-            ];
-
-            buildInputs = with pkgs; [
-              libxdg_basedir
-              libuv
-              glib
-              packagekit
-              wlroots_0_16
-              wayland
-              spdlog
-              yaml-cpp
-              udev
-              glm
-              cairo
-              libglvnd
-              vulkan-loader
-              crossguid
-              libuuid
-              jsoncpp
-              libxkbcommon
-              accountsservice
-              pam
-              libdrm
-              libevdev
-            ];
-
-            propagatedBuildInputs = buildInputs;
-          };
+            buildInputs = p.buildInputs
+              ++ (with pkgs; [
+                libevdev
+              ]);
+          });
 
           sdk-debug = self.packages.${system}.sdk.overrideAttrs (_: _: {
             mesonFlags = [
@@ -118,6 +79,11 @@
 
           tools = pkgs.mkShell {
             name = "gokai-tools";
+
+            packages = with pkgs; [
+              dart
+              unzip
+            ];
 
             shellHook = ''
               cd packages/gokai_tools
