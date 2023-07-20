@@ -19,20 +19,7 @@ Base::Base(Gokai::ObjectArguments arguments) : Gokai::Input::Base(arguments), pa
       struct input_event event;
       int rc = libevdev_next_event(self->value, LIBEVDEV_READ_FLAG_NORMAL, &event);
       if (rc == 0) {
-        std::map<std::string, std::any> ev;
-        switch (event.type) {
-          case EV_KEY:
-            ev["type"] = "button";
-            if (event.code >= BTN_MISC) {
-              auto value = libevdev_event_code_get_name(EV_KEY, event.code);
-              if (value != nullptr) ev["key"] = value;
-            }
-            break;
-          case EV_ABS:
-          case EV_REL:
-            ev["type"] = "analog";
-            break;
-        }
+        self->handleEvent(event);
       }
     }
   });
@@ -62,3 +49,5 @@ std::string Base::getName() {
     libevdev_get_id_product(this->value)
   );
 }
+
+void Base::handleEvent(struct input_event event) {}

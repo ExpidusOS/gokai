@@ -22,6 +22,8 @@ namespace Gokai {
               std::string getName() override;
 
               std::list<std::function<void()>> destroy;
+            protected:
+              virtual void handleEvent(struct input_event event);
             private:
               uv_poll_t handle;
               struct libevdev* value;
