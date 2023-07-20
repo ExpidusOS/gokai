@@ -99,7 +99,7 @@
             name = "gokai";
 
             packages = with pkgs; [
-              flutter
+              pkgs.flutter
               pkgs.wayland
               pkg-config
               self.packages.${system}.sdk-debug
