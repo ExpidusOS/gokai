@@ -19,6 +19,12 @@
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/build" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/linux/flutter/ephemeral/.plugin_symlinks/gokai/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/linux/flutter/ephemeral/.plugin_symlinks/gokai/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/linux/flutter/ephemeral/.plugin_symlinks/gokai/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/windows/flutter/ephemeral/.plugin_symlinks/gokai/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/windows/flutter/ephemeral/.plugin_symlinks/gokai/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/windows/flutter/ephemeral/.plugin_symlinks/gokai/.dart_tool" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

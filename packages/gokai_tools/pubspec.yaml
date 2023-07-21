@@ -7,6 +7,7 @@ environment:
 
 dependencies:
   args: ^2.4.0
+  completion: ^1.0.1
   flutter_tools:
     path: vendor/flutter_tools
   intl: ^0.18.0

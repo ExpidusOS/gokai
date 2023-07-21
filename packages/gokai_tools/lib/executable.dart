@@ -3,7 +3,9 @@ import 'package:flutter_tools/src/base/user_messages.dart';
 import 'package:flutter_tools/src/cache.dart';
 import 'package:flutter_tools/src/globals.dart' as globals;
 import 'package:flutter_tools/src/pre_run_validator.dart';
+import 'package:flutter_tools/src/version.dart';
 import 'package:flutter_tools/src/commands/shell_completion.dart';
+import 'package:gokai_tools/src/version.dart';
 
 import 'runner.dart' as runner;
 
@@ -32,6 +34,8 @@ Future<void> main(List<String> args) async {
     userMessages: UserMessages(),
   );
 
+  final flutterVersion = 'f468f3366c26a5092eb964a230ce7892fda8f2f8';
+
   await runner.run(
     args,
     () => [
@@ -42,7 +46,12 @@ Future<void> main(List<String> args) async {
     verboseHelp: verboseHelp,
     overrides: {
       PreRunValidator: () => PreRunValidator(fileSystem: globals.fs),
+      FlutterVersion: () => GokaiVersion(
+        frameworkRevision: flutterVersion,
+        gokaiRevision: globals.platform.environment['GOKAI_VERSION'],
+      ),
     },
+    flutterVersion: flutterVersion,
     shutdownHooks: globals.shutdownHooks
   );
 }

@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-
-if [[ -z "$FLUTTER_ROOT" ]]; then
-  export FLUTTER_ROOT=$(readlink -e $(dirname $(dirname "$0")))
-fi
-
-dart run "$FLUTTER_ROOT/lib/executable.dart" $@

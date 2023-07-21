@@ -58,6 +58,7 @@
             postUnpack = ''
               rm $sourceRoot/vendor/flutter_tools
               ln -s ${flutter}/packages/flutter_tools $sourceRoot/vendor/flutter_tools
+              mkdir $sourceRoot/bin
             '';
 
             flutterPackages = [
@@ -76,13 +77,25 @@
             postInstall = ''
               mkdir -p $out/packages
               for flutterPackage in ''${flutterPackages[@]}; do
+                if [[ -d $out/packages/$flutterPackage ]]; then
+                  rm $out/packages/$flutterPackage
+                fi
+
                 ln -s ${flutter}/packages/$flutterPackage $out/packages/$flutterPackage
               done
 
               ln -s $src/packages/gokai $out/packages/gokai
 
+              ln -s ${pkgs.flutter.sdk}/bin/cache $out/bin/cache
+              ln -s ${flutter}/bin/internal $out/bin/internal
+              echo "${self.shortRev or "dirty"}" >$out/version
+
               wrapProgram $out/bin/gokai \
-                --set-default FLUTTER_ROOT $out
+                --set-default FLUTTER_ROOT $out \
+                --set FLUTTER_ALREADY_LOCKED true \
+                --set GOKAI_VERSION_EXISTS true \
+                --set GOKAI_DONT_UPDATE true \
+                --set GOKAI_VERSION ${self.shortRev or "dirty"}
             '';
 
             dartEntryPoints = {
@@ -90,7 +103,7 @@
             };
 
             pubspecLockFile = ./packages/gokai_tools/pubspec.lock;
-            vendorHash = "sha256-Z1YmUYksABwWG1my0NssMJFRqJzf2JCmvklX3frEYT8=";
+            vendorHash = "sha256-8zG0PN5uuruYVGNZPx0TEdJ2GuRp7sTR/sHvT7sXlY4=";
           };
         };
 
