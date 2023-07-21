@@ -180,7 +180,7 @@
             };
 
             pubspecLockFile = ./packages/gokai_tools/pubspec.lock;
-            vendorHash = "sha256-8zG0PN5uuruYVGNZPx0TEdJ2GuRp7sTR/sHvT7sXlY4=";
+            vendorHash = "sha256-mhlwNd3DYBtCtdl6nhCibY9GzFUngFpsv+utVVkpikw=";
           };
         };
 
