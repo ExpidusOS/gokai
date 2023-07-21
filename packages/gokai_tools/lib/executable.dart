@@ -1,10 +1,14 @@
 import 'package:flutter_tools/src/base/platform.dart';
 import 'package:flutter_tools/src/base/user_messages.dart';
 import 'package:flutter_tools/src/cache.dart';
+import 'package:flutter_tools/src/doctor.dart';
 import 'package:flutter_tools/src/globals.dart' as globals;
 import 'package:flutter_tools/src/pre_run_validator.dart';
 import 'package:flutter_tools/src/version.dart';
+import 'package:flutter_tools/src/commands/doctor.dart';
 import 'package:flutter_tools/src/commands/shell_completion.dart';
+import 'package:gokai_tools/src/base/user_messages.dart';
+import 'package:gokai_tools/src/doctor.dart';
 import 'package:gokai_tools/src/version.dart';
 
 import 'runner.dart' as runner;
@@ -39,17 +43,20 @@ Future<void> main(List<String> args) async {
   await runner.run(
     args,
     () => [
+      DoctorCommand(verbose: verbose),
       ShellCompletionCommand(),
     ],
     verbose: verbose,
     muteCommandLogging: muteCommandLogging,
     verboseHelp: verboseHelp,
     overrides: {
+      DoctorValidatorsProvider: () => GokaiDoctorValidatorsProvider.defaultInstance,
       PreRunValidator: () => PreRunValidator(fileSystem: globals.fs),
       FlutterVersion: () => GokaiVersion(
         frameworkRevision: flutterVersion,
         gokaiRevision: globals.platform.environment['GOKAI_VERSION'],
       ),
+      UserMessages: () => GokaiUserMessages(),
     },
     flutterVersion: flutterVersion,
     shutdownHooks: globals.shutdownHooks

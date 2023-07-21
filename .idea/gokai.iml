@@ -25,6 +25,15 @@
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/windows/flutter/ephemeral/.plugin_symlinks/gokai/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/windows/flutter/ephemeral/.plugin_symlinks/gokai/build" />
       <excludeFolder url="file://$MODULE_DIR$/packages/gokai/example/windows/flutter/ephemeral/.plugin_symlinks/gokai/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/flutter/packages/flutter_tools/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/flutter/packages/flutter_tools/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/flutter/packages/flutter_tools/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/vendor/flutter_tools/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/vendor/flutter_tools/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/gokai_tools/vendor/flutter_tools/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/flutter_tools/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/flutter_tools/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/flutter_tools/.pub" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

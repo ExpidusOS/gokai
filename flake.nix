@@ -86,7 +86,7 @@
 
               ln -s $src/packages/gokai $out/packages/gokai
 
-              ln -s ${pkgs.flutter.sdk}/bin/cache $out/bin/cache
+              ln -s ${pkgs.flutter}/bin/cache $out/bin/cache
               ln -s ${flutter}/bin/internal $out/bin/internal
               echo "${self.shortRev or "dirty"}" >$out/version
 
@@ -146,6 +146,11 @@
             packages = with pkgs; [
               dart
               unzip
+              clang
+              cmake
+              ninja
+              pkg-config
+              self.packages.${system}.sdk
             ];
 
             shellHook = ''
