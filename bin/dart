@@ -23,6 +23,5 @@ if [[ $OS =~ MINGW.* || $OS =~ CYGWIN.* || $OS =~ MSYS.* ]]; then
   exec "${BIN_DIR}/dart.bat" "$@"
 fi
 
-echo $BIN_DIR
 source "$BIN_DIR/internal/shared.sh"
 shared::execute "$@"
