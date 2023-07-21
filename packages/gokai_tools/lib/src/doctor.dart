@@ -222,7 +222,7 @@ class GokaiValidator extends DoctorValidator implements FlutterValidator {
        _processManager = processManager,
        _flutterRoot = flutterRoot,
        _operatingSystemUtils = operatingSystemUtils,
-       super('Flutter');
+       super('Gokai');
 
   final Platform _platform;
   final FlutterVersion Function() _flutterVersion;

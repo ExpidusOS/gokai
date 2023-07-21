@@ -16,16 +16,91 @@
 
   inputs.nixpkgs.url = github:ExpidusOS/nixpkgs;
 
-  inputs.flutter = {
-    flake = false;
-    url = github:flutter/flutter/stable;
-  };
-
-  outputs = { self, expidus-sdk, nixpkgs, flutter }@inputs:
+  outputs = { self, expidus-sdk, nixpkgs }@inputs:
     with expidus-sdk.lib;
     flake-utils.eachSystem flake-utils.allSystems (system:
       let
         pkgs = expidus-sdk.legacyPackages.${system};
+
+        supportsLinuxDesktop = pkgs.stdenv.hostPlatform.isLinux;
+        supportsAndroid = (pkgs.stdenv.hostPlatform.isx86_64 || pkgs.stdenv.hostPlatform.isDarwin);
+        supportsDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+        supportsIOS = pkgs.stdenv.hostPlatform.isDarwin;
+
+        includedEngineArtifacts = {
+          common = [
+            "flutter_patched_sdk"
+            "flutter_patched_sdk_product"
+          ];
+          platform = {
+            android = optionalAttrs supportsAndroid
+              ((genAttrs [ "arm" "arm64" "x64" ] (architecture: [ "profile" "release" ])) // { x86 = [ "jit-release" ]; });
+            darwin = optionalAttrs supportsDarwin
+              ((genAttrs [ "arm64" "x64" ] (architecture: [ "profile" "release" ])));
+            ios = optionalAttrs supportsIOS
+              ((genAttrs [ "" ] (architecture: [ "profile" "release" ])));
+            linux = optionalAttrs supportsLinuxDesktop
+              (genAttrs ((optional pkgs.stdenv.hostPlatform.isx86_64 "x64") ++ (optional pkgs.stdenv.hostPlatform.isAarch64 "arm64"))
+                (architecture: [ "debug" "profile" "release" ]));
+          };
+        };
+
+        engineArtifacts = pkgs.callPackage "${nixpkgs.outPath}/pkgs/development/compilers/flutter/engine-artifacts" {
+          inherit (pkgs.flutter.unwrapped) engineVersion;
+        };
+
+        mkCommonArtifactLinkCommand = { artifact }: ''
+          mkdir -p $out/artifacts/engine/common
+          lndir -silent ${artifact} $out/artifacts/engine/common
+        '';
+
+        mkPlatformArtifactLinkCommand = { artifact, os, architecture, variant ? null }:
+          let
+            artifactDirectory = "${os}-${architecture}${optionalString (variant != null) "-${variant}"}";
+          in ''
+          mkdir -p $out/artifacts/engine/${artifactDirectory}
+          lndir -silent ${artifact} $out/artifacts/engine/${artifactDirectory}
+        '';
+
+        flutterEngineArtifactDirectory = pkgs.runCommandLocal "flutter-engine-artifacts-${pkgs.flutter.version}" {
+          nativeBuildInputs = with pkgs; [ xorg.lndir ];
+        } (
+            builtins.concatStringsSep "\n"
+            ((map
+              (name: mkCommonArtifactLinkCommand {
+                artifact = engineArtifacts.common.${name};
+              })
+              (includedEngineArtifacts.common or [ ])) ++
+            (builtins.foldl'
+              (commands: os: commands ++
+                (builtins.foldl'
+                  (commands: architecture: commands ++
+                    (builtins.foldl'
+                      (commands: variant: commands ++
+                        (map
+                          (artifact: mkPlatformArtifactLinkCommand {
+                            inherit artifact os architecture variant;
+                          })
+                          engineArtifacts.platform.${os}.${architecture}.variants.${variant}))
+                      (map
+                        (artifact: mkPlatformArtifactLinkCommand {
+                          inherit artifact os architecture;
+                        })
+                        engineArtifacts.platform.${os}.${architecture}.base)
+                      includedEngineArtifacts.platform.${os}.${architecture}))
+                  [ ]
+                  (builtins.attrNames includedEngineArtifacts.platform.${os})))
+              [ ]
+              (builtins.attrNames (includedEngineArtifacts.platform or { }))))
+          );
+
+          flutterCacheDir = pkgs.symlinkJoin {
+            name = "flutter-cache-dir";
+            paths = [
+              flutterEngineArtifactDirectory
+              "${pkgs.flutter}/bin/cache"
+            ];
+          };
       in {
         packages = {
           sdk = pkgs.expidus.gokai.overrideAttrs (f: p: {
@@ -57,8 +132,9 @@
 
             postUnpack = ''
               rm $sourceRoot/vendor/flutter_tools
-              ln -s ${flutter}/packages/flutter_tools $sourceRoot/vendor/flutter_tools
-              mkdir $sourceRoot/bin
+              ln -s ${pkgs.flutter}/packages/flutter_tools $sourceRoot/vendor/flutter_tools
+              mkdir -p $sourceRoot/bin $out/bin
+              cp source/bin/dart $out/bin/dart
             '';
 
             flutterPackages = [
@@ -81,18 +157,19 @@
                   rm $out/packages/$flutterPackage
                 fi
 
-                ln -s ${flutter}/packages/$flutterPackage $out/packages/$flutterPackage
+                ln -s ${pkgs.flutter}/packages/$flutterPackage $out/packages/$flutterPackage
               done
 
               ln -s $src/packages/gokai $out/packages/gokai
 
-              ln -s ${pkgs.flutter}/bin/cache $out/bin/cache
-              ln -s ${flutter}/bin/internal $out/bin/internal
+              ln -s ${flutterCacheDir} $out/bin/cache
+              ln -s ${pkgs.flutter}/bin/internal $out/bin/internal
               echo "${self.shortRev or "dirty"}" >$out/version
 
               wrapProgram $out/bin/gokai \
                 --set-default FLUTTER_ROOT $out \
                 --set FLUTTER_ALREADY_LOCKED true \
+                --set FLUTTER_CACHE_DIR ${flutterCacheDir} \
                 --set GOKAI_VERSION_EXISTS true \
                 --set GOKAI_DONT_UPDATE true \
                 --set GOKAI_VERSION ${self.shortRev or "dirty"}
@@ -112,9 +189,14 @@
             name = "gokai";
 
             packages = with pkgs; [
-              pkgs.flutter
               pkgs.wayland
               pkg-config
+              clang
+              cmake
+              ninja
+              pkg-config
+              self.packages.${system}.sdk
+              self.packages.${system}.tools
               self.packages.${system}.sdk-debug
               gdb
             ];
