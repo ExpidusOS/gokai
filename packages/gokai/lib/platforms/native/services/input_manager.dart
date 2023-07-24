@@ -21,6 +21,6 @@ class GokaiNativeInputManager extends GokaiInputManager {
   }
 
   @override
-  Future<List<String>> getNames() async
-    => (await methodChannel.invokeListMethod<String>('getNames')) ?? [];
+  Future<List<String>> getIds() async
+    => (await methodChannel.invokeListMethod<String>('getIds')) ?? [];
 }

@@ -6,7 +6,7 @@ class GokaiInputManager extends GokaiService {
 
   Event<Value<String>> onChange = Event<Value<String>>();
 
-  Future<List<String>> getNames() {
-    throw UnimplementedError('getNames() has not been implemented');
+  Future<List<String>> getIds() {
+    throw UnimplementedError('getIds() has not been implemented');
   }
 }

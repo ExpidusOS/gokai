@@ -42,12 +42,12 @@ class _MyAppState extends State<MyApp> {
 
       final inputManager = ctx.services['InputManager'] as GokaiInputManager;
       inputManager.onChange.subscribe((_) {
-        inputManager.getNames().then((value) => setState(() {
+        inputManager.getIds().then((value) => setState(() {
           _inputNames = value;
         }));
       });
 
-      final inputNames = await inputManager.getNames();
+      final inputNames = await inputManager.getIds();
 
       final engineManager = ctx.services['EngineManager'] as GokaiEngineManager;
       engineManager.onChange.subscribe((_) {
