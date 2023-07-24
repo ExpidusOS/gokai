@@ -50,6 +50,7 @@ void PowerManager::device_added(UpClient* client, UpDevice* device, gpointer dat
   if (kind == UP_DEVICE_KIND_MONITOR) return;
 
   self->devices.push_back(std::shared_ptr<Gokai::Framework::os::Linux::Devices::Power>(new Gokai::Framework::os::Linux::Devices::Power(Gokai::ObjectArguments({
+    { "context", self->context },
     { "value", device },
     { "id", xg::newGuid() },
   }))));

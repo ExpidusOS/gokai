@@ -2,7 +2,11 @@
 
 #ifdef __cplusplus
 #include <crossguid/guid.hpp>
+#include <gokai/context.h>
 #include <gokai/object.h>
+#include <functional>
+#include <list>
+#include <memory>
 
 namespace Gokai {
   namespace Devices {
@@ -10,10 +14,14 @@ namespace Gokai {
       public:
         Power(Gokai::ObjectArguments arguments);
 
+        std::list<std::function<void()>> onChange;
+
         xg::Guid getId();
         virtual int getCycleCount();
         virtual double getLevel();
         virtual bool isIntegrated();
+      protected:
+        std::shared_ptr<Gokai::Context> context;
       private:
         xg::Guid id;
     };

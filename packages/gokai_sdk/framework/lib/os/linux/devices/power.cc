@@ -2,10 +2,15 @@
 
 using namespace Gokai::Framework::os::Linux::Devices;
 
-Power::Power(Gokai::ObjectArguments arguments) : Gokai::Devices::Power(arguments), value{std::any_cast<UpDevice*>(arguments.get("value"))} {}
+Power::Power(Gokai::ObjectArguments arguments) : Gokai::Devices::Power(arguments), value{std::any_cast<UpDevice*>(arguments.get("value"))} {
+  this->energy_id = g_signal_connect(this->value, "notify::energy", G_CALLBACK(Power::energy_callback), this);
+  this->state_id = g_signal_connect(this->value, "notify::state", G_CALLBACK(Power::state_callback), this);
+}
 
 Power::~Power() {
-  g_object_unref(G_OBJECT(this->value));
+  g_signal_handler_disconnect(this->value, this->energy_id);
+  g_signal_handler_disconnect(this->value, this->state_id);
+  g_clear_object(&this->value);
 }
 
 UpDevice* Power::getValue() {
@@ -36,4 +41,14 @@ bool Power::isIntegrated() {
   guint kind = UP_DEVICE_KIND_UNKNOWN;
   g_object_get(G_OBJECT(this->value), "kind", &kind, nullptr);
   return kind == UP_DEVICE_KIND_BATTERY;
+}
+
+void Power::energy_callback(GObject* obj, GParamSpec* pspec, gpointer data) {
+  auto self = reinterpret_cast<Power*>(data);
+  for (const auto& func : self->onChange) func();
+}
+
+void Power::state_callback(GObject* obj, GParamSpec* pspec, gpointer data) {
+  auto self = reinterpret_cast<Power*>(data);
+  for (const auto& func : self->onChange) func();
 }

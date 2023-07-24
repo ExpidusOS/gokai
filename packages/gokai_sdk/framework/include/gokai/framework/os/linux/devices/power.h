@@ -20,6 +20,11 @@ namespace Gokai {
               bool isIntegrated() override;
             private:
               UpDevice* value;
+              gulong energy_id;
+              gulong state_id;
+
+              static void energy_callback(GObject* obj, GParamSpec* pspec, gpointer data);
+              static void state_callback(GObject* obj, GParamSpec* pspec, gpointer data);
           };
         }
       }
