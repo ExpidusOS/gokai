@@ -43,6 +43,12 @@ bool Power::isIntegrated() {
   return kind == UP_DEVICE_KIND_BATTERY;
 }
 
+bool Power::isCharging() {
+  guint state = UP_DEVICE_STATE_UNKNOWN;
+  g_object_get(this->value, "state", &state, nullptr);
+  return state == UP_DEVICE_STATE_CHARGING || state == UP_DEVICE_STATE_PENDING_CHARGE;
+}
+
 void Power::energy_callback(GObject* obj, GParamSpec* pspec, gpointer data) {
   auto self = reinterpret_cast<Power*>(data);
   for (const auto& func : self->onChange) func();

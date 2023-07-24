@@ -18,6 +18,7 @@ namespace Gokai {
               int getCycleCount() override;
               double getLevel() override;
               bool isIntegrated() override;
+              bool isCharging() override;
             private:
               UpDevice* value;
               gulong energy_id;

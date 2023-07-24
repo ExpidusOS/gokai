@@ -24,6 +24,16 @@ PowerManager::PowerManager(Gokai::ObjectArguments arguments) : Service(arguments
       return this->method_codec.encodeSuccessEnvelope(list);
     }
 
+    if (call.method.compare("isCharging") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto device = this->get(id);
+      if (device == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(device->isCharging());
+    }
+
     if (call.method.compare("isIntegrated") == 0) {
       auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
       auto device = this->get(id);

@@ -20,6 +20,7 @@ namespace Gokai {
         virtual int getCycleCount();
         virtual double getLevel();
         virtual bool isIntegrated();
+        virtual bool isCharging();
       protected:
         std::shared_ptr<Gokai::Context> context;
       private:

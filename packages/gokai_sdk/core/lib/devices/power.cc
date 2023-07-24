@@ -32,3 +32,7 @@ double Power::getLevel() {
 bool Power::isIntegrated() {
   return false;
 }
+
+bool Power::isCharging() {
+  return false;
+}
