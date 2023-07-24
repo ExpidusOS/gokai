@@ -31,7 +31,7 @@ class GokaiNativePowerManager extends GokaiPowerManager {
     return GokaiPowerDevice(
       id: id,
       getCycleCount: () async => (await methodChannel.invokeMethod<int>('getCycleCount', id))!,
-      getLevel: () async => (await methodChannel.invokeMethod<double>('getlevel', id))!,
+      getLevel: () async => (await methodChannel.invokeMethod<double>('getLevel', id))!,
       isIntegrated: isIntegrated,
     );
   }
