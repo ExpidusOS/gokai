@@ -101,6 +101,12 @@
               "${pkgs.flutter}/bin/cache"
             ];
           };
+
+          flutter-engine = pkgs.runCommand pkgs.flutter-engine.name {} ''
+            mkdir -p $out/src
+            find ${pkgs.flutter-engine.src}/src -maxdepth 1 -mindepth 1 -exec ln -sf {} $out/src \;
+            ln -s ${pkgs.flutter-engine}/out $out/src/out
+          '';
       in {
         packages = {
           sdk = pkgs.expidus.gokai.overrideAttrs (f: p: {
@@ -190,13 +196,13 @@
             name = "gokai";
 
             packages = with pkgs; [
+              pkgs.flutter
               pkgs.wayland
               pkg-config
               clang
               cmake
               ninja
               pkg-config
-              self.packages.${system}.sdk
               self.packages.${system}.tools
               self.packages.${system}.sdk-debug
               gdb
@@ -208,6 +214,7 @@
 
             LIBGL_DRIVERS_PATH = "${pkgs.mesa.drivers}/lib/dri";
             VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
+            FLUTTER_ENGINE = "${flutter-engine}/src";
           };
 
           sdk = pkgs.mkShell {
