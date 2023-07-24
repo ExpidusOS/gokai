@@ -23,6 +23,8 @@ namespace Gokai {
         virtual glm::uvec2 getActivePoint();
 
         std::list<std::function<void()>> changed;
+        std::list<std::function<void(bool)>> onLid;
+        std::list<std::function<void(bool)>> onTablet;
 
         static const std::string SERVICE_NAME;
       private:

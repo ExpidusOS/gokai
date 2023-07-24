@@ -11,6 +11,7 @@ if target_machine.system() == 'linux'
     'lib/os/linux/input/wayland/server/base.cc',
     'lib/os/linux/input/wayland/server/keyboard.cc',
     'lib/os/linux/input/wayland/server/pointer.cc',
+    'lib/os/linux/input/wayland/server/switch.cc',
     'lib/os/linux/input/wayland/server/touch.cc',
     'lib/os/linux/input/base.cc',
     'lib/os/linux/services/wayland/server/compositor.cc',

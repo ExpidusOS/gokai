@@ -1,5 +1,6 @@
 #include <gokai/framework/os/linux/input/wayland/server/keyboard.h>
 #include <gokai/framework/os/linux/input/wayland/server/pointer.h>
+#include <gokai/framework/os/linux/input/wayland/server/switch.h>
 #include <gokai/framework/os/linux/input/wayland/server/touch.h>
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
@@ -38,6 +39,19 @@ void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
         }));
       } catch (const std::exception& ex) {
         self->logger->error("Failed to create pointer: {}", ex.what());
+        return;
+      }
+      break;
+    case WLR_INPUT_DEVICE_SWITCH:
+      try {
+        input = new Gokai::Framework::os::Linux::Input::Wayland::Server::Switch(Gokai::ObjectArguments({
+          { "id", id },
+          { "context", self->context },
+          { "logger", self->getLogger() },
+          { "value", value },
+        }));
+      } catch (const std::exception& ex) {
+        self->logger->error("Failed to create switch: {}", ex.what());
         return;
       }
       break;

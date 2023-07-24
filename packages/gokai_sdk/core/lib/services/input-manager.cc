@@ -32,6 +32,22 @@ InputManager::InputManager(Gokai::ObjectArguments arguments) : Service(arguments
     call.method = "changed";
     engine_manager->sendAll(TAG, this->method_codec.encodeMethodCall(call));
   });
+
+  this->onLid.push_back([this](auto value) {
+    auto engine_manager = reinterpret_cast<EngineManager*>(this->context->getSystemService(EngineManager::SERVICE_NAME));
+    auto call = Gokai::Flutter::MethodCall();
+    call.method = "lid";
+    call.arguments = value;
+    engine_manager->sendAll(TAG, this->method_codec.encodeMethodCall(call));
+  });
+
+  this->onTablet.push_back([this](auto value) {
+    auto engine_manager = reinterpret_cast<EngineManager*>(this->context->getSystemService(EngineManager::SERVICE_NAME));
+    auto call = Gokai::Flutter::MethodCall();
+    call.method = "tablet";
+    call.arguments = value;
+    engine_manager->sendAll(TAG, this->method_codec.encodeMethodCall(call));
+  });
 }
 
 std::shared_ptr<Gokai::ServiceChannel> InputManager::getServiceChannel() {
