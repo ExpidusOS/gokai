@@ -5,7 +5,7 @@ import 'package:gokai/service.dart';
 class GokaiPowerManager extends GokaiService {
   GokaiPowerManager() : super(serviceName: 'PowerManager');
 
-  Event onChange = Event();
+  Event<Value<String?>> onChange = Event<Value<String?>>();
 
   Future<List<GokaiPowerDevice>> getAll() async {
     final ids = await getIds();

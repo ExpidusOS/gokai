@@ -15,7 +15,7 @@ class GokaiNativePowerManager extends GokaiPowerManager {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'changed':
-          onChange.broadcast();
+          onChange.broadcast(call.arguments);
           break;
       }
     });
