@@ -6,6 +6,7 @@ libgokai_framework_cppflags = []
 
 if target_machine.system() == 'linux'
   libgokai_framework_src += [
+    'lib/os/linux/devices/power.cc',
     'lib/os/linux/graphics/rendering/egl/wayland/server/renderer.cc',
     'lib/os/linux/graphics/wayland/server/texture.cc',
     'lib/os/linux/input/wayland/server/base.cc',
@@ -22,6 +23,7 @@ if target_machine.system() == 'linux'
     'lib/os/linux/services/account-manager.cc',
     'lib/os/linux/services/input-manager.cc',
     'lib/os/linux/services/package-manager.cc',
+    'lib/os/linux/services/power-manager.cc',
     'lib/os/linux/user/account.cc',
     'lib/os/linux/view/wayland/server/egl/buffer.cc',
     'lib/os/linux/view/wayland/server/display.cc',
@@ -44,6 +46,7 @@ if target_machine.system() == 'linux'
     dependency('xkbcommon'),
     dependency('libdrm'),
     dependency('libevdev'),
+    dependency('upower-glib'),
   ]
 
   libgokai_framework_cppflags += [

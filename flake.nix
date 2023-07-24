@@ -110,6 +110,7 @@
             buildInputs = p.buildInputs
               ++ (with pkgs; [
                 libevdev
+                upower
               ]);
           });
 

@@ -4,6 +4,7 @@
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
 #include <gokai/framework/os/linux/services/account-manager.h>
+#include <gokai/framework/os/linux/services/power-manager.h>
 #include <gokai/framework/os/linux/context.h>
 #include <gokai/os/paths.h>
 #include <gokai/services/plugin-manager.h>
@@ -111,6 +112,11 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
   }));
 
   this->services[Gokai::Services::AccountManager::SERVICE_NAME] = new Services::AccountManager(Gokai::ObjectArguments({
+    { "context", self },
+    { "logger", this->getLogger() },
+  }));
+
+  this->services[Gokai::Services::PowerManager::SERVICE_NAME] = new Services::PowerManager(Gokai::ObjectArguments({
     { "context", self },
     { "logger", this->getLogger() },
   }));

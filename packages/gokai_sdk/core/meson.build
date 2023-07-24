@@ -11,6 +11,7 @@ libgokai_core_src = [
   'lib/plugin-module.cc',
   'lib/service.cc',
   'lib/service-channel.cc',
+  'lib/devices/power.cc',
   'lib/flutter/codecs/json.cc',
   'lib/flutter/codecs/std.cc',
   'lib/flutter/engine.cc',
