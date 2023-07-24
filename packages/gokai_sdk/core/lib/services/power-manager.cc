@@ -23,6 +23,36 @@ PowerManager::PowerManager(Gokai::ObjectArguments arguments) : Service(arguments
       for (const auto& id : ids) list.push_back(id.str());
       return this->method_codec.encodeSuccessEnvelope(list);
     }
+
+    if (call.method.compare("isIntegrated") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto device = this->get(id);
+      if (device == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(device->isIntegrated());
+    }
+
+    if (call.method.compare("getCycleCount") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto device = this->get(id);
+      if (device == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(device->getCycleCount());
+    }
+
+    if (call.method.compare("getLevel") == 0) {
+      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+      auto device = this->get(id);
+      if (device == nullptr) {
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      }
+
+      return this->method_codec.encodeSuccessEnvelope(device->getLevel());
+    }
     return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
   });
 
