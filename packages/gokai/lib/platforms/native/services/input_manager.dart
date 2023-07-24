@@ -16,6 +16,12 @@ class GokaiNativeInputManager extends GokaiInputManager {
         case 'changed':
           onChange.broadcast();
           break;
+        case 'lid':
+          onLid.broadcast(call.arguments);
+          break;
+        case 'tablet':
+          onTablet.broadcast(call.arguments);
+          break;
       }
     });
   }
