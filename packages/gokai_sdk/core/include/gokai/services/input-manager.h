@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <crossguid/guid.hpp>
 #include <gokai/flutter/codecs/json.h>
 #include <gokai/input/base.h>
 #include <gokai/context.h>
@@ -17,8 +18,8 @@ namespace Gokai {
 
         std::shared_ptr<Gokai::ServiceChannel> getServiceChannel() override;
 
-        virtual std::list<std::string> getNames();
-        virtual std::shared_ptr<Gokai::Input::Base> get(std::string name);
+        virtual std::list<xg::Guid> getIds();
+        virtual std::shared_ptr<Gokai::Input::Base> get(xg::Guid id);
         virtual glm::uvec2 getActivePoint();
 
         std::list<std::function<void()>> changed;

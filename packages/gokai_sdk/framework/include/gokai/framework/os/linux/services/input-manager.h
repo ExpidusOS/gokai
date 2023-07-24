@@ -14,8 +14,8 @@ namespace Gokai {
               InputManager(Gokai::ObjectArguments arguments);
               ~InputManager();
 
-              std::list<std::string> getNames() override;
-              std::shared_ptr<Gokai::Input::Base> get(std::string name) override;
+              std::list<xg::Guid> getIds() override;
+              std::shared_ptr<Gokai::Input::Base> get(xg::Guid id) override;
             private:
               uv_fs_event_t input_watch_handle;
               std::map<std::string, Gokai::Framework::os::Linux::Input::Base*> inputs;

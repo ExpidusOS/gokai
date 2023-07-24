@@ -10,6 +10,7 @@ using namespace Gokai::Framework::os::Linux::Services::Wayland::Server;
 void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
   InputManager* self = wl_container_of(listener, self, input_new);
   auto value = reinterpret_cast<struct wlr_input_device*>(data);
+  auto id = xg::newGuid();
 
   Gokai::Framework::os::Linux::Input::Wayland::Server::Base* input = nullptr;
 
@@ -17,6 +18,7 @@ void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
     case WLR_INPUT_DEVICE_KEYBOARD:
       try {
         input = new Gokai::Framework::os::Linux::Input::Wayland::Server::Keyboard(Gokai::ObjectArguments({
+          { "id", id },
           { "context", self->context },
           { "logger", self->getLogger() },
           { "value", value },
@@ -29,6 +31,7 @@ void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
     case WLR_INPUT_DEVICE_POINTER:
       try {
         input = new Gokai::Framework::os::Linux::Input::Wayland::Server::Pointer(Gokai::ObjectArguments({
+          { "id", id },
           { "context", self->context },
           { "logger", self->getLogger() },
           { "value", value },
@@ -41,6 +44,7 @@ void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
     case WLR_INPUT_DEVICE_TOUCH:
       try {
         input = new Gokai::Framework::os::Linux::Input::Wayland::Server::Touch(Gokai::ObjectArguments({
+          { "id", id },
           { "context", self->context },
           { "logger", self->getLogger() },
           { "value", value },
@@ -56,12 +60,12 @@ void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
   }
 
   assert(input != nullptr);
-  input->destroy.push_back([input, self]() {
-    self->inputs.remove(input);
+  input->destroy.push_back([input, id, self]() {
+    self->inputs.erase(id);
     for (auto func : self->changed) func();
   });
 
-  self->inputs.push_back(input);
+  self->inputs[id] = input;
   for (auto func : self->changed) func();
 }
 
@@ -70,7 +74,7 @@ void InputManager::handle_cursor_request(struct wl_listener* listener, void* dat
   auto event = reinterpret_cast<struct wlr_seat_pointer_request_set_cursor_event*>(data);
 
   for (const auto& input : self->inputs) {
-    auto pointer = dynamic_cast<Gokai::Framework::os::Linux::Input::Wayland::Server::Pointer*>(input);
+    auto pointer = dynamic_cast<Gokai::Framework::os::Linux::Input::Wayland::Server::Pointer*>(input.second);
     if (pointer == nullptr) continue;
 
     wlr_cursor_set_surface(pointer->getCursor(), event->surface, event->hotspot_x, event->hotspot_y);
@@ -101,24 +105,21 @@ struct wlr_seat* InputManager::getSeat() {
   return this->seat;
 }
 
-std::list<std::string> InputManager::getNames() {
-  auto list = Gokai::Framework::os::Linux::Services::InputManager::getNames();
-  for (const auto& value : this->inputs) {
-    list.push_back(value->getName());
+std::list<xg::Guid> InputManager::getIds() {
+  auto list = Gokai::Framework::os::Linux::Services::InputManager::getIds();
+  for (const auto& entry : this->inputs) {
+    list.push_back(entry.second->getId());
   }
   return list;
 }
 
-std::shared_ptr<Gokai::Input::Base> InputManager::get(std::string name) {
-  auto value = Gokai::Framework::os::Linux::Services::InputManager::get(name);
+std::shared_ptr<Gokai::Input::Base> InputManager::get(xg::Guid id) {
+  auto value = Gokai::Framework::os::Linux::Services::InputManager::get(id);
   if (value != nullptr) return value;
 
-  for (const auto& value : this->inputs) {
-    if (value->getName().compare(name) == 0) {
-      return std::shared_ptr<Gokai::Input::Base>(value);
-    }
-  }
-  return nullptr;
+  auto found = this->inputs.find(id);
+  if (found == this->inputs.end()) return nullptr;
+  return std::shared_ptr<Gokai::Input::Base>(found->second);
 }
 
 glm::uvec2 InputManager::getActivePoint() {

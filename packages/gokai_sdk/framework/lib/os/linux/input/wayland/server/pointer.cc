@@ -41,7 +41,7 @@ Pointer::Pointer(Gokai::ObjectArguments arguments) : Gokai::Framework::os::Linux
   event.struct_size = sizeof (FlutterPointerEvent);
   event.phase = kAdd;
   event.timestamp = FlutterEngineGetCurrentTime();
-  event.device = this->id;
+  event.device = this->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::id;
   event.device_kind = kFlutterPointerDeviceKindMouse;
 
   for (const auto& id : engine_manager->getIds()) {
@@ -62,7 +62,7 @@ Pointer::~Pointer() {
   event.struct_size = sizeof (FlutterPointerEvent);
   event.phase = kRemove;
   event.timestamp = FlutterEngineGetCurrentTime();
-  event.device = this->id;
+  event.device = this->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::id;
   event.device_kind = kFlutterPointerDeviceKindMouse;
 
   for (const auto& id : engine_manager->getIds()) {
@@ -105,7 +105,7 @@ void Pointer::button_handle(struct wl_listener* listener, void* data) {
   ev.struct_size = sizeof (FlutterPointerEvent);
   ev.timestamp = FlutterEngineGetCurrentTime();
   ev.device_kind = kFlutterPointerDeviceKindMouse;
-  ev.device = self->id;
+  ev.device = self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::id;
   ev.x = self->cursor->x;
   ev.y = self->cursor->y;
 
@@ -148,7 +148,7 @@ void Pointer::cursor_axis_handle(struct wl_listener* listener, void* data) {
   ev.struct_size = sizeof (FlutterPointerEvent);
   ev.phase = self->buttons.empty() ? kDown : kMove;
   ev.timestamp = FlutterEngineGetCurrentTime();
-  ev.device = self->id;
+  ev.device = self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::id;
   ev.device_kind = kFlutterPointerDeviceKindMouse;
   ev.signal_kind = kFlutterPointerSignalKindScroll;
   ev.x = self->cursor->x;
@@ -196,7 +196,7 @@ void Pointer::cursor_motion_absolute_handle(struct wl_listener* listener, void* 
   ev.struct_size = sizeof (FlutterPointerEvent);
   ev.phase = self->buttons.empty() ? kHover : kMove;
   ev.timestamp = FlutterEngineGetCurrentTime();
-  ev.device = self->id;
+  ev.device = self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::id;
   ev.device_kind = kFlutterPointerDeviceKindMouse;
   ev.x = self->cursor->x;
   ev.y = self->cursor->y;
@@ -228,7 +228,7 @@ void Pointer::cursor_motion_handle(struct wl_listener* listener, void* data) {
   ev.struct_size = sizeof (FlutterPointerEvent);
   ev.phase = self->buttons.empty() ? kHover : kMove;
   ev.timestamp = FlutterEngineGetCurrentTime();
-  ev.device = self->id;
+  ev.device = self->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::id;
   ev.device_kind = kFlutterPointerDeviceKindMouse;
   ev.x = self->cursor->x;
   ev.y = self->cursor->y;

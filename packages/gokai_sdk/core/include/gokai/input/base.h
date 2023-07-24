@@ -12,8 +12,11 @@ namespace Gokai {
         Base(Gokai::ObjectArguments arguments);
 
         virtual std::string getName();
+        xg::Guid getId();
       protected:
         std::shared_ptr<Gokai::Context> context;
+      private:
+        xg::Guid id;
     };
   }
 }

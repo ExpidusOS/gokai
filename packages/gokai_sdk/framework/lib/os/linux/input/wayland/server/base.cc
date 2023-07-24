@@ -1,4 +1,3 @@
-#include <fmt/core.h>
 #include <gokai/framework/os/linux/input/wayland/server/base.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 
@@ -6,9 +5,8 @@ using namespace Gokai::Framework::os::Linux::Input::Wayland::Server;
 
 Base::Base(Gokai::ObjectArguments arguments) : Gokai::Input::Base(arguments) {
   auto input_manager = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::InputManager*>(this->Gokai::Framework::os::Linux::Input::Wayland::Server::Base::context->getSystemService(Gokai::Services::InputManager::SERVICE_NAME));
-  this->id = input_manager->getNames().size();
-
   this->value = std::any_cast<struct wlr_input_device*>(arguments.get("value"));
+  this->id = input_manager->getIds().size();
 
   this->destroy_listener.notify = Base::破壊する;
   wl_signal_add(&this->value->events.destroy, &this->destroy_listener);
@@ -25,7 +23,7 @@ struct wlr_input_device* Base::getValue() {
 }
 
 std::string Base::getName() {
-  return fmt::format("{} ({}, {:X}:{:X})", this->value->name, reinterpret_cast<void*>(this->value), this->value->vendor, this->value->product);
+  return this->value->name;
 }
 
 void Base::破壊する(struct wl_listener* listener, void* data) {

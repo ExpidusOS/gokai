@@ -31,8 +31,8 @@ namespace Gokai {
                   struct wlr_xcursor_manager* getXcursorManager();
                   struct wlr_seat* getSeat();
 
-                  std::list<std::string> getNames() override;
-                  std::shared_ptr<Gokai::Input::Base> get(std::string name) override;
+                  std::list<xg::Guid> getIds() override;
+                  std::shared_ptr<Gokai::Input::Base> get(xg::Guid id) override;
                   glm::uvec2 getActivePoint() override;
                   void setActivePoint(glm::uvec2 point);
                 private:
@@ -47,7 +47,7 @@ namespace Gokai {
 
                   struct wl_listener input_new;
                   struct wl_listener cursor_request;
-                  std::list<Gokai::Framework::os::Linux::Input::Wayland::Server::Base*> inputs;
+                  std::map<xg::Guid, Gokai::Framework::os::Linux::Input::Wayland::Server::Base*> inputs;
               };
             }
           }

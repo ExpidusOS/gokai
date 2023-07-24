@@ -18,17 +18,17 @@ InputManager::~InputManager() {
   uv_fs_event_stop(&this->input_watch_handle);
 }
 
-std::list<std::string> InputManager::getNames() {
-  std::list<std::string> list;
+std::list<xg::Guid> InputManager::getIds() {
+  std::list<xg::Guid> list;
   for (const auto& value : this->inputs) {
-    list.push_back(value.second->getName());
+    list.push_back(value.second->getId());
   }
   return list;
 }
 
-std::shared_ptr<Gokai::Input::Base> InputManager::get(std::string name) {
+std::shared_ptr<Gokai::Input::Base> InputManager::get(xg::Guid id) {
   for (const auto& value : this->inputs) {
-    if (value.second->getName().compare(name) == 0) {
+    if (value.second->getId() == id) {
       return std::shared_ptr<Gokai::Input::Base>(value.second);
     }
   }
@@ -50,6 +50,7 @@ void InputManager::rescan() {
 
       try {
         auto device = new Gokai::Framework::os::Linux::Input::Base(Gokai::ObjectArguments({
+          { "id", xg::newGuid() },
           { "context", this->context },
           { "logger", this->getLogger() },
           { "path", entry.path().string() },
