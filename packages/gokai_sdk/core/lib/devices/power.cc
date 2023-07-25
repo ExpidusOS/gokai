@@ -21,6 +21,10 @@ xg::Guid Power::getId() {
   return this->id;
 }
 
+std::string Power::getName() {
+  return "";
+}
+
 int Power::getCycleCount() {
   return 0;
 }

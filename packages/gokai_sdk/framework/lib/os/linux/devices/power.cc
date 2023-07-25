@@ -17,6 +17,12 @@ UpDevice* Power::getValue() {
   return this->value;
 }
 
+std::string Power::getName() {
+  char* model;
+  g_object_get(this->value, "model", &model, nullptr);
+  return model;
+}
+
 int Power::getCycleCount() {
   int value = 0;
   g_object_get(G_OBJECT(this->value), "charge-cycles", &value, nullptr);

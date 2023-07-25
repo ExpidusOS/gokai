@@ -15,6 +15,7 @@ namespace Gokai {
               ~Power();
 
               UpDevice* getValue();
+              std::string getName() override;
               int getCycleCount() override;
               double getLevel() override;
               bool isIntegrated() override;

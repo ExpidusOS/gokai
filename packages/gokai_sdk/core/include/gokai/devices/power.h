@@ -17,6 +17,7 @@ namespace Gokai {
         std::list<std::function<void()>> onChange;
 
         xg::Guid getId();
+        virtual std::string getName();
         virtual int getCycleCount();
         virtual double getLevel();
         virtual bool isIntegrated();
