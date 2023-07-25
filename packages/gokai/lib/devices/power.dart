@@ -1,6 +1,7 @@
 class GokaiPowerDevice {
   const GokaiPowerDevice({
     required this.id,
+    required this.name,
     required this.getCycleCount,
     required this.getLevel,
     required this.getIsCharging,
@@ -8,6 +9,7 @@ class GokaiPowerDevice {
   });
 
   final String id;
+  final String name;
   final Future<int> Function() getCycleCount;
   final Future<double> Function() getLevel;
   final Future<bool> Function() getIsCharging;

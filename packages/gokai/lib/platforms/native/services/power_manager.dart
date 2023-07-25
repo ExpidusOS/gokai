@@ -27,9 +27,11 @@ class GokaiNativePowerManager extends GokaiPowerManager {
 
   @override
   Future<GokaiPowerDevice> get(String id) async {
+    final name = (await methodChannel.invokeMethod<String>('getName', id))!;
     final isIntegrated = (await methodChannel.invokeMethod<bool>('isIntegrated', id))!;
     return GokaiPowerDevice(
       id: id,
+      name: name,
       getCycleCount: () async => (await methodChannel.invokeMethod<int>('getCycleCount', id))!,
       getLevel: () async => (await methodChannel.invokeMethod<double>('getLevel', id))!,
       getIsCharging: () async => (await methodChannel.invokeMethod<bool>('isCharging', id))!,
