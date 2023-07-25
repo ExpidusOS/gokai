@@ -25,7 +25,7 @@ namespace Gokai {
               std::list<std::shared_ptr<Gokai::Framework::os::Linux::Devices::Power>> devices;
 
               static void device_added(UpClient* client, UpDevice* device, gpointer data);
-              static void device_removed(UpClient* client, UpDevice* device, gpointer data);
+              static void device_removed(UpClient* client, const char* device_obj_path, gpointer data);
           };
         }
       }

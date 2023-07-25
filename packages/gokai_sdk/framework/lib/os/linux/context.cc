@@ -84,6 +84,12 @@ Context::Context(Gokai::ObjectArguments arguments) : Gokai::Context(arguments) {
     this->display_backend = ContextDisplayBackend::fromValue(find->second);
   }
 
+  uv_prepare_init(this->getLoop(), &this->loop_handle);
+  uv_prepare_start(&this->loop_handle, [](auto handle) {
+    auto self = reinterpret_cast<Context*>((char*)(handle) - offsetof(Context, loop_handle));
+    g_main_context_iteration(g_main_context_default(), false);
+  });
+
   this->logger->debug("Using the display backend: {}", this->display_backend.name);
 
   assert(xdgInitHandle(&this->xdg_handle) != nullptr);

@@ -12,7 +12,7 @@ Power::Power(Gokai::ObjectArguments arguments) : Gokai::Object(arguments), id{st
     auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
     auto call = Gokai::Flutter::MethodCall();
     call.method = "change";
-    call.arguments = this->getId();
+    call.arguments = this->getId().str();
     engine_manager->sendAll("Gokai::Services::PowerManager", engine_manager->method_codec.encodeMethodCall(call));
   });
 }

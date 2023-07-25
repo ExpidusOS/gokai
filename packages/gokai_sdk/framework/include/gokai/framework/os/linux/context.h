@@ -4,6 +4,7 @@
 #include <gokai/framework/os/linux/services/package-manager.h>
 #include <gokai/services/engine-manager.h>
 #include <gokai/service.h>
+#include <glib.h>
 #include <basedir.h>
 #include <string>
 
@@ -40,6 +41,7 @@ namespace Gokai {
           private:
             ContextDisplayBackend display_backend;
             xdgHandle xdg_handle;
+            uv_prepare_t loop_handle;
         };
       }
     }

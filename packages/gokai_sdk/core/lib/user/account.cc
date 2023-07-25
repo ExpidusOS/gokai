@@ -13,7 +13,7 @@ Account::Account(Gokai::ObjectArguments arguments) : Object(arguments) {
     auto engine_manager = reinterpret_cast<Gokai::Services::EngineManager*>(this->context->getSystemService(Gokai::Services::EngineManager::SERVICE_NAME));
     auto call = Gokai::Flutter::MethodCall();
     call.method = "change";
-    call.arguments = this->getId();
+    call.arguments = this->getId().toAny();
     engine_manager->sendAll("Gokai::Services::AccountManager", engine_manager->method_codec.encodeMethodCall(call));
   });
 }

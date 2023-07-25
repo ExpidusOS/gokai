@@ -51,16 +51,14 @@ void PowerManager::device_added(UpClient* client, UpDevice* device, gpointer dat
 
   self->devices.push_back(std::shared_ptr<Gokai::Framework::os::Linux::Devices::Power>(new Gokai::Framework::os::Linux::Devices::Power(Gokai::ObjectArguments({
     { "context", self->context },
-    { "value", device },
+    { "value", UP_DEVICE(g_object_ref(device)) },
     { "id", xg::newGuid() },
   }))));
   for (const auto& func : self->changed) func();
 }
 
-void PowerManager::device_removed(UpClient* client, UpDevice* device, gpointer data) {
+void PowerManager::device_removed(UpClient* client, const char* device_obj_path, gpointer data) {
   auto self = reinterpret_cast<PowerManager*>(data);
-
-  auto device_obj_path = up_device_get_object_path(device);
 
   for (const auto& dev : self->devices) {
     auto dev_obj_path = up_device_get_object_path(dev->getValue());
