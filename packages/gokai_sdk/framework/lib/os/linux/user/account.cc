@@ -5,9 +5,13 @@ using namespace Gokai::Framework::os::Linux::User;
 
 Account::Account(Gokai::ObjectArguments arguments) : Gokai::User::Account(arguments) {
   this->value = ACT_USER(g_object_ref(G_OBJECT(std::any_cast<ActUser*>(arguments.get("value")))));
+  this->changed_id = g_signal_connect(this->value, "changed", G_CALLBACK(Account::changed), this);
+
+  if (!act_user_is_loaded(this->value)) spdlog::warn("User {} is not loaded", act_user_get_uid(this->value));
 }
 
 Account::~Account() {
+  g_signal_handler_disconnect(this->value, this->changed_id);
   g_clear_object(&this->value);
 }
 
@@ -40,4 +44,9 @@ bool Account::isAdministrator() {
 
 ActUser* Account::getValue() {
   return this->value;
+}
+
+void Account::changed(ActUser* user, gpointer data) {
+  auto self = reinterpret_cast<Account*>(data);
+  for (const auto& func : self->onChange) func();
 }

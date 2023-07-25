@@ -27,6 +27,9 @@ namespace Gokai {
               ActUser* getValue();
             private:
               ActUser* value;
+              gulong changed_id;
+
+              static void changed(ActUser* user, gpointer data);
           };
         }
       }

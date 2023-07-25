@@ -47,6 +47,7 @@ Gokai::User::Account* AccountManager::get(Gokai::User::ID id) {
     if (user == nullptr) return nullptr;
 
     auto account = new Gokai::Framework::os::Linux::User::Account(Gokai::ObjectArguments({
+      { "context", this->context },
       { "value", user }
     }));
     this->cache[id] = account;
