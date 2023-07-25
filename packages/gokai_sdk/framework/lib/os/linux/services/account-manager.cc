@@ -43,6 +43,10 @@ Gokai::User::Account* AccountManager::get(Gokai::User::ID id) {
       throw std::runtime_error("Invalid user ID type");
     }
 
+    if (this->cache.size() == 0) {
+      g_slist_free(act_user_manager_list_users(this->manager));
+    }
+
     auto user = act_user_manager_get_user_by_id(this->manager, id.data.uid);
     if (user == nullptr) return nullptr;
 
