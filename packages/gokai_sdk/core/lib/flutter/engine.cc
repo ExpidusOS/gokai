@@ -62,6 +62,22 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
 
   std::vector<uint8_t> msg(message->message, message->message + message->message_size);
 
+  if (strcmp(message->channel, "Gokai::Context") == 0) {
+    std::async(std::launch::async, [msg, self, message, send_response]() {
+      auto future = self->context->channelReceive(self->id, msg);
+      future.wait();
+      auto resp = future.get();
+
+      if (resp.size() == 0) {
+        self->logger->warn("A handler for the \"{}\" method channel on engine {} was not set, sending an empty response.", message->channel, self->id.str());
+        send_response(std::vector<uint8_t>());
+      } else {
+        send_response(resp);
+      }
+    });
+    return;
+  }
+
   auto find = self->method_channel_handlers.find(message->channel);
   if (find != self->method_channel_handlers.end()) {
     for (auto func : find->second) {
@@ -73,34 +89,27 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
     }
   }
 
-  for (auto service_name : self->context->getSystemServiceNames()) {
-    auto service = self->context->getSystemService(service_name);
+  std::async(std::launch::async, [msg, self, message, send_response]() {
+    for (auto service_name : self->context->getSystemServiceNames()) {
+      auto service = self->context->getSystemService(service_name);
 
-    auto service_channel = service->getServiceChannel();
-    if (service_channel == nullptr) continue;
-    if (!service_channel->accepts(message->channel)) continue;
+      auto service_channel = service->getServiceChannel();
+      if (service_channel == nullptr) continue;
+      if (!service_channel->accepts(message->channel)) continue;
 
-    auto future = service_channel->receive(self->id, message->channel, msg);
-    future.wait();
-    auto msg_resp = future.get();
-    if (msg_resp.size() > 0) {
-      send_response(msg_resp);
-      return;
+      auto future = service_channel->receive(self->id, message->channel, msg);
+      future.wait();
+
+      auto resp = future.get();
+      if (resp.size() > 0) {
+        send_response(resp);
+        return;
+      }
     }
-  }
 
-  if (strcmp(message->channel, "Gokai::Context") == 0) {
-    auto future = self->context->channelReceive(self->id, msg);
-    future.wait();
-    auto msg_resp = future.get();
-    if (msg_resp.size() > 0) {
-      send_response(msg_resp);
-      return;
-    }
-  }
-
-  self->logger->warn("A handler for the \"{}\" method channel on engine {} was not set, sending an empty response.", message->channel, self->id.str());
-  send_response(std::vector<uint8_t>());
+    self->logger->warn("A handler for the \"{}\" method channel on engine {} was not set, sending an empty response.", message->channel, self->id.str());
+    send_response(std::vector<uint8_t>());
+  });
 }
 
 Engine::Engine(Gokai::ObjectArguments arguments)
