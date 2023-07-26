@@ -103,7 +103,7 @@ Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments), method_c
       if (service_channel == nullptr) {
         return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Service \"{}\" does not have a service channel", name), std::make_any<void*>(nullptr));
       }
-      return this->method_codec.encodeSuccessEnvelope(service_channel->getName());
+      return this->method_codec.encodeSuccessEnvelope(service_channel->getNames().front());
     }
 
     if (call.method.compare("getServiceNames") == 0) {

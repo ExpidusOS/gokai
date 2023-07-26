@@ -97,9 +97,9 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
 
       auto service_channel = service->getServiceChannel();
       if (service_channel == nullptr) continue;
-      if (service_channel->getName().compare(message->channel) != 0) continue;
+      if (!service_channel->accepts(message->channel)) continue;
 
-      auto msg_resp = service_channel->receive(self->id, msg);
+      auto msg_resp = service_channel->receive(self->id, message->channel, msg);
       if (msg_resp.size() > 0) {
         send_response(msg_resp);
         return;

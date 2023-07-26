@@ -13,14 +13,15 @@ namespace Gokai {
     public:
       ServiceChannel(ObjectArguments arguments);
 
-      std::list<std::function<std::vector<uint8_t>(xg::Guid, std::vector<uint8_t>)>> onReceive;
+      std::list<std::function<std::vector<uint8_t>(xg::Guid, std::string, std::vector<uint8_t>)>> onReceive;
 
-      std::string getName();
-      std::vector<uint8_t> receive(xg::Guid engine_id, std::vector<uint8_t> message);
+      std::list<std::string> getNames();
+      bool accepts(std::string channel);
+      std::vector<uint8_t> receive(xg::Guid engine_id, std::string channel, std::vector<uint8_t> message);
     protected:
       std::shared_ptr<Gokai::Context> context;
     private:
-      std::string name;
+      std::list<std::string> names;
   };
 }
 #endif

@@ -14,7 +14,7 @@ InputManager::InputManager(Gokai::ObjectArguments arguments) : Service(arguments
     { "name", std::string(TAG) },
   })));
 
-  this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::vector<uint8_t> message) {
+  this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
     auto call = this->method_codec.decodeMethodCall(message);
 
     if (call.method.compare("getIds") == 0) {

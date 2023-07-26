@@ -14,7 +14,7 @@ CompositorInputMethod::CompositorInputMethod(Gokai::ObjectArguments arguments) :
     { "name", std::string("flutter/textinput") },
   })));
 
-  this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::vector<uint8_t> message) {
+  this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
     auto call = this->method_codec.decodeMethodCall(message);
     this->logger->debug("{}", std::string(message.begin(), message.end()));
     if (call.method.compare("TextInput.show") == 0) {
