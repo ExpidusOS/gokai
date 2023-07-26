@@ -15,65 +15,67 @@ PowerManager::PowerManager(Gokai::ObjectArguments arguments) : Service(arguments
   })));
 
   this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
-    auto call = this->method_codec.decodeMethodCall(message);
+    return std::async(std::launch::async, [this, engine_id, channel, message] {
+      auto call = this->method_codec.decodeMethodCall(message);
 
-    if (call.method.compare("getIds") == 0) {
-      auto ids = this->getIds();
-      std::list<std::any> list;
-      for (const auto& id : ids) list.push_back(id.str());
-      return this->method_codec.encodeSuccessEnvelope(list);
-    }
-
-    if (call.method.compare("getName") == 0) {
-      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
-      auto device = this->get(id);
-      if (device == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+      if (call.method.compare("getIds") == 0) {
+        auto ids = this->getIds();
+        std::list<std::any> list;
+        for (const auto& id : ids) list.push_back(id.str());
+        return this->method_codec.encodeSuccessEnvelope(list);
       }
 
-      return this->method_codec.encodeSuccessEnvelope(device->getName());
-    }
+      if (call.method.compare("getName") == 0) {
+        auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+        auto device = this->get(id);
+        if (device == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        }
 
-    if (call.method.compare("isCharging") == 0) {
-      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
-      auto device = this->get(id);
-      if (device == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        return this->method_codec.encodeSuccessEnvelope(device->getName());
       }
 
-      return this->method_codec.encodeSuccessEnvelope(device->isCharging());
-    }
+      if (call.method.compare("isCharging") == 0) {
+        auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+        auto device = this->get(id);
+        if (device == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        }
 
-    if (call.method.compare("isIntegrated") == 0) {
-      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
-      auto device = this->get(id);
-      if (device == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        return this->method_codec.encodeSuccessEnvelope(device->isCharging());
       }
 
-      return this->method_codec.encodeSuccessEnvelope(device->isIntegrated());
-    }
+      if (call.method.compare("isIntegrated") == 0) {
+        auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+        auto device = this->get(id);
+        if (device == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        }
 
-    if (call.method.compare("getCycleCount") == 0) {
-      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
-      auto device = this->get(id);
-      if (device == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        return this->method_codec.encodeSuccessEnvelope(device->isIntegrated());
       }
 
-      return this->method_codec.encodeSuccessEnvelope(device->getCycleCount());
-    }
+      if (call.method.compare("getCycleCount") == 0) {
+        auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+        auto device = this->get(id);
+        if (device == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        }
 
-    if (call.method.compare("getLevel") == 0) {
-      auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
-      auto device = this->get(id);
-      if (device == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        return this->method_codec.encodeSuccessEnvelope(device->getCycleCount());
       }
 
-      return this->method_codec.encodeSuccessEnvelope(device->getLevel());
-    }
-    return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+      if (call.method.compare("getLevel") == 0) {
+        auto id = xg::Guid(std::any_cast<std::string>(call.arguments));
+        auto device = this->get(id);
+        if (device == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Device \"{}\" does not exist", id.str()), std::make_any<void*>(nullptr));
+        }
+
+        return this->method_codec.encodeSuccessEnvelope(device->getLevel());
+      }
+      return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+    });
   });
 
   this->changed.push_back([this]() {

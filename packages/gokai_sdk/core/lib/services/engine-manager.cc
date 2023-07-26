@@ -14,47 +14,49 @@ EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(argumen
   })));
 
   this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
-    auto call = this->method_codec.decodeMethodCall(message);
+    return std::async(std::launch::async, [this, engine_id, channel, message] {
+      auto call = this->method_codec.decodeMethodCall(message);
 
-    if (call.method.compare("getEngineId") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(engine_id.str());
-    }
-
-    if (call.method.compare("getIds") == 0) {
-      auto ids = this->getIds();
-      std::list<std::any> list;
-      for (const auto& id : ids) list.push_back(id.str());
-      return this->method_codec.encodeSuccessEnvelope(list);
-    }
-
-    if (call.method.compare("getViewType") == 0) {
-      auto engine_id = xg::Guid(std::any_cast<std::string>(call.arguments));
-      auto engine = this->get(engine_id);
-      if (engine == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Engine \"{}\" does not exist", engine_id.str()), std::make_any<void*>(nullptr));
+      if (call.method.compare("getEngineId") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(engine_id.str());
       }
 
-      auto type = engine->getViewType();
-      switch (type) {
-        case Gokai::Flutter::window:
-          return this->method_codec.encodeSuccessEnvelope("window");
-        case Gokai::Flutter::display:
-          return this->method_codec.encodeSuccessEnvelope("display");
+      if (call.method.compare("getIds") == 0) {
+        auto ids = this->getIds();
+        std::list<std::any> list;
+        for (const auto& id : ids) list.push_back(id.str());
+        return this->method_codec.encodeSuccessEnvelope(list);
       }
 
-      return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("\"{}\" is not valid", type), std::make_any<void*>(nullptr));
-    }
+      if (call.method.compare("getViewType") == 0) {
+        auto engine_id = xg::Guid(std::any_cast<std::string>(call.arguments));
+        auto engine = this->get(engine_id);
+        if (engine == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Engine \"{}\" does not exist", engine_id.str()), std::make_any<void*>(nullptr));
+        }
 
-    if (call.method.compare("getViewName") == 0) {
-      auto engine_id = xg::Guid(std::any_cast<std::string>(call.arguments));
-      auto engine = this->get(engine_id);
-      if (engine == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Engine \"{}\" does not exist", engine_id.str()), std::make_any<void*>(nullptr));
+        auto type = engine->getViewType();
+        switch (type) {
+          case Gokai::Flutter::window:
+            return this->method_codec.encodeSuccessEnvelope("window");
+          case Gokai::Flutter::display:
+            return this->method_codec.encodeSuccessEnvelope("display");
+        }
+
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("\"{}\" is not valid", type), std::make_any<void*>(nullptr));
       }
 
-      return this->method_codec.encodeSuccessEnvelope(engine->getViewName());
-    }
-    return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+      if (call.method.compare("getViewName") == 0) {
+        auto engine_id = xg::Guid(std::any_cast<std::string>(call.arguments));
+        auto engine = this->get(engine_id);
+        if (engine == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Engine \"{}\" does not exist", engine_id.str()), std::make_any<void*>(nullptr));
+        }
+
+        return this->method_codec.encodeSuccessEnvelope(engine->getViewName());
+      }
+      return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+    });
   });
 
   this->changed.push_back([this]() {

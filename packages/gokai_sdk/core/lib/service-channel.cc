@@ -40,12 +40,16 @@ bool ServiceChannel::accepts(std::string channel) {
   return false;
 }
 
-std::vector<uint8_t> ServiceChannel::receive(xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
-  for (auto func : this->onReceive) {
-    auto result = func(engine_id, channel, message);
-    if (result.size() > 0) {
-      return result;
+std::future<std::vector<uint8_t>> ServiceChannel::receive(xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
+  return std::async(std::launch::async, [this, engine_id, channel, message] {
+    for (auto func : this->onReceive) {
+      auto future = func(engine_id, channel, message);
+      future.wait();
+      auto result = future.get();
+      if (result.size() > 0) {
+        return result;
+      }
     }
-  }
-  return std::vector<uint8_t>();
+    return std::vector<uint8_t>();
+  });
 }

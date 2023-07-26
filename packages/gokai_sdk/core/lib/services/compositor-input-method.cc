@@ -15,77 +15,79 @@ CompositorInputMethod::CompositorInputMethod(Gokai::ObjectArguments arguments) :
   })));
 
   this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
-    auto call = this->method_codec.decodeMethodCall(message);
-    this->logger->debug("{}", std::string(message.begin(), message.end()));
-    if (call.method.compare("TextInput.show") == 0) {
-      try {
-        this->showInput();
+    return std::async(std::launch::async, [this, engine_id, channel, message] {
+      auto call = this->method_codec.decodeMethodCall(message);
+      this->logger->debug("{}", std::string(message.begin(), message.end()));
+      if (call.method.compare("TextInput.show") == 0) {
+        try {
+          this->showInput();
+          return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+        } catch (const std::exception& ex) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Got exception: {}", ex.what()), std::make_any<void*>(nullptr));
+        }
+      }
+
+      if (call.method.compare("TextInput.hide") == 0) {
+        try {
+          this->hideInput();
+          return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+        } catch (const std::exception& ex) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Got exception: {}", ex.what()), std::make_any<void*>(nullptr));
+        }
+      }
+
+      if (call.method.compare("TextInput.setEditableSizeAndTransform") == 0) {
         return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-      } catch (const std::exception& ex) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Got exception: {}", ex.what()), std::make_any<void*>(nullptr));
       }
-    }
 
-    if (call.method.compare("TextInput.hide") == 0) {
-      try {
-        this->hideInput();
+      if (call.method.compare("TextInput.setMarkedTextRect") == 0) {
         return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-      } catch (const std::exception& ex) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Got exception: {}", ex.what()), std::make_any<void*>(nullptr));
       }
-    }
 
-    if (call.method.compare("TextInput.setEditableSizeAndTransform") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-    }
-
-    if (call.method.compare("TextInput.setMarkedTextRect") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-    }
-
-    if (call.method.compare("TextInput.setStyle") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-    }
-
-    if (call.method.compare("TextInput.setClient") == 0) {
-      auto args = std::any_cast<std::list<std::any>>(call.arguments);
-      if (!args.empty()) {
-        auto first = std::any_cast<std::map<std::string, std::any>>(args.back());
-        auto input_type = std::any_cast<std::map<std::string, std::any>>(first["inputType"]);
-
-        this->client_id = std::any_cast<int>(args.front());
-        this->input_type = std::any_cast<std::string>(input_type["name"]);
-        this->input_action = std::any_cast<std::string>(first["inputAction"]);
+      if (call.method.compare("TextInput.setStyle") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
       }
-      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-    }
 
-    if (call.method.compare("TextInput.setCaretRect") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-    }
+      if (call.method.compare("TextInput.setClient") == 0) {
+        auto args = std::any_cast<std::list<std::any>>(call.arguments);
+        if (!args.empty()) {
+          auto first = std::any_cast<std::map<std::string, std::any>>(args.back());
+          auto input_type = std::any_cast<std::map<std::string, std::any>>(first["inputType"]);
 
-    if (call.method.compare("TextInput.clearClient") == 0) {
-      this->model = Gokai::Flutter::TextInputModel();
-      this->input_type = std::string();
-      this->input_action = std::string();
-      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-    }
+          this->client_id = std::any_cast<int>(args.front());
+          this->input_type = std::any_cast<std::string>(input_type["name"]);
+          this->input_action = std::any_cast<std::string>(first["inputAction"]);
+        }
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+      }
 
-    if (call.method.compare("TextInput.requestAutofill") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-    }
+      if (call.method.compare("TextInput.setCaretRect") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+      }
 
-    if (call.method.compare("TextInput.setEditingState") == 0) {
-      auto args = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+      if (call.method.compare("TextInput.clearClient") == 0) {
+        this->model = Gokai::Flutter::TextInputModel();
+        this->input_type = std::string();
+        this->input_action = std::string();
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+      }
 
-      int base = std::any_cast<int>(args["selectionBase"]);
-      int extent = std::any_cast<int>(args["selectionExtent"]);
+      if (call.method.compare("TextInput.requestAutofill") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+      }
 
-      this->model.setText(std::any_cast<std::string>(args["text"]));
-      this->model.setSelection(Gokai::Flutter::TextRange(static_cast<size_t>(base), static_cast<size_t>(extent)));
-      return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
-    }
-    return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+      if (call.method.compare("TextInput.setEditingState") == 0) {
+        auto args = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+
+        int base = std::any_cast<int>(args["selectionBase"]);
+        int extent = std::any_cast<int>(args["selectionExtent"]);
+
+        this->model.setText(std::any_cast<std::string>(args["text"]));
+        this->model.setSelection(Gokai::Flutter::TextRange(static_cast<size_t>(base), static_cast<size_t>(extent)));
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+      }
+      return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+    });
   });
 }
 

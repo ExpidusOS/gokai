@@ -15,71 +15,73 @@ AccountManager::AccountManager(Gokai::ObjectArguments arguments) : Service(argum
   })));
 
   this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
-    auto call = this->method_codec.decodeMethodCall(message);
+    return std::async(std::launch::async, [this, engine_id, channel, message] {
+      auto call = this->method_codec.decodeMethodCall(message);
 
-    if (call.method.compare("getCurrentId") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(this->getCurrentId().toAny());
-    }
-
-    if (call.method.compare("getIds") == 0) {
-      auto ids = this->getIds();
-      std::list<std::any> list;
-      for (auto& id : ids) list.push_back(id.toAny());
-      return this->method_codec.encodeSuccessEnvelope(list);
-    }
-
-    if (call.method.compare("getLanguage") == 0) {
-      auto id = Gokai::User::ID(call.arguments);
-      auto user = this->get(id);
-      if (user == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+      if (call.method.compare("getCurrentId") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(this->getCurrentId().toAny());
       }
 
-      auto lang = user->getLanguage();
-      return this->method_codec.encodeSuccessEnvelope(lang.name());
-    }
-
-    if (call.method.compare("getDisplayName") == 0) {
-      auto id = Gokai::User::ID(call.arguments);
-      auto user = this->get(id);
-      if (user == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+      if (call.method.compare("getIds") == 0) {
+        auto ids = this->getIds();
+        std::list<std::any> list;
+        for (auto& id : ids) list.push_back(id.toAny());
+        return this->method_codec.encodeSuccessEnvelope(list);
       }
 
-      return this->method_codec.encodeSuccessEnvelope(user->getDisplayName());
-    }
+      if (call.method.compare("getLanguage") == 0) {
+        auto id = Gokai::User::ID(call.arguments);
+        auto user = this->get(id);
+        if (user == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        }
 
-    if (call.method.compare("getPicture") == 0) {
-      auto id = Gokai::User::ID(call.arguments);
-      auto user = this->get(id);
-      if (user == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        auto lang = user->getLanguage();
+        return this->method_codec.encodeSuccessEnvelope(lang.name());
       }
 
-      auto value = user->getPicture();
-      return this->method_codec.encodeSuccessEnvelope(value.length() == 0 ? std::any(nullptr) : std::any(value));
-    }
+      if (call.method.compare("getDisplayName") == 0) {
+        auto id = Gokai::User::ID(call.arguments);
+        auto user = this->get(id);
+        if (user == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        }
 
-    if (call.method.compare("isSystem") == 0) {
-      auto id = Gokai::User::ID(call.arguments);
-      auto user = this->get(id);
-      if (user == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        return this->method_codec.encodeSuccessEnvelope(user->getDisplayName());
       }
 
-      return this->method_codec.encodeSuccessEnvelope(user->isSystem());
-    }
+      if (call.method.compare("getPicture") == 0) {
+        auto id = Gokai::User::ID(call.arguments);
+        auto user = this->get(id);
+        if (user == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        }
 
-    if (call.method.compare("isAdministrator") == 0) {
-      auto id = Gokai::User::ID(call.arguments);
-      auto user = this->get(id);
-      if (user == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        auto value = user->getPicture();
+        return this->method_codec.encodeSuccessEnvelope(value.length() == 0 ? std::any(nullptr) : std::any(value));
       }
 
-      return this->method_codec.encodeSuccessEnvelope(user->isAdministrator());
-    }
-    return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+      if (call.method.compare("isSystem") == 0) {
+        auto id = Gokai::User::ID(call.arguments);
+        auto user = this->get(id);
+        if (user == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        }
+
+        return this->method_codec.encodeSuccessEnvelope(user->isSystem());
+      }
+
+      if (call.method.compare("isAdministrator") == 0) {
+        auto id = Gokai::User::ID(call.arguments);
+        auto user = this->get(id);
+        if (user == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        }
+
+        return this->method_codec.encodeSuccessEnvelope(user->isAdministrator());
+      }
+      return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+    });
   });
 
   this->changed.push_back([this]() {

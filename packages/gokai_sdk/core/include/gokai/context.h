@@ -6,6 +6,7 @@
 #include <gokai/application-manifest.h>
 #include <gokai/logging.h>
 #include <gokai/object.h>
+#include <future>
 #include <stdint.h>
 #include <string>
 #include <uv.h>
@@ -35,8 +36,8 @@ namespace Gokai {
       Context(ObjectArguments arguments);
       ~Context();
 
-      std::list<std::function<std::vector<uint8_t>(xg::Guid, std::vector<uint8_t>)>> onChannelReceive;
-      std::vector<uint8_t> channelReceive(xg::Guid engine_id, std::vector<uint8_t> message);
+      std::list<std::function<std::future<std::vector<uint8_t>>(xg::Guid, std::vector<uint8_t>)>> onChannelReceive;
+      std::future<std::vector<uint8_t>> channelReceive(xg::Guid engine_id, std::vector<uint8_t> message);
 
       std::list<std::string> getArguments();
       uv_loop_t* getLoop();

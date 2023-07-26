@@ -91,48 +91,50 @@ Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments), method_c
   uv_loop_init(this->loop);
 
   this->onChannelReceive.push_back([this](xg::Guid engine_id, std::vector<uint8_t> message) {
-    auto call = this->method_codec.decodeMethodCall(message);
-    if (call.method.compare("getService") == 0) {
-      auto name = std::any_cast<std::string>(call.arguments);
-      auto service = this->getSystemService(name);
-      if (service == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Service \"{}\" does not exist", name), std::make_any<void*>(nullptr));
+    return std::async(std::launch::async, [this, engine_id, message] {
+      auto call = this->method_codec.decodeMethodCall(message);
+      if (call.method.compare("getService") == 0) {
+        auto name = std::any_cast<std::string>(call.arguments);
+        auto service = this->getSystemService(name);
+        if (service == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Service \"{}\" does not exist", name), std::make_any<void*>(nullptr));
+        }
+
+        auto service_channel = service->getServiceChannel();
+        if (service_channel == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Service \"{}\" does not have a service channel", name), std::make_any<void*>(nullptr));
+        }
+        return this->method_codec.encodeSuccessEnvelope(service_channel->getNames().front());
       }
 
-      auto service_channel = service->getServiceChannel();
-      if (service_channel == nullptr) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Service \"{}\" does not have a service channel", name), std::make_any<void*>(nullptr));
+      if (call.method.compare("getServiceNames") == 0) {
+        auto names = this->getSystemServiceNames();
+        std::list<std::any> list;
+        for (auto name : names) list.push_back(name);
+        return this->method_codec.encodeSuccessEnvelope(list);
       }
-      return this->method_codec.encodeSuccessEnvelope(service_channel->getNames().front());
-    }
 
-    if (call.method.compare("getServiceNames") == 0) {
-      auto names = this->getSystemServiceNames();
-      std::list<std::any> list;
-      for (auto name : names) list.push_back(name);
-      return this->method_codec.encodeSuccessEnvelope(list);
-    }
+      if (call.method.compare("getMode") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(this->mode.name);
+      }
 
-    if (call.method.compare("getMode") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(this->mode.name);
-    }
+      if (call.method.compare("getPackageName") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(this->getPackageName());
+      }
 
-    if (call.method.compare("getPackageName") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(this->getPackageName());
-    }
+      if (call.method.compare("getPackageDir") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(this->getPackageDir());
+      }
 
-    if (call.method.compare("getPackageDir") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(this->getPackageDir());
-    }
+      if (call.method.compare("getPackageConfigDir") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(this->getPackageConfigDir());
+      }
 
-    if (call.method.compare("getPackageConfigDir") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(this->getPackageConfigDir());
-    }
-
-    if (call.method.compare("getPackageDataDir") == 0) {
-      return this->method_codec.encodeSuccessEnvelope(this->getPackageDataDir());
-    }
-    return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+      if (call.method.compare("getPackageDataDir") == 0) {
+        return this->method_codec.encodeSuccessEnvelope(this->getPackageDataDir());
+      }
+      return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+    });
   });
 }
 
@@ -148,14 +150,19 @@ uv_loop_t* Context::getLoop() {
   return this->loop;
 }
 
-std::vector<uint8_t> Context::channelReceive(xg::Guid engine_id, std::vector<uint8_t> message) {
-  for (auto func : this->onChannelReceive) {
-    auto result = func(engine_id, message);
-    if (result.size() > 0) {
-      return result;
+std::future<std::vector<uint8_t>> Context::channelReceive(xg::Guid engine_id, std::vector<uint8_t> message) {
+  return std::async(std::launch::async, [this, engine_id, message]() {
+    for (auto func : this->onChannelReceive) {
+      auto future = func(engine_id, message);
+      future.wait();
+
+      auto result = future.get();
+      if (result.size() > 0) {
+        return result;
+      }
     }
-  }
-  return std::vector<uint8_t>();
+    return std::vector<uint8_t>();
+  });
 }
 
 ApplicationManifest Context::getManifest() {

@@ -15,30 +15,32 @@ PluginManager::PluginManager(Gokai::ObjectArguments arguments) : Service(argumen
   })));
 
   this->service_channel->onReceive.push_back([this](xg::Guid engine_id, std::string channel, std::vector<uint8_t> message) {
-    auto call = this->method_codec.decodeMethodCall(message);
+    return std::async(std::launch::async, [this, engine_id, channel, message] {
+      auto call = this->method_codec.decodeMethodCall(message);
 
-    if (call.method.compare("getKeys") == 0) {
-      std::list<std::any> list;
-      for (const auto& entry : this->map) list.push_back(entry.first);
-      return this->method_codec.encodeSuccessEnvelope(list);
-    }
-
-    if (call.method.compare("getMetadata") == 0) {
-      auto find = this->map.find(std::any_cast<std::string>(call.arguments));
-      if (find == this->map.end()) {
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Cannot find plugin"), std::make_any<void*>(nullptr));
+      if (call.method.compare("getKeys") == 0) {
+        std::list<std::any> list;
+        for (const auto& entry : this->map) list.push_back(entry.first);
+        return this->method_codec.encodeSuccessEnvelope(list);
       }
 
-      auto metadata = find->second->getMetadata();
+      if (call.method.compare("getMetadata") == 0) {
+        auto find = this->map.find(std::any_cast<std::string>(call.arguments));
+        if (find == this->map.end()) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Cannot find plugin"), std::make_any<void*>(nullptr));
+        }
 
-      std::map<std::string, std::any> map;
-      map["name"] = metadata.name;
-      map["description"] = metadata.description;
-      map["homepage"] = metadata.homepage;
-      map["license"] = metadata.license;
-      return this->method_codec.encodeSuccessEnvelope(map);
-    }
-    return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+        auto metadata = find->second->getMetadata();
+
+        std::map<std::string, std::any> map;
+        map["name"] = metadata.name;
+        map["description"] = metadata.description;
+        map["homepage"] = metadata.homepage;
+        map["license"] = metadata.license;
+        return this->method_codec.encodeSuccessEnvelope(map);
+      }
+      return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
+    });
   });
 
   this->paths.push_back(std::filesystem::path(this->context->getPackageDir()) / "lib" / "gokai" / "plugins");
