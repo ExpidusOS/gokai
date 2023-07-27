@@ -41,6 +41,10 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
     });
 
     wlr_output_layout_add_auto(self->layout, value);
+
+    auto drm_lease_manager = compositor->getDrmLeaseManager();
+    if (drm_lease_manager != nullptr) wlr_drm_lease_v1_manager_offer_output(drm_lease_manager, value);
+
     for (auto func : self->changed) func();
   } catch (const std::exception& ex) {
     self->logger->error("Failed to activate display \"{}\": {}", value->name, ex.what());

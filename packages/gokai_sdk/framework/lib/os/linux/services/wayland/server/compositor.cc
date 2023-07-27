@@ -104,8 +104,13 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
   this->allocator = wlr_allocator_autocreate(this->backend, this->renderer);
 
   wlr_renderer_init_wl_display(this->renderer, this->display);
+  wlr_drm_create(this->display, this->renderer);
   wlr_data_device_manager_create(this->display);
   wlr_screencopy_manager_v1_create(this->display);
+  wlr_export_dmabuf_manager_v1_create(this->display);
+  wlr_viewporter_create(this->display);
+
+  this->drm_lease_manager = wlr_drm_lease_v1_manager_create(this->display, this->backend);
 
   this->logger->debug("Attaching Wayland Event loop to context event loop");
   auto event_loop = wl_display_get_event_loop(this->display);
@@ -142,4 +147,8 @@ struct wlr_renderer* Compositor::getRenderer() {
 
 struct wlr_allocator* Compositor::getAllocator() {
   return this->allocator;
+}
+
+struct wlr_drm_lease_v1_manager* Compositor::getDrmLeaseManager() {
+  return this->drm_lease_manager;
 }
