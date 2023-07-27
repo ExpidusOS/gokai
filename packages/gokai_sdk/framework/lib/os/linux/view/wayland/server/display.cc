@@ -54,12 +54,20 @@ Display::Display(Gokai::ObjectArguments arguments) : Gokai::View::Display(argume
 
   this->destroy_listener.notify = Display::破壊する;
   wl_signal_add(&this->value->events.destroy, &this->destroy_listener);
+
+  uv_timer_init(this->context->getLoop(), &this->schedule_frame_handle);
+  uv_timer_start(&schedule_frame_handle, [](auto handle) {
+    auto self = reinterpret_cast<Display*>((char*)(handle) - offsetof(Display, schedule_frame_handle));
+    wlr_output_schedule_frame(self->value);
+  }, 0, 0);
 }
 
 Display::~Display() {
   wl_list_remove(&this->mode_listener.link);
   wl_list_remove(&this->frame_listener.link);
   wl_list_remove(&this->destroy_listener.link);
+
+  uv_timer_stop(&this->schedule_frame_handle);
 
   for (auto func : this->destroy) func();
   delete this->renderer;
@@ -238,7 +246,9 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
     self->logger->error("Failed to render: {}", ex.what());
   }
 
-  wlr_output_commit(self->value);
+  if (!wlr_output_commit(self->value)) {
+    wlr_output_schedule_frame(self->value);
+  }
 }
 
 void Display::破壊する(struct wl_listener* listener, void* data) {

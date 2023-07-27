@@ -47,6 +47,7 @@ namespace Gokai {
                   Gokai::Graphics::Renderer* renderer;
                   std::shared_ptr<Gokai::Context> context;
                   struct wlr_output* value;
+                  uv_timer_t schedule_frame_handle;
 
                   struct wl_listener mode_listener;
                   struct wl_listener frame_listener;
