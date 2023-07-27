@@ -10,6 +10,7 @@
 #include <flutter_embedder.h>
 #include <future>
 #include <mutex>
+#include <optional>
 #include <thread>
 #include <queue>
 
@@ -45,6 +46,9 @@ namespace Gokai {
         EngineViewType getViewType();
         std::string getViewName();
         bool isShutdown();
+
+        std::optional<intptr_t> getBaton();
+        void vsync(double refresh_rate);
       private:
         bool shutdown;
         xg::Guid id;
@@ -57,6 +61,9 @@ namespace Gokai {
         std::priority_queue<EngineTask, std::vector<EngineTask>, TaskRunnerComp> tasks;
         EngineViewType view_type;
         std::string view_name;
+        uv_mutex_t baton_mutex;
+        intptr_t baton;
+        bool new_baton;
 
         Gokai::Graphics::Compositor* compositor;
         Gokai::Graphics::Renderer* renderer;
@@ -67,6 +74,7 @@ namespace Gokai {
         static void log_message_callback(const char* tag, const char* message, void* data);
         static void platform_message_callback(const FlutterPlatformMessage* message, void* data);
         static void event_callback(uv_timer_t* event_runner);
+        static void vsync_callback(void* data, intptr_t baton);
     };
   }
 }

@@ -143,6 +143,8 @@ Engine::Engine(Gokai::ObjectArguments arguments)
     .thread_priority_setter = nullptr,
   };
 
+  uv_mutex_init(&this->baton_mutex);
+
   auto args = this->context->getArguments();
   auto argc = args.size();
   auto argv = reinterpret_cast<char**>(malloc(sizeof (char*) * (argc + 1)));
@@ -165,6 +167,7 @@ Engine::Engine(Gokai::ObjectArguments arguments)
   this->args.platform_message_callback = Engine::platform_message_callback;
   // NOTE: https://github.com/flutter/flutter/issues/129533
   this->args.custom_task_runners = &this->runners;
+  this->args.vsync_callback = Engine::vsync_callback;
 
   if (arguments.has("compositor")) {
     this->compositor = std::any_cast<Gokai::Graphics::Compositor*>(arguments.get("compositor"));
@@ -242,6 +245,7 @@ Engine::~Engine() {
 
       for (auto func : this->destroy) func();
       this->logger->debug("Shutting down engine {}", this->id.str());
+      uv_mutex_destroy(&this->baton_mutex);
       FlutterEngineShutdown(this->value);
     }).detach();
   } else {
@@ -249,6 +253,7 @@ Engine::~Engine() {
 
     for (auto func : this->destroy) func();
     this->logger->debug("Shutting down engine {}", this->id.str());
+    uv_mutex_destroy(&this->baton_mutex);
     FlutterEngineShutdown(this->value);
   }
 }
@@ -335,6 +340,28 @@ std::string Engine::getViewName() {
   return this->view_name;
 }
 
+std::optional<intptr_t> Engine::getBaton() {
+  uv_mutex_lock(&this->baton_mutex);
+  if (this->new_baton) {
+    this->new_baton = false;
+
+    auto baton = this->baton;
+    uv_mutex_unlock(&this->baton_mutex);
+    return baton;
+  }
+  uv_mutex_unlock(&this->baton_mutex);
+  return std::nullopt;
+}
+
+void Engine::vsync(double refresh_rate) {
+  auto baton = this->getBaton();
+  if (baton.has_value()) {
+    uint64_t now = FlutterEngineGetCurrentTime();
+		uint64_t next_frame = now + (uint64_t) (1'000'000'000ull / refresh_rate);
+    FlutterEngineOnVsync(this->value, *baton, now, next_frame);
+  }
+}
+
 void Engine::event_callback(uv_timer_t* event_runner) {
   Engine* self = reinterpret_cast<Engine*>((char*)(event_runner) - offsetof(Engine, event_runner));
   if (self->tasks.empty()) return;
@@ -348,4 +375,13 @@ void Engine::event_callback(uv_timer_t* event_runner) {
       self->logger->warn("Failed to execute task {}: {}", task.second.task, result);
     }
   }
+}
+
+void Engine::vsync_callback(void* data, intptr_t baton) {
+  Engine* self = reinterpret_cast<Engine*>(data);
+
+  uv_mutex_lock(&self->baton_mutex);
+  self->baton = baton;
+  self->new_baton = true;
+  uv_mutex_unlock(&self->baton_mutex);
 }

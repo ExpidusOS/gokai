@@ -167,6 +167,10 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
   auto renderer = compositor->getRenderer();
 
   if (self->engine->isShutdown()) return;
+  self->engine->vsync(
+    self->value->refresh != 0
+		  ? (double) self->value->refresh / 1000
+		  : 60);
 
   try {
     if (wlr_renderer_is_pixman(renderer)) {
