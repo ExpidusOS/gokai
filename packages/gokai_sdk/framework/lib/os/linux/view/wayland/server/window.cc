@@ -1,4 +1,5 @@
 #include <gokai/framework/os/linux/graphics/wayland/server/texture.h>
+#include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/services/wayland/server/display-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
 #include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
@@ -256,6 +257,7 @@ void Window::commit_handler(struct wl_listener* listener, void* data) {
   Window* self = wl_container_of(listener, self, commit_listener);
 
   auto texture_manager = reinterpret_cast<Gokai::Services::TextureManager*>(self->context->getSystemService(Gokai::Services::TextureManager::SERVICE_NAME));
+  auto compositor = reinterpret_cast<Gokai::Framework::os::Linux::Services::Wayland::Server::Compositor*>(self->context->getSystemService(Gokai::Services::Compositor::SERVICE_NAME));
 
   if (self->hasTexture() && self->texture_id == 0) {
     struct wlr_dmabuf_attributes attribs;
@@ -275,6 +277,8 @@ void Window::commit_handler(struct wl_listener* listener, void* data) {
         if (ret == 0) {
           auto event = new CommitEvent();
           event->window = self;
+
+          self->logger->debug("Using DMABUF sync fd {} on window {}", sync_file.fd, self->getId().str());
           uv_poll_init(self->context->getLoop(), &event->handle, sync_file.fd);
           uv_poll_start(&event->handle, UV_READABLE, [](uv_poll_t* handle, int status, int events) {
             auto event = reinterpret_cast<CommitEvent*>((char*)(handle) - offsetof(CommitEvent, handle));
@@ -285,10 +289,48 @@ void Window::commit_handler(struct wl_listener* listener, void* data) {
             delete event;
           });
           return;
+        } else if (wlr_texture_is_gles2(self->value->buffer->texture)) {
+          auto egl = wlr_gles2_renderer_get_egl(compositor->getRenderer());
+          eglMakeCurrent(wlr_egl_get_display(egl), EGL_NO_SURFACE, EGL_NO_SURFACE, wlr_egl_get_context(egl));
+
+          auto eglCreateSyncKHR = reinterpret_cast<PFNEGLCREATESYNCKHRPROC>(eglGetProcAddress("eglCreateSyncKHR"));
+          auto eglDestroySyncKHR = reinterpret_cast<PFNEGLDESTROYSYNCKHRPROC>(eglGetProcAddress("eglDestroySyncKHR"));
+          auto eglDupNativeFenceFDANDROID = reinterpret_cast<PFNEGLDUPNATIVEFENCEFDANDROIDPROC>(eglGetProcAddress("eglDupNativeFenceFDANDROID"));
+
+          EGLint attrib_list[] = {
+		        EGL_SYNC_NATIVE_FENCE_FD_ANDROID, EGL_NO_NATIVE_FENCE_FD_ANDROID,
+		        EGL_NONE,
+          };
+
+          EGLSyncKHR sync = eglCreateSyncKHR(wlr_egl_get_display(egl), EGL_SYNC_NATIVE_FENCE_ANDROID, attrib_list);
+          if (sync != EGL_NO_SYNC_KHR) {
+            glFlush();
+
+            int fence_fd = eglDupNativeFenceFDANDROID(wlr_egl_get_display(egl), sync);
+            if (fence_fd != EGL_NO_NATIVE_FENCE_FD_ANDROID) {
+              auto event = new CommitEvent();
+              event->window = self;
+
+              self->logger->debug("Using fence fd {} on window {}", fence_fd, self->getId().str());
+              uv_poll_init(self->context->getLoop(), &event->handle, fence_fd);
+              uv_poll_start(&event->handle, UV_READABLE, [](uv_poll_t* handle, int status, int events) {
+                auto event = reinterpret_cast<CommitEvent*>((char*)(handle) - offsetof(CommitEvent, handle));
+                auto texture_manager = reinterpret_cast<Gokai::Services::TextureManager*>(event->window->context->getSystemService(Gokai::Services::TextureManager::SERVICE_NAME));
+                event->window->texture_id = texture_manager->allocate(event->window->getTexture());
+                for (const auto& func : event->window->onCommit) func();
+                uv_poll_stop(handle);
+                delete event;
+              });
+              return;
+            } else {
+              eglDestroySyncKHR(wlr_egl_get_display(egl), sync);
+            }
+          }
         }
       }
     }
 
+    self->logger->debug("Window {} does not support syncing", self->getId().str());
     self->texture_id = texture_manager->allocate(self->getTexture());
   } else if (!self->hasTexture() && self->texture_id > 0) {
     texture_manager->unregister(self->texture_id);
