@@ -24,6 +24,34 @@ InputManager::InputManager(Gokai::ObjectArguments arguments) : Service(arguments
         for (auto value : values) list.push_back(value.str());
         return this->method_codec.encodeSuccessEnvelope(std::make_any<std::list<std::any>>(list));
       }
+
+      if (call.method.compare("sendPointer") == 0) {
+        auto event = Gokai::Input::Pointer::Event(call.arguments);
+        return this->method_codec.encodeSuccessEnvelope(this->sendPointer(event));
+      }
+
+      if (call.method.compare("sendTouch") == 0) {
+        auto event = Gokai::Input::Touch::Event(call.arguments);
+        return this->method_codec.encodeSuccessEnvelope(this->sendTouch(event));
+      }
+
+      if (call.method.compare("sendText") == 0) {
+        auto map = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+
+        return this->method_codec.encodeSuccessEnvelope(this->sendText(
+          xg::Guid(std::any_cast<std::string>(map["windowId"])),
+          std::any_cast<std::string>(map["text"])
+        ));
+      }
+
+      if (call.method.compare("sendKeyboard") == 0) {
+        auto map = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+
+        return this->method_codec.encodeSuccessEnvelope(this->sendKeyboard(
+          xg::Guid(std::any_cast<std::string>(map["windowId"])),
+          std::any_cast<int>(map["keycode"])
+        ));
+      }
       return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
     });
   });
@@ -73,6 +101,14 @@ bool InputManager::sendPointer(Gokai::Input::Pointer::Event event) {
 }
 
 bool InputManager::sendTouch(Gokai::Input::Touch::Event event) {
+  return false;
+}
+
+bool InputManager::sendText(xg::Guid window_id, std::string text) {
+  return false;
+}
+
+bool InputManager::sendKeyboard(xg::Guid window_id, int keycode) {
   return false;
 }
 

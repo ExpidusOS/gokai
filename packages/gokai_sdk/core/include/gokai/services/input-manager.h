@@ -26,6 +26,8 @@ namespace Gokai {
 
         virtual bool sendPointer(Gokai::Input::Pointer::Event event);
         virtual bool sendTouch(Gokai::Input::Touch::Event event);
+        virtual bool sendText(xg::Guid window_id, std::string text);
+        virtual bool sendKeyboard(xg::Guid window_id, int keycode);
 
         std::list<std::function<void()>> changed;
         std::list<std::function<void(bool)>> onLid;

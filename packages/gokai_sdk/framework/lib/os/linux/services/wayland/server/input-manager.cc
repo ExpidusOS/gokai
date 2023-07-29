@@ -214,3 +214,14 @@ bool InputManager::sendTouch(Gokai::Input::Touch::Event event) {
   }
   return false;
 }
+
+bool InputManager::sendText(xg::Guid window_id, std::string text) {
+  return false;
+}
+
+bool InputManager::sendKeyboard(xg::Guid window_id, int keycode) {
+  auto time = FlutterEngineGetCurrentTime() / 1'000'000;
+  wlr_seat_keyboard_notify_key(this->seat, time, keycode, WL_KEYBOARD_KEY_STATE_PRESSED);
+  wlr_seat_keyboard_notify_key(this->seat, time, keycode, WL_KEYBOARD_KEY_STATE_RELEASED);
+  return true;
+}
