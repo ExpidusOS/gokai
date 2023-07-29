@@ -126,6 +126,7 @@ class _MyAppState extends State<MyApp> {
                     (e) => GokaiWindowView(
                       id: e.id,
                       windowManager: gkContext!.services['WindowManager'] as GokaiWindowManager,
+                      inputManager: gkContext!.services['InputManager'] as GokaiInputManager,
                       decorationBuilder: (context, child, win) => Column(
                         children: [
                           SizedBox(

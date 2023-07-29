@@ -1,4 +1,6 @@
+import 'package:arena_listener/arena_listener.dart';
 import 'package:event/event.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gokai/view/window.dart';
 import 'package:gokai/services.dart';
@@ -8,6 +10,7 @@ class GokaiWindowView extends StatefulWidget {
     super.key,
     required this.id,
     required this.windowManager,
+    this.inputManager,
     this.interactive = true,
     this.size,
     this.decorationBuilder,
@@ -17,6 +20,7 @@ class GokaiWindowView extends StatefulWidget {
 
   final String id;
   final GokaiWindowManager windowManager;
+  final GokaiInputManager? inputManager;
   final Size? size;
   final bool interactive;
   final Widget Function(BuildContext context, Widget child, GokaiWindow win)? decorationBuilder;
@@ -29,6 +33,7 @@ class GokaiWindowView extends StatefulWidget {
 
 class _GokaiWindowViewState extends State<GokaiWindowView> {
   UniqueKey key = UniqueKey();
+  int _buttons = 0;
 
   void _onMapped(Value<String>? id) {
     if (id!.value == widget.id) {
@@ -62,6 +67,42 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
     widget.windowManager.onCommit.unsubscribe(_onCommit);
   }
 
+  bool? _updateMouseButtons(int newButtons) {
+    if (_buttons == newButtons) return null;
+
+    var button = _buttons ^ newButtons;
+    var state = newButtons & button != 0 ? false : true;
+    _buttons = newButtons;
+    return state;
+  }
+
+  bool _handleMouseButtons(String windowId, int btns, double x, double y) {
+    var isReleased = _updateMouseButtons(btns);
+    if (isReleased != null) {
+      widget.inputManager!.sendPointer(GokaiPointerEvent(
+        type: GokaiPointerEventType.button,
+        windowId: windowId,
+        x: x,
+        y: y,
+        button: _buttons,
+        isReleased: isReleased
+      ));
+      return true;
+    }
+    return false;
+  }
+
+  void _mouseMove(String windowId, double x, double y) {
+    widget.inputManager!.sendPointer(GokaiPointerEvent(
+      type: GokaiPointerEventType.hover,
+      windowId: windowId,
+      x: x,
+      y: y,
+      button: _buttons,
+      isReleased: true,
+    ));
+  }
+
   @override
   Widget build(BuildContext context) =>
     FutureBuilder(
@@ -78,8 +119,8 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
           if (snapshot.data!.texture != null) {
             final size = widget.size
               ?? (snapshot.data!.rect.size.isEmpty
-                   ? MediaQuery.sizeOf(context)
-                   : snapshot.data!.rect.size);
+                ? MediaQuery.sizeOf(context)
+                : snapshot.data!.rect.size);
 
             Widget child = SizedBox.fromSize(
               size: size,
@@ -90,6 +131,7 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
                     (child) => GokaiWindowView(
                       id: child,
                       windowManager: widget.windowManager,
+                      interactive: false,
                     ),
                   ).toList(),
                   Texture(
@@ -100,6 +142,7 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
                     (child) => GokaiWindowView(
                       id: child,
                       windowManager: widget.windowManager,
+                      interactive: false,
                     ),
                   ).toList(),
                 ],
@@ -107,6 +150,75 @@ class _GokaiWindowViewState extends State<GokaiWindowView> {
             );
 
             if (widget.interactive) {
+              if (widget.inputManager != null) {
+                child = ArenaListener(
+                  onPointerUp: (event, disposition) {
+                    if (disposition == GestureDisposition.accepted) return null;
+
+                    if (event.kind == PointerDeviceKind.mouse) {
+                      return _handleMouseButtons(snapshot.data!.id, event.buttons, event.position.dx, event.position.dy)
+                        ? GestureDisposition.accepted
+                        : GestureDisposition.rejected;
+                    }
+
+                    if (event.kind == PointerDeviceKind.touch) {
+                      widget.inputManager!.sendTouch(GokaiTouchEvent(
+                        type: GokaiTouchEventType.up,
+                        windowId: snapshot.data!.id,
+                        id: event.pointer,
+                        x: event.position.dx,
+                        y: event.position.dy,
+                      ));
+                    }
+                    return GestureDisposition.rejected;
+                  },
+                  onPointerDown: (event) {
+                    if (event.kind == PointerDeviceKind.mouse) {
+                      final result = _handleMouseButtons(snapshot.data!.id, event.buttons, event.position.dx, event.position.dy)
+                        ? GestureDisposition.accepted
+                        : GestureDisposition.rejected;
+                      _mouseMove(snapshot.data!.id, event.position.dx, event.position.dy);
+                      return result;
+                    }
+
+                    if (event.kind == PointerDeviceKind.touch) {
+                      widget.inputManager!.sendTouch(GokaiTouchEvent(
+                        type: GokaiTouchEventType.down,
+                        windowId: snapshot.data!.id,
+                        id: event.pointer,
+                        x: event.position.dx,
+                        y: event.position.dy,
+                      ));
+                    }
+                    return GestureDisposition.rejected;
+                  },
+                  onPointerCancel: (event, disposition) {
+                    return GestureDisposition.rejected;
+                  },
+                  onPointerMove: (event, disposition) {
+                    if (event.kind == PointerDeviceKind.mouse) {
+                      final result = _handleMouseButtons(snapshot.data!.id, event.buttons, event.position.dx, event.position.dy)
+                        ? GestureDisposition.accepted
+                        : GestureDisposition.rejected;
+                      _mouseMove(snapshot.data!.id, event.position.dx, event.position.dy);
+                      return result;
+                    }
+
+                    if (event.kind == PointerDeviceKind.touch) {
+                      widget.inputManager!.sendTouch(GokaiTouchEvent(
+                        type: GokaiTouchEventType.down,
+                        windowId: snapshot.data!.id,
+                        id: event.pointer,
+                        x: event.position.dx,
+                        y: event.position.dy,
+                      ));
+                    }
+                    return GestureDisposition.rejected;
+                  },
+                  child: child,
+                );
+              }
+
               child = Focus(
                 onFocusChange: snapshot.data!.setActive,
                 child: child,
