@@ -29,4 +29,26 @@ class GokaiNativeInputManager extends GokaiInputManager {
   @override
   Future<List<String>> getIds() async
     => (await methodChannel.invokeListMethod<String>('getIds')) ?? [];
+
+  @override
+  Future<bool> sendPointer(GokaiPointerEvent event) async
+    => (await methodChannel.invokeMethod<bool>('sendPointer', event.toJson()))!;
+
+  @override
+  Future<bool> sendTouch(GokaiTouchEvent event) async
+    => (await methodChannel.invokeMethod<bool>('sendTouch', event.toJson()))!;
+
+  @override
+  Future<bool> sendText(String windowId, String text) async
+    => (await methodChannel.invokeMethod<bool>('sendText', {
+      'windowId': windowId,
+      'text': text,
+    }))!;
+
+  @override
+  Future<bool> sendKeyboard(String windowId, int keycode) async
+    => (await methodChannel.invokeMethod<bool>('sendKeyboard', {
+      'windowId': windowId,
+      'keycode': keycode,
+    }))!;
 }
