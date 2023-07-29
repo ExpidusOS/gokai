@@ -72,6 +72,10 @@ Window::~Window() {
   }
 }
 
+struct wlr_surface* Window::getValue() {
+  return this->value;
+}
+
 bool Window::isToplevel() {
   return !wlr_surface_is_subsurface(this->value);
 }
@@ -240,8 +244,8 @@ void Window::setActive(bool value) {
         if (kb != nullptr) {
           wlr_seat_keyboard_enter(seat, this->value, kb->keycodes, kb->num_keycodes, &kb->modifiers);
         }
-
-        wlr_seat_pointer_notify_enter(seat, this->value, 0, 0);
+      } else {
+        wlr_seat_keyboard_notify_clear_focus(seat);
       }
 
       for (const auto& func : this->onActive) func();

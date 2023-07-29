@@ -4,6 +4,8 @@
 #include <gokai/framework/os/linux/input/wayland/server/touch.h>
 #include <gokai/framework/os/linux/services/wayland/server/compositor.h>
 #include <gokai/framework/os/linux/services/wayland/server/input-manager.h>
+#include <gokai/framework/os/linux/services/wayland/server/window-manager.h>
+#include <gokai/framework/os/linux/view/wayland/server/window.h>
 #include <assert.h>
 
 using namespace Gokai::Framework::os::Linux::Services::Wayland::Server;
@@ -142,4 +144,73 @@ glm::uvec2 InputManager::getActivePoint() {
 
 void InputManager::setActivePoint(glm::uvec2 point) {
   this->active_point = point;
+}
+
+bool InputManager::sendPointer(Gokai::Input::Pointer::Event event) {
+  auto time = FlutterEngineGetCurrentTime() / 1'000'000;
+
+  if (event.type == Gokai::Input::Pointer::EventType::hover) {
+    auto window_manager = reinterpret_cast<WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+    auto window = window_manager->get(event.window_id);
+    if (window == nullptr) return false;
+
+    wlr_seat_pointer_notify_enter(this->seat, reinterpret_cast<Gokai::Framework::os::Linux::View::Wayland::Server::Window*>(window)->getValue(), event.pos.x, event.pos.y);
+    wlr_seat_pointer_notify_motion(this->seat, time, event.pos.x, event.pos.y);
+    return true;
+  } else if (event.type == Gokai::Input::Pointer::EventType::button) {
+    int button = 0;
+
+    switch (event.button) {
+      case kFlutterPointerButtonMousePrimary:
+        button = BTN_LEFT;
+        break;
+      case kFlutterPointerButtonMouseSecondary:
+        button = BTN_RIGHT;
+        break;
+      case kFlutterPointerButtonMouseMiddle:
+        button = BTN_MIDDLE;
+        break;
+      default:
+        return false;
+    }
+
+    wlr_seat_pointer_notify_button(this->seat, time, button, event.is_released ? WLR_BUTTON_RELEASED : WLR_BUTTON_PRESSED);
+    wlr_seat_pointer_notify_frame(this->seat);
+    return true;
+  } else if (event.type == Gokai::Input::Pointer::EventType::leave) {
+    wlr_seat_pointer_notify_clear_focus(this->seat);
+    return true;
+  }
+  return false;
+}
+
+bool InputManager::sendTouch(Gokai::Input::Touch::Event event) {
+  auto time = FlutterEngineGetCurrentTime() / 1'000'000;
+
+  if (event.type == Gokai::Input::Touch::EventType::up) {
+    wlr_seat_touch_notify_up(this->seat, time, event.id);
+    wlr_seat_touch_notify_frame(this->seat);
+    return true;
+  } else if (event.type == Gokai::Input::Touch::EventType::down) {
+    auto window_manager = reinterpret_cast<WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+    auto window = window_manager->get(event.window_id);
+    if (window == nullptr) return false;
+
+    wlr_seat_touch_notify_down(this->seat, reinterpret_cast<Gokai::Framework::os::Linux::View::Wayland::Server::Window*>(window)->getValue(), time, event.id, event.pos.x, event.pos.y);
+    wlr_seat_touch_notify_frame(this->seat);
+    return true;
+  } else if (event.type == Gokai::Input::Touch::EventType::motion) {
+    wlr_seat_touch_notify_motion(this->seat, time, event.id, event.pos.x, event.pos.y);
+    wlr_seat_touch_notify_frame(this->seat);
+    return true;
+  } else if (event.type == Gokai::Input::Touch::EventType::cancel) {
+    auto window_manager = reinterpret_cast<WindowManager*>(this->context->getSystemService(Gokai::Services::WindowManager::SERVICE_NAME));
+    auto window = window_manager->get(event.window_id);
+    if (window == nullptr) return false;
+
+    wlr_seat_touch_notify_cancel(this->seat, reinterpret_cast<Gokai::Framework::os::Linux::View::Wayland::Server::Window*>(window)->getValue());
+    wlr_seat_touch_notify_frame(this->seat);
+    return true;
+  }
+  return false;
 }

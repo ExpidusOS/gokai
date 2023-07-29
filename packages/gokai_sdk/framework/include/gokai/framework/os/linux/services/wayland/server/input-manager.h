@@ -35,6 +35,9 @@ namespace Gokai {
                   std::shared_ptr<Gokai::Input::Base> get(xg::Guid id) override;
                   glm::uvec2 getActivePoint() override;
                   void setActivePoint(glm::uvec2 point);
+
+                  bool sendPointer(Gokai::Input::Pointer::Event event) override;
+                  bool sendTouch(Gokai::Input::Touch::Event event) override;
                 private:
                   static void handle_input_new(struct wl_listener* listener, void* data);
                   static void handle_cursor_request(struct wl_listener* listener, void* data);

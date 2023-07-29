@@ -68,4 +68,12 @@ glm::uvec2 InputManager::getActivePoint() {
   return glm::uvec2();
 }
 
+bool InputManager::sendPointer(Gokai::Input::Pointer::Event event) {
+  return false;
+}
+
+bool InputManager::sendTouch(Gokai::Input::Touch::Event event) {
+  return false;
+}
+
 const std::string InputManager::SERVICE_NAME = "InputManager";

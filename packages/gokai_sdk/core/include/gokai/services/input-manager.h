@@ -4,6 +4,8 @@
 #include <crossguid/guid.hpp>
 #include <gokai/flutter/codecs/json.h>
 #include <gokai/input/base.h>
+#include <gokai/input/pointer.h>
+#include <gokai/input/touch.h>
 #include <gokai/context.h>
 #include <gokai/logging.h>
 #include <gokai/service.h>
@@ -21,6 +23,9 @@ namespace Gokai {
         virtual std::list<xg::Guid> getIds();
         virtual std::shared_ptr<Gokai::Input::Base> get(xg::Guid id);
         virtual glm::uvec2 getActivePoint();
+
+        virtual bool sendPointer(Gokai::Input::Pointer::Event event);
+        virtual bool sendTouch(Gokai::Input::Touch::Event event);
 
         std::list<std::function<void()>> changed;
         std::list<std::function<void(bool)>> onLid;

@@ -26,6 +26,8 @@ namespace Gokai {
                   Window(Gokai::ObjectArguments arguments);
                   ~Window();
 
+                  struct wlr_surface* getValue();
+
                   bool isToplevel() override;
                   std::string getRole() override;
                   std::list<xg::Guid> getChildrenAbove() override;
