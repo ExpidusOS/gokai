@@ -71,6 +71,7 @@ Renderer::Renderer(Gokai::ObjectArguments arguments) : Gokai::Graphics::Renderer
   this->config.open_gl.present_with_info = Renderer::present_with_info_callback;
   this->config.open_gl.gl_external_texture_frame_callback = Renderer::gl_external_texture_frame_callback;
   this->config.open_gl.surface_transformation = Renderer::surface_transformation;
+  this->config.open_gl.populate_existing_damage = Renderer::populate_existing_damage;
 }
 
 Renderer::~Renderer() {
@@ -184,4 +185,25 @@ FlutterTransformation Renderer::surface_transformation(void* data) {
   return FlutterTransformation{
     1.0, 0.0, 0.0, 0.0, -1.0, rect.size.y, 0.0, 0.0, 1.0,
 	};
+}
+
+void Renderer::populate_existing_damage(void* data, intptr_t fbo_id, FlutterDamage* damage) {
+  auto engine = static_cast<Gokai::Flutter::Engine*>(data);
+  auto self = static_cast<Renderer*>(engine->getRenderer());
+
+  damage->struct_size = sizeof (FlutterDamage);
+  damage->num_rects = self->damage.size();
+  damage->damage = new FlutterRect[damage->num_rects];
+
+  auto it = self->damage.begin();
+
+  for (auto i = 0; i < damage->num_rects; i++) {
+    auto src = *it++;
+    auto dest = &damage->damage[i];
+
+    dest->left = src.pos.x;
+    dest->right = src.pos.x + src.size.x;
+    dest->top = src.pos.y;
+    dest->bottom = src.pos.y + src.size.y;
+  }
 }

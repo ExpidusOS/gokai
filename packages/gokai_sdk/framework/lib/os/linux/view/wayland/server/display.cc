@@ -203,22 +203,6 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
       auto render_egl = static_cast<Gokai::Framework::os::Linux::Graphics::Rendering::EGL::Wayland::Server::Renderer*>(self->renderer);
 
       wlr_output_attach_buffer(self->value, render_egl->buffer->getBuffer());
-
-      pixman_region32_t damage;
-      std::vector<pixman_box32_t> damage_boxes;
-      for (const auto& dmg : render_egl->damage) {
-        pixman_box32_t box;
-        box.x1 = dmg.pos.x;
-        box.y1 = dmg.pos.y;
-        box.x2 = dmg.size.x + dmg.pos.x;
-        box.y2 = dmg.size.y + dmg.pos.y;
-        damage_boxes.push_back(box);
-      }
-
-      pixman_region32_init_rects(&damage, damage_boxes.data(), damage_boxes.size());
-      wlr_output_set_damage(self->value, &damage);
-      render_egl->damage.clear();
-      pixman_region32_fini(&damage);
     } else {
       wlr_output_attach_render(self->value, nullptr);
       wlr_renderer_begin(renderer, self->value->width, self->value->height);
