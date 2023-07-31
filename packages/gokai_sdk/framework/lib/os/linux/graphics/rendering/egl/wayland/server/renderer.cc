@@ -139,6 +139,8 @@ uint32_t Renderer::fbo_with_frame_info_callback(void* data, const FlutterFrameIn
 }
 
 bool Renderer::present_with_info_callback(void* data, const FlutterPresentInfo* info) {
+  glFlush();
+
   auto engine = static_cast<Gokai::Flutter::Engine*>(data);
   if (engine->isShutdown()) return false;
 

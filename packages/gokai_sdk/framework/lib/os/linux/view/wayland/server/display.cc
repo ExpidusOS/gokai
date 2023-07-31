@@ -202,24 +202,7 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
     } else if (wlr_renderer_is_gles2(renderer)) {
       auto render_egl = static_cast<Gokai::Framework::os::Linux::Graphics::Rendering::EGL::Wayland::Server::Renderer*>(self->renderer);
 
-      float mat[9];
-      wlr_matrix_identity(mat);
-
-      struct wlr_box box = {
-        .x = 0,
-        .y = 0,
-        .width = self->value->width,
-        .height = self->value->height,
-      };
-
-      auto transform = (enum wl_output_transform)(self->value->transform);
-      wlr_matrix_project_box(mat, &box, transform, 0, self->value->transform_matrix);
-
-      wlr_output_attach_render(self->value, nullptr);
-      wlr_renderer_begin(renderer, self->value->width, self->value->height);
-      wlr_renderer_clear(renderer, (const float[4]){ 0, 0.0, 0, 1.0 });
-      wlr_render_texture_with_matrix(renderer, render_egl->buffer->getTexture(), mat, 1.0);
-      wlr_renderer_end(renderer);
+      wlr_output_attach_buffer(self->value, render_egl->buffer->getBuffer());
 
       pixman_region32_t damage;
       std::vector<pixman_box32_t> damage_boxes;
