@@ -133,6 +133,11 @@ Context::Context(ObjectArguments arguments) : Loggable(TAG, arguments), method_c
       if (call.method.compare("getPackageDataDir") == 0) {
         return this->method_codec.encodeSuccessEnvelope(this->getPackageDataDir());
       }
+
+      if (call.method.compare("quit") == 0) {
+        uv_stop(this->loop);
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+      }
       return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));
     });
   });
