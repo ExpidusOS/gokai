@@ -4,12 +4,11 @@ packages:
   arena_listener:
     dependency: transitive
     description:
-      path: "."
-      ref: "fix/flutter-3.10.5"
-      resolved-ref: "8c5b2f35a726ffa8647c18974e676658539b06ba"
-      url: "https://github.com/ExpidusOS/arena_listener"
-    source: git
-    version: "0.0.1"
+      name: arena_listener
+      sha256: fa0238160909432d5b6e975b9c5bd4e8dd79e1019a7b5d658f1a909d320fdb75
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   async:
     dependency: transitive
     description:
@@ -285,5 +284,5 @@ packages:
     source: hosted
     version: "3.0.2"
 sdks:
-  dart: ">=3.0.5 <4.0.0"
+  dart: ">=3.0.0 <4.0.0"
   flutter: ">=3.3.0"
