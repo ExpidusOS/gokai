@@ -50,4 +50,8 @@ class GokaiNativePlatform extends GokaiPlatform {
   @override
   Future<String> getPackageDataDir() async
     => (await methodChannel.invokeMethod<String>('getPackageDataDir'))!;
+
+  @override
+  Future<bool> quit() async
+    => (await methodChannel.invokeMethod<bool>('quit'))!;
 }

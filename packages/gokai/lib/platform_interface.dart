@@ -42,4 +42,8 @@ abstract class GokaiPlatform extends PlatformInterface {
   Future<String> getPackageDataDir() {
     throw UnimplementedError('getPackageDataDir() has not been implemented.');
   }
+
+  Future<bool> quit() {
+    throw UnimplementedError('quit() has not been implemented.');
+  }
 }

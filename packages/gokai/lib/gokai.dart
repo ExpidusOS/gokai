@@ -39,4 +39,6 @@ class GokaiContext {
     _hasInitialized = true;
     return this;
   }
+
+  Future<bool> quit() async => _instance.quit();
 }
