@@ -48,6 +48,7 @@ namespace Gokai {
                       static uint32_t fbo_with_frame_info_callback(void* data, const FlutterFrameInfo* info);
                       static bool present_with_info_callback(void* data, const FlutterPresentInfo* info);
                       static bool gl_external_texture_frame_callback(void* data, int64_t tid, size_t width, size_t height, FlutterOpenGLTexture* out);
+                      static FlutterTransformation surface_transformation(void* data);
                   };
                 }
               }

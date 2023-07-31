@@ -70,6 +70,7 @@ Renderer::Renderer(Gokai::ObjectArguments arguments) : Gokai::Graphics::Renderer
   this->config.open_gl.make_resource_current = Renderer::make_resource_current_callback;
   this->config.open_gl.present_with_info = Renderer::present_with_info_callback;
   this->config.open_gl.gl_external_texture_frame_callback = Renderer::gl_external_texture_frame_callback;
+  this->config.open_gl.surface_transformation = Renderer::surface_transformation;
 }
 
 Renderer::~Renderer() {
@@ -172,4 +173,13 @@ bool Renderer::gl_external_texture_frame_callback(void* data, int64_t tid, size_
     return true;
   }
   return false;
+}
+
+FlutterTransformation Renderer::surface_transformation(void* data) {
+  auto engine = static_cast<Gokai::Flutter::Engine*>(data);
+  auto self = static_cast<Renderer*>(engine->getRenderer());
+  auto rect = self->buffer->getRect();
+  return FlutterTransformation{
+    1.0, 0.0, 0.0, 0.0, -1.0, rect.size.y, 0.0, 0.0, 1.0,
+	};
 }

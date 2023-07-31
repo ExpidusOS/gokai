@@ -212,7 +212,7 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
         .height = self->value->height,
       };
 
-      auto transform = (enum wl_output_transform)(self->value->transform | WL_OUTPUT_TRANSFORM_180 | WL_OUTPUT_TRANSFORM_FLIPPED);
+      auto transform = (enum wl_output_transform)(self->value->transform);
       wlr_matrix_project_box(mat, &box, transform, 0, self->value->transform_matrix);
 
       wlr_output_attach_render(self->value, nullptr);
