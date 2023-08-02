@@ -20,18 +20,7 @@
     with expidus-sdk.lib;
     flake-utils.eachSystem flake-utils.allSystems (system:
       let
-        pkgs = expidus-sdk.legacyPackages.${system}.appendOverlays [
-          (f: p: {
-            wayland-protocols = p.wayland-protocols.overrideAttrs (o: rec {
-              version = "1.31";
-
-              src = p.fetchurl {
-                url = "https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/${version}/downloads/wayland-protocols-${version}.tar.xz";
-                hash = "sha256-oH+nIu2HZ27AINhncUvJovJMRk2nORLzlwbu71IZ4jg=";
-              };
-            });
-          })
-        ];
+        pkgs = expidus-sdk.legacyPackages.${system};
 
         supportsLinuxDesktop = pkgs.stdenv.hostPlatform.isLinux;
         supportsAndroid = (pkgs.stdenv.hostPlatform.isx86_64 || pkgs.stdenv.hostPlatform.isDarwin);

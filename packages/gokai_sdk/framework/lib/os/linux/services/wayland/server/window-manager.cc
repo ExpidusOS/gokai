@@ -16,7 +16,7 @@ WindowManager::WindowManager(Gokai::ObjectArguments arguments) : Gokai::Services
   this->new_toplevel_decoration_listener.notify = WindowManager::new_toplevel_decoration_handle;
   wl_signal_add(&this->decoration_manager->events.new_toplevel_decoration, &this->new_toplevel_decoration_listener);
 
-  this->xdg_shell = wlr_xdg_shell_create(compositor->getDisplay(), xdg_wm_base_interface.version);
+  this->xdg_shell = wlr_xdg_shell_create(compositor->getDisplay(), 5);
 
   this->new_xdg_surface_listener.notify = WindowManager::new_xdg_surface_handle;
   wl_signal_add(&this->xdg_shell->events.new_surface, &this->new_xdg_surface_listener);
