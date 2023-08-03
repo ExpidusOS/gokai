@@ -13,13 +13,16 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
 
   wlr_output_init_render(value, compositor->getAllocator(), compositor->getRenderer());
 
-  if (!wl_list_empty(&value->modes)) {
-    struct wlr_output_mode* mode = wlr_output_preferred_mode(value);
+  struct wlr_output_mode* mode = wlr_output_preferred_mode(value);
+  if (mode != nullptr) {
+    self->logger->debug("Display {} is being activated with a resolution", value->name);
     wlr_output_set_mode(value, mode);
  		wlr_output_enable(value, true);
  		if (!wlr_output_commit(value)) {
  		  return;
  		}
+  } else {
+    self->logger->warn("Display {} has no mode", value->name);
   }
 
   try {
