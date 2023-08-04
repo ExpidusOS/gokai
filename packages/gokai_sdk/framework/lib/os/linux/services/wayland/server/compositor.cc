@@ -101,6 +101,10 @@ Compositor::Compositor(Gokai::ObjectArguments arguments) : Gokai::Services::Comp
     }
   }
 
+  if (this->renderer == nullptr) {
+    throw std::runtime_error("Failed to create the wlroots renderer");
+  }
+
   this->allocator = wlr_allocator_autocreate(this->backend, this->renderer);
 
   wlr_renderer_init_wl_display(this->renderer, this->display);
