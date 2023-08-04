@@ -14,7 +14,12 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
   wlr_output_init_render(value, compositor->getAllocator(), compositor->getRenderer());
 
   struct wlr_output_mode* mode = wlr_output_preferred_mode(value);
+  if (mode == nullptr && !wl_list_empty(&value->modes)) {
+    mode = wl_container_of(value->modes.next, mode, link);
+  }
+
   if (mode != nullptr) wlr_output_set_mode(value, mode);
+  else self->logger->debug("Display {} has no modes", value->name);
 
  	wlr_output_enable(value, true);
   if (!wlr_output_commit(value)) {
