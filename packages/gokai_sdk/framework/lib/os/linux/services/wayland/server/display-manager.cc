@@ -18,6 +18,9 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
     self->logger->debug("Display {} is being activated with a resolution", value->name);
     wlr_output_set_mode(value, mode);
   } else {
+    wl_list_for_each(mode, &value->modes, link) {
+      if (mode->link.next == nullptr) break;
+    }
     self->logger->warn("Display {} has no mode", value->name);
   }
 
