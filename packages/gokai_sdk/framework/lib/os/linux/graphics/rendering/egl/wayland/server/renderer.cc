@@ -82,6 +82,10 @@ FlutterRendererConfig* Renderer::getConfig() {
   return &this->config;
 }
 
+glm::uvec2 Renderer::getSize() {
+  return this->buffer->getRect().size;
+}
+
 void Renderer::resize(glm::uvec2 size) {
   struct wlr_dmabuf_attributes attribs;
   wlr_buffer_get_dmabuf(this->buffer->getBuffer(), &attribs);
