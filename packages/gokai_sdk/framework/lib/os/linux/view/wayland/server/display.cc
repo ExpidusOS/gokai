@@ -181,6 +181,10 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
 		  : 60);
 
   try {
+    wlr_output_attach_render(self->value, nullptr);
+    wlr_renderer_begin(renderer, self->value->width, self->value->height);
+    wlr_renderer_clear(renderer, (const float[4]){ 0, 0.0, 0, 1.0 });
+
     if (wlr_renderer_is_pixman(renderer)) {
       wlr_output_attach_render(self->value, nullptr);
       auto img = wlr_pixman_renderer_get_current_image(renderer);
@@ -199,16 +203,26 @@ void Display::フレーム(struct wl_listener* listener, void* data) {
       }));
 
       self->renderer->render(target);
+      // TODO: use wlr_pixman_texture_get_image() and something similar to EGL rendering
     } else if (wlr_renderer_is_gles2(renderer)) {
       auto render_egl = static_cast<Gokai::Framework::os::Linux::Graphics::Rendering::EGL::Wayland::Server::Renderer*>(self->renderer);
 
-      wlr_output_attach_buffer(self->value, render_egl->buffer->getBuffer());
-    } else {
-      wlr_output_attach_render(self->value, nullptr);
-      wlr_renderer_begin(renderer, self->value->width, self->value->height);
-      wlr_renderer_clear(renderer, (const float[4]){ 0, 0.0, 0, 1.0 });
-      wlr_renderer_end(renderer);
+      float mat[9];
+      wlr_matrix_identity(mat);
+
+      struct wlr_box box = {
+        .x = 0,
+        .y = 0,
+        .width = self->value->width,
+        .height = self->value->height,
+      };
+
+      wlr_matrix_project_box(mat, &box, self->value->transform, 0, self->value->transform_matrix);
+      wlr_render_texture_with_matrix(renderer, render_egl->buffer->getTexture(), mat, 1.0);
     }
+
+    wlr_output_render_software_cursors(self->value, nullptr);
+    wlr_renderer_end(renderer);
   } catch (const std::exception& ex) {
     self->logger->error("Failed to render: {}", ex.what());
   }
