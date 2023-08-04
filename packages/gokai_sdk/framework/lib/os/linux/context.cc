@@ -180,10 +180,6 @@ ContextDisplayBackend Context::getDisplayBackend() {
   return this->display_backend;
 }
 
-std::string Context::getPackageDir() {
-  return Gokai::os::Paths::getRuntimePath();
-}
-
 std::string Context::getPackageConfigDir() {
   return std::filesystem::path(xdgConfigHome(&this->xdg_handle)) / this->getPackageName();
 }

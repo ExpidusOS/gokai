@@ -1,4 +1,5 @@
 #include <gokai/context.h>
+#include <gokai/os/paths.h>
 #include <gokai/services/compositor.h>
 #include <gokai/services/display-manager.h>
 #include <gokai/services/package-manager.h>
@@ -214,7 +215,7 @@ std::string Context::getPackageName() {
 }
 
 std::string Context::getPackageDir() {
-  return std::string();
+  return Gokai::os::Paths::getRuntimePath();
 }
 
 std::string Context::getPackageConfigDir() {

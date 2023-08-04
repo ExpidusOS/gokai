@@ -36,7 +36,6 @@ namespace Gokai {
             ~Context();
 
             ContextDisplayBackend getDisplayBackend();
-            std::string getPackageDir() override;
             std::string getPackageConfigDir() override;
           private:
             ContextDisplayBackend display_backend;
