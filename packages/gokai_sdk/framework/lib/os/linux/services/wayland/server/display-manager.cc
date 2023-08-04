@@ -14,13 +14,14 @@ void DisplayManager::handle_display_new(struct wl_listener* listener, void* data
   wlr_output_init_render(value, compositor->getAllocator(), compositor->getRenderer());
 
   struct wlr_output_mode* mode = wlr_output_preferred_mode(value);
-  if (mode != nullptr) {
+  if (mode == nullptr) {
     wl_list_for_each(mode, &value->modes, link) {
       if (mode->link.next == nullptr) break;
     }
   }
 
-  wlr_output_set_mode(value, mode);
+  if (mode != nullptr) wlr_output_set_mode(value, mode);
+
  	wlr_output_enable(value, true);
   if (!wlr_output_commit(value)) {
  		return;
