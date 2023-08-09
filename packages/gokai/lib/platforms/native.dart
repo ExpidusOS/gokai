@@ -55,3 +55,5 @@ class GokaiNativePlatform extends GokaiPlatform {
   Future<bool> quit() async
     => (await methodChannel.invokeMethod<bool>('quit'))!;
 }
+
+typedef GokaiTargetPlatform = GokaiWebPlatform;

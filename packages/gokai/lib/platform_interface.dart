@@ -1,5 +1,5 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:gokai/platforms/native.dart';
+import 'package:gokai/platforms/web.dart' if (dart.library.ffi) 'package:gokai/platforms/native.dart';
 import 'package:gokai/constants.dart';
 import 'package:gokai/service.dart';
 
@@ -7,7 +7,7 @@ abstract class GokaiPlatform extends PlatformInterface {
   GokaiPlatform() : super(token: _token);
 
   static final Object _token = Object();
-  static GokaiPlatform _instance = GokaiNativePlatform();
+  static GokaiPlatform _instance = GokaiTargetPlatform();
   static GokaiPlatform get instance => _instance;
 
   static set instance(GokaiPlatform instance) {
