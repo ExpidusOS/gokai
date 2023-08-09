@@ -1,3 +1,4 @@
+import 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:gokai/services/account_manager.dart';
@@ -17,5 +18,18 @@ class GokaiWebAccountManager extends GokaiAccountManager {
 
   @override
   Future<List<GokaiUserID>> getIds() async
-    => [];
+    => [ await getCurrentId() ];
+
+  @override
+  Future<GokaiUserAccount> get(GokaiUserID id) async {
+    if (id != await getCurrentId()) throw Exception('User does not exist');
+    return GokaiUserAccount(
+      id: id,
+      language: window.navigator.language,
+      displayName: 'Web',
+      picture: null,
+      isSystem: false,
+      isAdministrator: false,
+    );
+  }
 }
