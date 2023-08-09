@@ -22,7 +22,8 @@ class GokaiWebAccountManager extends GokaiAccountManager {
 
   @override
   Future<GokaiUserAccount> get(GokaiUserID id) async {
-    if (id != await getCurrentId()) throw Exception('User does not exist');
+    final curr = await getCurrentId();
+    if (id.type != curr.type || id.value != curr.value) throw Exception('User does not exist');
     return GokaiUserAccount(
       id: id,
       language: window.navigator.language,
