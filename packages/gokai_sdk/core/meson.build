@@ -51,6 +51,7 @@ libgokai_core_src = [
   'lib/services/package-manager.cc',
   'lib/services/plugin-manager.cc',
   'lib/services/power-manager.cc',
+  'lib/services/storage-manager.cc',
   'lib/services/texture-manager.cc',
   'lib/services/window-manager.cc',
   'lib/user/account.cc',
