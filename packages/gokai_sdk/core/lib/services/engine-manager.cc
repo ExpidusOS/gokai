@@ -43,7 +43,7 @@ EngineManager::EngineManager(Gokai::ObjectArguments arguments) : Service(argumen
             return this->method_codec.encodeSuccessEnvelope("display");
         }
 
-        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("\"{}\" is not valid", type), std::make_any<void*>(nullptr));
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("\"{}\" is not valid", (uint8_t)type), std::make_any<void*>(nullptr));
       }
 
       if (call.method.compare("getViewName") == 0) {

@@ -35,7 +35,7 @@ std::any ID::toAny() {
     case guid: return std::any(this->data.guid.str());
     case uid: return std::any(this->data.uid);
     default:
-      throw std::runtime_error(fmt::format("Invalid type {}", this->type));
+      throw std::runtime_error(fmt::format("Invalid type {}", (uint8_t)this->type));
   }
 }
 

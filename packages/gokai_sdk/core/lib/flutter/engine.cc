@@ -54,7 +54,7 @@ void Engine::platform_message_callback(const FlutterPlatformMessage* message, vo
     );
 
     if (result != kSuccess) {
-      self->logger->error("Failed to send response for engine {} on service channel \"{}\": {}", self->id.str(), message->channel, result);
+      self->logger->error("Failed to send response for engine {} on service channel \"{}\": {}", self->id.str(), message->channel, (uint8_t)result);
     }
   };
 
@@ -184,7 +184,7 @@ Engine::Engine(Gokai::ObjectArguments arguments)
 
     auto result = FlutterEngineCreateAOTData(&src, &this->args.aot_data);
     if (result != kSuccess) {
-      throw std::runtime_error(fmt::format("Failed to create AOT data: {}", result));
+      throw std::runtime_error(fmt::format("Failed to create AOT data: {}", (uint8_t)result));
     }
   }
 
@@ -196,7 +196,7 @@ Engine::Engine(Gokai::ObjectArguments arguments)
     &this->value
   );
   if (result != kSuccess) {
-    throw std::runtime_error(fmt::format("Failed to initialize the engine: {}", result));
+    throw std::runtime_error(fmt::format("Failed to initialize the engine: {}", (uint8_t)result));
   }
 
   uv_timer_init(this->context->getLoop(), &this->event_runner);
@@ -205,7 +205,7 @@ Engine::Engine(Gokai::ObjectArguments arguments)
   this->logger->debug("Flutter engine {} has initialized", this->id.str());
 
   if ((result = FlutterEngineRunInitialized(this->value)) != kSuccess) {
-    throw std::runtime_error(fmt::format("Failed to start the engine: {}", result));
+    throw std::runtime_error(fmt::format("Failed to start the engine: {}", (uint8_t)result));
   }
 
   auto size = this->renderer->getSize();
@@ -372,7 +372,7 @@ void Engine::event_callback(uv_timer_t* event_runner) {
     self->logger->debug("Executing task {}", task.second.task);
     auto result = FlutterEngineRunTask(self->getValue(), &task.second);
     if (result != kSuccess) {
-      self->logger->warn("Failed to execute task {}: {}", task.second.task, result);
+      self->logger->warn("Failed to execute task {}: {}", task.second.task, (uint8_t)result);
     }
   }
 }

@@ -127,7 +127,7 @@ static std::any value2any(Gokai::Memory::ReadBuffer* buffer) {
         return value;
       }
     default:
-      throw std::runtime_error(fmt::format("Unknown type ID {}", type));
+      throw std::runtime_error(fmt::format("Unknown type ID {}", (uint32_t)type));
   }
 }
 
