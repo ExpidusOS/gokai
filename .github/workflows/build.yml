@@ -34,7 +34,7 @@ jobs:
 
           git clone https://aur.archlinux.org/libcrossguid-git.git
           pushd libcrossguid-git
-          makepkg -i --noconfirm
+          sudo su -u nobody makepkg -i --noconfirm
           popd
       - name: Configure
         run: meson setup packages/gokai_sdk builddir -Dprefix=/usr -Dflutter-engine=$(readlink -e flutter-engine) -Dbuildtype=${{ matrix.buildtype }}
