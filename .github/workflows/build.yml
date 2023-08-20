@@ -61,5 +61,8 @@ jobs:
           cp flutter-engine/flutter_embedder.h installdir/usr/include
           cp flutter-engine/libflutter_engine.so.${{ matrix.mode }} installdir/usr/lib/libflutter_engine.so
           cp flutter-engine/icudtl.dat installdir/usr/lib/gokai
-          # TODO: make installdir an artifact
-          find installdir
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: ${{ matrix.engine }}-${{ matrix.target }}-${{ matrix.mode }}-${{ matrix.buildtype }}
+          path: installdir/*
