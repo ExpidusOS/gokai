@@ -29,8 +29,13 @@ jobs:
           pacman -Syu --noconfirm
           pacman -S --noconfirm base-devel meson pkg-config ninja wayland wayland-protocols \
             wlroots libuv libxdg-basedir spdlog glib2 packagekit yaml-cpp udev glm cairo \
-            libglvnd vulkan-icd-loader libcrossguid util-linux-libs jsoncpp libxkbcommon accountsservice \
+            libglvnd vulkan-icd-loader util-linux-libs jsoncpp libxkbcommon accountsservice \
             libdrm libevdev upower
+
+          git clone https://aur.archlinux.org/libcrossguid-git.git
+          pushd libcrossguid-git
+          makepkg -i --noconfirm
+          popd
       - name: Configure
         run: meson setup packages/gokai_sdk builddir -Dprefix=/usr -Dflutter-engine=$(readlink -e flutter-engine) -Dbuildtype=${{ matrix.buildtype }}
       - name: Build
