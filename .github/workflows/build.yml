@@ -37,8 +37,7 @@ jobs:
             chmod -R a+w $name-git
             pushd $name-git
             sudo -u nobody makepkg --noconfirm
-            ls
-            # TODO: install
+            pacman --noconfirm -U $name-git*.pkg.tar.zst
             popd
           done
 
