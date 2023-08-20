@@ -28,9 +28,17 @@ jobs:
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm base-devel meson pkg-config ninja wayland wayland-protocols \
-            wlroots libuv libxdg-basedir spdlog glib2 packagekit yaml-cpp udev glm cairo \
+            wlroots libuv libxdg-basedir glib2 packagekit yaml-cpp udev glm cairo \
             libglvnd vulkan-icd-loader util-linux-libs jsoncpp libxkbcommon accountsservice \
             libdrm libevdev upower git cmake
+
+          for name in fmt spdlog; do
+            git clone https://aur.archlinux.org/$name-git.git
+            chmod -R a+w $name-git
+            pushd $name-git
+            sudo -u nobody makepkg -i --noconfirm
+            popd
+          done
 
           git clone https://github.com/graeme-hill/crossguid crossguid
           curl -L "https://raw.githubusercontent.com/graeme-hill/crossguid/1eb9bea38c320b2b588635cffceaaa2a8d434780/include/crossguid/guid.hpp" -o crossguid/include/crossguid/guid.hpp
