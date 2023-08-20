@@ -36,7 +36,9 @@ jobs:
             git clone https://aur.archlinux.org/$name-git.git
             chmod -R a+w $name-git
             pushd $name-git
-            sudo -u nobody makepkg -i --noconfirm
+            sudo -u nobody makepkg --noconfirm
+            ls
+            # TODO: install
             popd
           done
 
