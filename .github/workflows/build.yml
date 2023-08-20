@@ -1,0 +1,45 @@
+name: Build
+
+on: [pull_request, push]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        target: [x64-generic]
+        engine: [cdbeda788a293fa29665dc3fa3d6e63bd221cb0d]
+        mode: [release]
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fetch Engine
+        run: |
+          curl -L "https://github.com/ardera/flutter-ci/releases/download/engine%2F${{ matrix.engine }}/${{ matrix.target }}.tar.xz" -o flutter-engine.tar.xz
+          mkdir flutter-engine
+          tar -zf flutter-engine.tar.xz -C flutter-engine
+          pushd flutter-engine
+          ln -s libflutter_engine.so.${{ matrix.mode }} libflutter_engine.so
+          popd
+          rm flutter-engine.tar.xz
+      - name: Install dependencies
+        run: |
+          pacman -Syu
+          pacman -S base-devel meson pkg-config ninja wayland wayland-protocols \
+            wlroots libxdg-basedir spdlog glib packagekit yaml-cpp udev glm cairo \
+            libglvnd vulkan-loader crossguid libuuid jsoncpp libxkbcommon accountsservice \
+            libdrm libevdev upower
+      - name: Configure
+        run: meson setup . builddir -Dprefix=/usr -Dflutter-engine=flutter-engine
+      - name: Build
+        run: ninja -C builddir
+      - name: Install
+        run: |
+          mkdir installdir
+          DESTDIR=$(readlink -e installdir) ninja -C builddir install
+          cp flutter-engine/flutter_embedder.h installdir/usr/include
+          cp flutter-engine/libflutter_engine.so.${{ matrix.mode }} installdir/usr/lib/libflutter_engine.so
+          cp flutter-engine/icudtl.dat installdir/usr/lib/gokai
+          # TODO: make installdir an artifact
+          find installdir
