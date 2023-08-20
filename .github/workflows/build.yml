@@ -9,6 +9,7 @@ jobs:
         target: [x64-generic]
         engine: [cdbeda788a293fa29665dc3fa3d6e63bd221cb0d]
         mode: [release]
+        buildtype: [release]
     runs-on: ubuntu-latest
     container: archlinux:latest
     continue-on-error: true
@@ -31,7 +32,7 @@ jobs:
             libglvnd vulkan-icd-loader libcrossguid util-linux-libs jsoncpp libxkbcommon accountsservice \
             libdrm libevdev upower
       - name: Configure
-        run: meson setup packages/gokai_sdk builddir -Dprefix=/usr -Dflutter-engine=flutter-engine
+        run: meson setup packages/gokai_sdk builddir -Dprefix=/usr -Dflutter-engine=$(readlink -e flutter-engine) -Dbuildtype=${{ matrix.buildtype }}
       - name: Build
         run: ninja -C builddir
       - name: Install
