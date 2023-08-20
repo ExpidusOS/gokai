@@ -3,7 +3,7 @@ name: Build
 on: [pull_request, push]
 
 jobs:
-  build:
+  sdk:
     strategy:
       matrix:
         target: [x64-generic]
@@ -16,7 +16,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: Fetch Engine
         run: |
-          ls
           curl -L "https://github.com/ardera/flutter-ci/releases/download/engine%2F${{ matrix.engine }}/${{ matrix.target }}.tar.xz" -o flutter-engine.tar.xz
           mkdir flutter-engine
           tar -xf flutter-engine.tar.xz -C flutter-engine
@@ -32,7 +31,7 @@ jobs:
             libglvnd vulkan-icd-loader libcrossguid util-linux-libs jsoncpp libxkbcommon accountsservice \
             libdrm libevdev upower
       - name: Configure
-        run: meson setup . builddir -Dprefix=/usr -Dflutter-engine=flutter-engine
+        run: meson setup packages/gokai_sdk builddir -Dprefix=/usr -Dflutter-engine=flutter-engine
       - name: Build
         run: ninja -C builddir
       - name: Install
