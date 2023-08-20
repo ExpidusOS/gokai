@@ -71,7 +71,7 @@ void InputManager::handle_input_new(struct wl_listener* listener, void* data) {
       }
       break;
     default:
-      self->logger->warn("Unknown device type {}", value->type);
+      self->logger->warn("Unknown device type {}", (uint16_t)value->type);
       return;
   }
 
