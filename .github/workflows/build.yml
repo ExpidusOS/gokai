@@ -28,7 +28,7 @@ jobs:
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm base-devel meson pkg-config ninja wayland wayland-protocols \
-            wlroots libxdg-basedir spdlog glib2 packagekit yaml-cpp udev glm cairo \
+            wlroots libuv libxdg-basedir spdlog glib2 packagekit yaml-cpp udev glm cairo \
             libglvnd vulkan-icd-loader libcrossguid util-linux-libs jsoncpp libxkbcommon accountsservice \
             libdrm libevdev upower
       - name: Configure
