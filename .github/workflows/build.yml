@@ -32,10 +32,14 @@ jobs:
             libglvnd vulkan-icd-loader util-linux-libs jsoncpp libxkbcommon accountsservice \
             libdrm libevdev upower git cmake
 
-          git clone https://aur.archlinux.org/libcrossguid-git.git
-          chmod -R a+w libcrossguid-git
-          pushd libcrossguid-git
-          sudo -u nobody makepkg -i --noconfirm
+          git clone https://github.com/graeme-hill/crossguid crossguid
+          curl -L "https://raw.githubusercontent.com/graeme-hill/crossguid/1eb9bea38c320b2b588635cffceaaa2a8d434780/include/crossguid/guid.hpp" -o crossguid/include/crossguid/guid.hpp
+          pushd crossguid
+          cmake .
+          make
+          install -D -m644 libcrossguid.a /usr/lib/libcrossguid.a
+          install -D -m644 include/crossguid/guid.hpp /usr/include/crossguid/guid.hpp
+          install -D -m644 crossguid.pc /usr/lib/pkgconfig/crossguid.pc
           popd
       - name: Configure
         run: meson setup packages/gokai_sdk builddir -Dprefix=/usr -Dflutter-engine=$(readlink -e flutter-engine) -Dbuildtype=${{ matrix.buildtype }}
