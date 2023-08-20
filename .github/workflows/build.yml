@@ -33,6 +33,7 @@ jobs:
             libdrm libevdev upower git
 
           git clone https://aur.archlinux.org/libcrossguid-git.git
+          chmod -R 0755 libcrossguid-git
           pushd libcrossguid-git
           sudo -u nobody makepkg -i --noconfirm
           popd
