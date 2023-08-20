@@ -1,9 +1,9 @@
-name: Build
+name: Build SDK
 
 on: [pull_request, push]
 
 jobs:
-  sdk:
+  linux:
     strategy:
       matrix:
         target: [x64-generic]
@@ -61,6 +61,15 @@ jobs:
           cp flutter-engine/flutter_embedder.h installdir/usr/include
           cp flutter-engine/libflutter_engine.so.${{ matrix.mode }} installdir/usr/lib/libflutter_engine.so
           cp flutter-engine/icudtl.dat installdir/usr/lib/gokai
+          cp flutter-engine/dart-sdk.version installdir/usr/lib/gokai
+          cp flutter-engine/engine.version installdir/usr/lib/gokai
+
+          target=$(echo ${{ matrix.target }} | cut -f1 -d '-')
+          if [[ -f flutter-engine/gen_snapshot_linux_$target_${{ matrix.mode }} ]]; then
+            cp flutter-engine/gen_snapshot_linux_$target_${{ matrix.mode }} installdir/usr/lib/gokai/gen_snapshot
+          else
+            cp flutter-engine/gen_snapshot_linux_$target_release installdir/usr/lib/gokai/gen_snapshot
+          fi
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.2
         with:
