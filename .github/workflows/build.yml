@@ -28,7 +28,7 @@ jobs:
           pacman -Syu --noconfirm
           pacman -S --noconfirm base-devel meson pkg-config ninja wayland wayland-protocols \
             wlroots libxdg-basedir spdlog glib packagekit yaml-cpp udev glm cairo \
-            libglvnd vulkan-loader crossguid libuuid jsoncpp libxkbcommon accountsservice \
+            libglvnd vulkan-icd-loader libcrossguid util-linux-libs jsoncpp libxkbcommon accountsservice \
             libdrm libevdev upower
       - name: Configure
         run: meson setup . builddir -Dprefix=/usr -Dflutter-engine=flutter-engine
