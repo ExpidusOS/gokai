@@ -18,7 +18,7 @@ jobs:
         run: |
           curl -L "https://github.com/ardera/flutter-ci/releases/download/engine%2F${{ matrix.engine }}/${{ matrix.target }}.tar.xz" -o flutter-engine.tar.xz
           mkdir flutter-engine
-          tar -zf flutter-engine.tar.xz -C flutter-engine
+          tar -xf flutter-engine.tar.xz -C flutter-engine
           pushd flutter-engine
           ln -s libflutter_engine.so.${{ matrix.mode }} libflutter_engine.so
           popd
