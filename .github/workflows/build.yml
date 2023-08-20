@@ -25,8 +25,8 @@ jobs:
           rm flutter-engine.tar.xz
       - name: Install dependencies
         run: |
-          pacman -Syu
-          pacman -S base-devel meson pkg-config ninja wayland wayland-protocols \
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel meson pkg-config ninja wayland wayland-protocols \
             wlroots libxdg-basedir spdlog glib packagekit yaml-cpp udev glm cairo \
             libglvnd vulkan-loader crossguid libuuid jsoncpp libxkbcommon accountsservice \
             libdrm libevdev upower
