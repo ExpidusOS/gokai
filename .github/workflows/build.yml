@@ -8,8 +8,8 @@ jobs:
       matrix:
         target: [x64-generic]
         engine: [cdbeda788a293fa29665dc3fa3d6e63bd221cb0d]
-        mode: [release]
-        buildtype: [release]
+        mode: [release, profile, debug]
+        buildtype: [release, debug]
     runs-on: ubuntu-latest
     container: archlinux:latest
     continue-on-error: true
