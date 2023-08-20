@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Fetch Engine
         run: |
+          ls
           curl -L "https://github.com/ardera/flutter-ci/releases/download/engine%2F${{ matrix.engine }}/${{ matrix.target }}.tar.xz" -o flutter-engine.tar.xz
           mkdir flutter-engine
           tar -xf flutter-engine.tar.xz -C flutter-engine
