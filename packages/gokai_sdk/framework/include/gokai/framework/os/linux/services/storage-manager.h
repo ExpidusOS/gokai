@@ -11,6 +11,8 @@ namespace Gokai {
           class StorageManager : public Gokai::Services::StorageManager {
             public:
               StorageManager(Gokai::ObjectArguments arguments);
+
+              Gokai::FS::Entry open(std::filesystem::path path) override;
           };
         }
       }
