@@ -112,12 +112,6 @@
           sdk = pkgs.expidus.gokai.overrideAttrs (f: p: {
             version = "0.1.0-git+${self.shortRev or "dirty"}";
             src = cleanSource self;
-
-            buildInputs = p.buildInputs
-              ++ (with pkgs; [
-                libevdev
-                upower
-              ]);
           });
 
           sdk-debug = self.packages.${system}.sdk.overrideAttrs (_: _: {

@@ -27,6 +27,27 @@ flutter_engine = cpp.find_library('flutter_engine',
   header_include_directories: [include_directories(flutter_engine_dir)],
   required: true)
 
+if target_machine.system() == 'linux' or target_machine.system() == 'android'
+  libprefix = 'lib'
+  libsuffix = '.so'
+elif target_machine.system() == 'windows'
+  libprefix = ''
+  libsuffix = '.dll'
+elif target_machine.system() == 'darwin'
+  libprefix = ''
+  libsuffix = '.dylib'
+endif
+
+install_headers(flutter_engine_dir / 'flutter_embedder.h')
+install_data(flutter_engine_dir / 'icudtl.dat',
+  install_dir: libdir / 'gokai')
+install_data(flutter_engine_dir / '@0@flutter_engine@1@'.format(libprefix, libsuffix),
+  install_mode: 'rwxr-xr-x',
+  install_dir: libdir)
+install_data(flutter_engine_dir / 'gen_snapshot',
+  install_mode: 'rwxr-xr-x',
+  install_dir: libexecdir / 'gokai')
+
 spdlog = dependency('spdlog')
 libuv = dependency('libuv')
 yaml_cpp = dependency('yaml-cpp')
