@@ -21,8 +21,11 @@ namespace Gokai {
               bool existsSync() override;
               void copySync(std::filesystem::path path) override;
               Gokai::FS::EntryStat statSync() override;
-            private:
+
+              Gokai::FS::DirectoryEntry toDirectory() override;
+            protected:
               GVfs* fs;
+            private:
               GFile* value;
           };
         }
