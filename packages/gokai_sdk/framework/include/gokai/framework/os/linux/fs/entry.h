@@ -15,7 +15,14 @@ namespace Gokai {
               ~Entry();
 
               GFile* getValue();
+
+              Gokai::FS::Entry renameSync(std::filesystem::path path) override;
+              bool deleteSync() override;
+              bool existsSync() override;
+              void copySync(std::filesystem::path path) override;
+              Gokai::FS::EntryStat statSync() override;
             private:
+              GVfs* fs;
               GFile* value;
           };
         }

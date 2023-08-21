@@ -34,6 +34,8 @@ struct EntryStatEvent {
   }
 };
 
+EntryStat::EntryStat() {}
+
 EntryStat::EntryStat(uv_stat_t stat, std::filesystem::path path) {
   this->path = path;
   this->type = std::filesystem::directory_entry(path).status().type();

@@ -35,6 +35,7 @@ namespace Gokai {
       std::chrono::time_point<std::chrono::system_clock> ctime;
       std::chrono::time_point<std::chrono::system_clock> btime;
 
+      EntryStat();
       EntryStat(uv_stat_t stat, std::filesystem::path path);
       EntryStat(Gokai::Context* context, std::filesystem::path path);
 
