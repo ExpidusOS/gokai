@@ -65,10 +65,10 @@ jobs:
           cp flutter-engine/engine.version installdir/usr/lib/gokai
 
           target=$(echo ${{ matrix.target }} | cut -f1 -d '-')
-          if [[ -f flutter-engine/gen_snapshot_linux_$target_${{ matrix.mode }} ]]; then
-            cp flutter-engine/gen_snapshot_linux_$target_${{ matrix.mode }} installdir/usr/lib/gokai/gen_snapshot
+          if [[ -f flutter-engine/gen_snapshot_linux_${target}_${{ matrix.mode }} ]]; then
+            cp flutter-engine/gen_snapshot_linux_${target}_${{ matrix.mode }} installdir/usr/lib/gokai/gen_snapshot
           else
-            cp flutter-engine/gen_snapshot_linux_$target_release installdir/usr/lib/gokai/gen_snapshot
+            cp flutter-engine/gen_snapshot_linux_${target}_release installdir/usr/lib/gokai/gen_snapshot
           fi
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.2
