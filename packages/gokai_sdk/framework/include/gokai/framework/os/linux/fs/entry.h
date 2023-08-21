@@ -23,6 +23,7 @@ namespace Gokai {
               Gokai::FS::EntryStat statSync() override;
 
               Gokai::FS::DirectoryEntry toDirectory() override;
+              Gokai::FS::FileEntry toFile() override;
             protected:
               GVfs* fs;
             private:

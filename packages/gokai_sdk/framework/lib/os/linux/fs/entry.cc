@@ -1,6 +1,7 @@
 #include <fmt/core.h>
 #include <gokai/framework/os/linux/fs/dir.h>
 #include <gokai/framework/os/linux/fs/entry.h>
+#include <gokai/framework/os/linux/fs/file.h>
 #include <stdexcept>
 
 using namespace Gokai::Framework::os::Linux::FS;
@@ -170,6 +171,14 @@ Gokai::FS::EntryStat Entry::statSync() {
 
 Gokai::FS::DirectoryEntry Entry::toDirectory() {
   return DirectoryEntry(Gokai::ObjectArguments({
+    { "context", this->context },
+    { "path", this->getPath() },
+    { "vfs", g_object_ref(this->fs) },
+  }));
+}
+
+Gokai::FS::FileEntry Entry::toFile() {
+  return FileEntry(Gokai::ObjectArguments({
     { "context", this->context },
     { "path", this->getPath() },
     { "vfs", g_object_ref(this->fs) },
