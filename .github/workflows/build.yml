@@ -64,7 +64,7 @@ jobs:
           cp flutter-engine/dart-sdk.version installdir/usr/lib/gokai
           cp flutter-engine/engine.version installdir/usr/lib/gokai
 
-          target=$(echo ${{ matrix.target }} | cut -f1 -d '-')
+          export target=$(echo ${{ matrix.target }} | cut -f1 -d '-')
           if [[ -f flutter-engine/gen_snapshot_linux_${target}_${{ matrix.mode }} ]]; then
             cp flutter-engine/gen_snapshot_linux_${target}_${{ matrix.mode }} installdir/usr/lib/gokai/gen_snapshot
           else
