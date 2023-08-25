@@ -1,3 +1,5 @@
+#include <gokai/fs/dir.h>
+#include <gokai/fs/file.h>
 #include <gokai/services/storage-manager.h>
 
 #define TAG "Gokai::Services::StorageManager"
@@ -88,6 +90,71 @@ StorageManager::StorageManager(Gokai::ObjectArguments arguments) : Service(argum
 
         auto entry = this->open(source);
         entry.renameSync(dest);
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+      }
+
+      if (call.method.compare("copy") == 0) {
+        auto args = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+        auto source = std::filesystem::path(std::any_cast<std::string>(args["source"]));
+        auto dest = std::filesystem::path(std::any_cast<std::string>(args["dest"]));
+
+        auto entry = this->open(source);
+        entry.copy(dest);
+        return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+      }
+
+      if (call.method.compare("link") == 0) {
+        auto args = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+        auto source = std::filesystem::path(std::any_cast<std::string>(args["source"]));
+        auto dest = std::filesystem::path(std::any_cast<std::string>(args["dest"]));
+        auto type = std::any_cast<std::string>(args["type"]);
+
+        auto entry = this->open(source);
+        if (type.compare("file") == 0) {
+          static_cast<Gokai::FS::FileEntry>(entry).linkSync(dest);
+          return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+        }
+        if (type.compare("dir") == 0) {
+          static_cast<Gokai::FS::DirectoryEntry>(entry).linkSync(dest);
+          return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
+        }
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unknown type: {}", type), std::make_any<void*>(nullptr));
+      }
+
+      if (call.method.compare("create") == 0) {
+        auto args = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+        auto source = std::filesystem::path(std::any_cast<std::string>(args["source"]));
+        auto recursive = std::any_cast<bool>(args["recursive"]);
+        auto type = std::any_cast<std::string>(args["type"]);
+
+        auto entry = this->open(source);
+        if (type.compare("file") == 0) {
+          auto exclusive = std::any_cast<bool>(args["exclusive"]);
+          return this->method_codec.encodeSuccessEnvelope(static_cast<Gokai::FS::FileEntry>(entry).createSync(recursive, exclusive));
+        }
+        if (type.compare("dir") == 0) {
+          return this->method_codec.encodeSuccessEnvelope(static_cast<Gokai::FS::DirectoryEntry>(entry).createSync(recursive));
+        }
+        return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unknown type: {}", type), std::make_any<void*>(nullptr));
+      }
+
+      if (call.method.compare("read") == 0) {
+        auto path = std::filesystem::path(std::any_cast<std::string>(call.arguments));
+        auto entry = this->open(path);
+        auto buffer = static_cast<Gokai::FS::FileEntry>(entry).readSync();
+
+        std::list<int> list;
+        for (auto& v : buffer) list.push_back(v);
+        return this->method_codec.encodeSuccessEnvelope(list);
+      }
+
+      if (call.method.compare("write") == 0) {
+        auto args = std::any_cast<std::map<std::string, std::any>>(call.arguments);
+        auto path = std::filesystem::path(std::any_cast<std::string>(args["path"]));
+        auto entry = this->open(path);
+
+        auto list = std::any_cast<std::list<int>>(args["buffer"]);
+        static_cast<Gokai::FS::FileEntry>(entry).writeSync(std::vector<char>(list.begin(), list.end()));
         return this->method_codec.encodeSuccessEnvelope(std::make_any<void*>(nullptr));
       }
       return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("Unimplemented method: {}", call.method), std::make_any<void*>(nullptr));

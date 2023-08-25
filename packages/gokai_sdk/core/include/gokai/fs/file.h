@@ -8,6 +8,7 @@ namespace Gokai {
     class FileEntry : public Gokai::FS::Entry {
       public:
         FileEntry(Gokai::ObjectArguments arguments);
+        FileEntry(Gokai::FS::Entry& src);
 
         virtual std::future<bool> create(bool recursive, bool exclusive);
         virtual bool createSync(bool recursive, bool exclusive);

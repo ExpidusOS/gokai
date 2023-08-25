@@ -8,6 +8,7 @@ namespace Gokai {
     class DirectoryEntry : public Entry {
       public:
         DirectoryEntry(Gokai::ObjectArguments arguments);
+        DirectoryEntry(Gokai::FS::Entry& src);
 
         virtual std::future<void> link(std::filesystem::path path);
         virtual void linkSync(std::filesystem::path path);

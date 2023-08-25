@@ -9,6 +9,11 @@ using namespace Gokai::FS;
 
 FileEntry::FileEntry(Gokai::ObjectArguments arguments) : Entry(arguments) {}
 
+FileEntry::FileEntry(Gokai::FS::Entry& src) : Entry(Gokai::ObjectArguments({
+  { "context", src.getContext() },
+  { "path", src.getPath() },
+})) {}
+
 std::future<bool> FileEntry::create(bool recursive, bool exclusive) {
   return std::async(std::launch::async, [this, recursive, exclusive]() {
     return this->createSync(recursive, exclusive);

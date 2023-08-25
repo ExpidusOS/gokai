@@ -47,6 +47,7 @@ namespace Gokai {
         Entry(Gokai::ObjectArguments arguments);
 
         std::filesystem::path getPath();
+        std::shared_ptr<Gokai::Context> getContext();
 
         virtual std::future<Entry> rename(std::filesystem::path path);
         virtual Entry renameSync(std::filesystem::path path);

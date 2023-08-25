@@ -81,6 +81,10 @@ std::filesystem::path Entry::getPath() {
   return this->path;
 }
 
+std::shared_ptr<Gokai::Context> Entry::getContext() {
+  return this->context;
+}
+
 std::future<Entry> Entry::rename(std::filesystem::path path) {
   return std::async(std::launch::async, [this, path]() {
     return this->renameSync(path);

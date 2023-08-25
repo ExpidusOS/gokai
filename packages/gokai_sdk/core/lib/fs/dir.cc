@@ -4,6 +4,11 @@ using namespace Gokai::FS;
 
 DirectoryEntry::DirectoryEntry(Gokai::ObjectArguments arguments) : Entry(arguments) {}
 
+DirectoryEntry::DirectoryEntry(Gokai::FS::Entry& src) : Entry(Gokai::ObjectArguments({
+  { "context", src.getContext() },
+  { "path", src.getPath() },
+})) {}
+
 std::future<void> DirectoryEntry::link(std::filesystem::path path) {
   return std::async(std::launch::async, [this, path]() {
     this->linkSync(path);
