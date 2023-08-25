@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io' as fs;
 import 'dart:typed_data';
+import 'package:gokai/fs/dir.dart';
+
 import 'entry.dart';
 
 class File extends FileSystemEntity implements fs.File {
@@ -27,7 +29,7 @@ class File extends FileSystemEntity implements fs.File {
 
   @override
   Future<fs.File> create({bool recursive = false, bool exclusive = false}) async {
-    if (await (value as GokaiFileSystemFile).create(recursive, exclusive)) return this;
+    if (await value.toFile().create(recursive, exclusive)) return this;
     throw Exception('Failed to create $path');
   }
 
@@ -92,10 +94,8 @@ class File extends FileSystemEntity implements fs.File {
   }
 
   @override
-  Future<List<String>> readAsLines({Encoding encoding = utf8}) {
-    // TODO: implement readAsLines
-    throw UnimplementedError();
-  }
+  Future<List<String>> readAsLines({Encoding encoding = utf8}) async
+    => (await readAsString(encoding: encoding)).split('\n');
 
   @override
   List<String> readAsLinesSync({Encoding encoding = utf8}) {
@@ -103,10 +103,8 @@ class File extends FileSystemEntity implements fs.File {
   }
 
   @override
-  Future<String> readAsString({Encoding encoding = utf8}) {
-    // TODO: implement readAsString
-    throw UnimplementedError();
-  }
+  Future<String> readAsString({Encoding encoding = utf8}) async
+    => encoding.decoder.convert(await readAsBytes());
 
   @override
   String readAsStringSync({Encoding encoding = utf8}) {
@@ -136,7 +134,7 @@ class File extends FileSystemEntity implements fs.File {
 
   @override
   Future<fs.File> writeAsBytes(List<int> bytes, {fs.FileMode mode = fs.FileMode.write, bool flush = false}) async {
-    await (value as GokaiFileSystemFile).write(bytes);
+    await value.toFile().write(bytes);
     return this;
   }
 
@@ -148,7 +146,7 @@ class File extends FileSystemEntity implements fs.File {
   @override
   Future<fs.File> writeAsString(String contents, {fs.FileMode mode = fs.FileMode.write, Encoding encoding = utf8, bool flush = false}) =>
     writeAsBytes(
-      List.generate(contents.length, (index) => contents.codeUnitAt(index)),
+      encoding.encoder.convert(contents),
       mode: mode,
       flush: flush,
     );
@@ -176,4 +174,7 @@ class GokaiFileSystemFile extends GokaiFileSystemEntry {
 
   @override
   fs.FileSystemEntity toDart() => File(this);
+
+  @override
+  GokaiFileSystemFile toFile() => this;
 }

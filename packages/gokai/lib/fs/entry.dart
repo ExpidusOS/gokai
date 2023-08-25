@@ -1,5 +1,6 @@
 import 'dart:io' as fs;
 import 'package:flutter/foundation.dart';
+import 'package:gokai/fs/file.dart';
 
 import 'dir.dart';
 
@@ -115,7 +116,7 @@ class FileSystemEntity extends fs.FileSystemEntity {
   fs.FileSystemEntity get absolute => isAbsolute ? this : throw UnimplementedError();
 
   @override
-  fs.Directory get parent => (value as GokaiFileSystemDirectory).getParent().toDart() as fs.Directory;
+  fs.Directory get parent => value.getParent().toDart() as fs.Directory;
 
   @override
   String get path => value.path;
@@ -199,5 +200,17 @@ class GokaiFileSystemEntry {
     throw UnimplementedError('stat("$path") has not been implemented');
   }
 
+  GokaiFileSystemDirectory getParent() {
+    throw UnimplementedError('getParent() has not been implemented');
+  }
+
   fs.FileSystemEntity toDart() => FileSystemEntity(this);
+
+  GokaiFileSystemDirectory toDirectory() {
+    throw UnimplementedError('toDirectory() has not been implemented');
+  }
+
+  GokaiFileSystemFile toFile() {
+    throw UnimplementedError('toFile() has not been implemented');
+  }
 }

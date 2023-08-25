@@ -18,6 +18,7 @@ class GokaiNativePlatform extends GokaiPlatform {
       'Gokai::Services::EngineManager': () => GokaiNativeEngineManager(),
       'Gokai::Services::InputManager': () => GokaiNativeInputManager(),
       'Gokai::Services::PowerManager': () => GokaiNativePowerManager(),
+      'Gokai::Services::StorageManager': () => GokaiNativeStorageManager(),
       'Gokai::Services::WindowManager': () => GokaiNativeWindowManager(),
     };
 

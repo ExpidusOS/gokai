@@ -8,7 +8,7 @@ class Directory extends FileSystemEntity implements fs.Directory {
   fs.Directory get absolute => isAbsolute ? this : throw UnimplementedError();
 
   @override
-  Future<fs.Directory> rename(String p) async => (await value.rename(p)).toDart() as Directory;
+  Future<fs.Directory> rename(String p) async => value.toDirectory().toDart() as fs.Directory;
 
   @override
   fs.Directory renameSync(String p) {
@@ -17,7 +17,7 @@ class Directory extends FileSystemEntity implements fs.Directory {
 
   @override
   Future<fs.Directory> create({bool recursive = false}) async {
-    if (await (value as GokaiFileSystemDirectory).create(recursive)) {
+    if (await value.toDirectory().create(recursive)) {
       return this;
     }
     throw Exception('Failed to create $path');
@@ -40,7 +40,7 @@ class Directory extends FileSystemEntity implements fs.Directory {
 
   @override
   Stream<fs.FileSystemEntity> list({bool recursive = false, bool followLinks = true}) async* {
-    for (final val in await (value as GokaiFileSystemDirectory).list()) {
+    for (final val in await value.toDirectory().list()) {
       yield val.toDart();
     }
   }
@@ -66,10 +66,9 @@ class GokaiFileSystemDirectory extends GokaiFileSystemEntry {
     throw UnimplementedError('list() has not been implemented');
   }
 
-  GokaiFileSystemDirectory getParent() {
-    throw UnimplementedError('getParent() has not been implemented');
-  }
-
   @override
   fs.FileSystemEntity toDart() => Directory(this);
+
+  @override
+  GokaiFileSystemDirectory toDirectory() => this;
 }
