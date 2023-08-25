@@ -1,6 +1,4 @@
 import 'dart:html';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:gokai/constants.dart';
 import 'package:gokai/platforms/web/services.dart';
 import 'package:gokai/platform_interface.dart';
@@ -13,6 +11,7 @@ final _kPlatformMap = <String, GokaiService Function()>{
   'EngineManager': () => GokaiWebEngineManager(),
   'InputManager': () => GokaiWebInputManager(),
   'PowerManager': () => GokaiWebPowerManager(),
+  'StorageManager': () => GokaiWebStorageManager(),
   'WindowManager': () => GokaiWebWindowManager(),
 };
 

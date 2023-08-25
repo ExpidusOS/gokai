@@ -113,21 +113,15 @@
             version = "0.1.0-git+${self.shortRev or "dirty"}";
             src = cleanSource self;
 
-            buildInputs = p.buildInputs
-              ++ (with pkgs; [
-                libevdev
-                upower
-              ]);
+            postInstall = ''
+              mv $out/libexec $dev/libexec
+            '';
           });
 
           sdk-debug = self.packages.${system}.sdk.overrideAttrs (_: _: {
             mesonFlags = [
               "-Dflutter-engine=${pkgs.flutter-engine}/out/host_debug"
             ];
-
-            postInstall = ''
-              cp ${pkgs.flutter-engine}/out/host_debug/libflutter_engine.so $out/lib
-            '';
           });
 
           tools = pkgs.buildDartApplication {

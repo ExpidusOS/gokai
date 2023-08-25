@@ -21,7 +21,14 @@ jobs:
           mkdir flutter-engine
           tar -xf flutter-engine.tar.xz -C flutter-engine
           pushd flutter-engine
-          ln -s libflutter_engine.so.${{ matrix.mode }} libflutter_engine.so
+          cp libflutter_engine.so.${{ matrix.mode }} libflutter_engine.so
+
+          export target=$(echo ${{ matrix.target }} | cut -f1 -d '-')
+          if [[ -f gen_snapshot_linux_${target}_${{ matrix.mode }} ]]; then
+            cp gen_snapshot_linux_${target}_${{ matrix.mode }} gen_snapshot
+          else
+            cp gen_snapshot_linux_${target}_release gen_snapshot
+          fi
           popd
           rm flutter-engine.tar.xz
       - name: Install dependencies
@@ -58,18 +65,6 @@ jobs:
         run: |
           mkdir installdir
           DESTDIR=$(readlink -e installdir) ninja -C builddir install
-          cp flutter-engine/flutter_embedder.h installdir/usr/include
-          cp flutter-engine/libflutter_engine.so.${{ matrix.mode }} installdir/usr/lib/libflutter_engine.so
-          cp flutter-engine/icudtl.dat installdir/usr/lib/gokai
-          cp flutter-engine/dart-sdk.version installdir/usr/lib/gokai
-          cp flutter-engine/engine.version installdir/usr/lib/gokai
-
-          export target=$(echo ${{ matrix.target }} | cut -f1 -d '-')
-          if [[ -f flutter-engine/gen_snapshot_linux_${target}_${{ matrix.mode }} ]]; then
-            cp flutter-engine/gen_snapshot_linux_${target}_${{ matrix.mode }} installdir/usr/lib/gokai/gen_snapshot
-          else
-            cp flutter-engine/gen_snapshot_linux_${target}_release installdir/usr/lib/gokai/gen_snapshot
-          fi
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.2
         with:
