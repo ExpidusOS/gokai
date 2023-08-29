@@ -1,0 +1,397 @@
+{
+  "build-runtime": true,
+  "default-branch": "@branch@",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "23.08beta",
+  "sdk": "org.freedesktop.Sdk",
+  "finish-args": [
+    "--sdk=com.expidusos.Sdk//@branch@",
+    "--runtime=com.expidusos.Platform//@branch@"
+  ],
+  "id": "com.expidusos.gokai.Sdk",
+  "id-platform": "com.expidusos.gokai.Platform",
+  "inherit-extensions": [
+    "org.freedesktop.Platform.GL",
+    "org.freedesktop.Platform.VulkanLayer",
+    "org.freedesktop.Platform.Timezones"
+  ],
+  "inherit-sdk-extensions": [
+    "org.freedesktop.Sdk.Extension"
+  ],
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.vala"
+  ],
+  "build-options": {
+    "prepend-path": "/usr/lib/sdk/vala/bin/",
+    "prepend-ld-library-path": "/usr/lib/sdk/vala/lib"
+  },
+  "modules": [
+    {
+      "name": "fix-runtime",
+      "buildsystem": "simple",
+      "build-commands": [
+        "find /usr/share/locale -xtype l -delete",
+        "mkdir -p /usr/share/runtime/{locale/zh/share/zh_TW,docs/man}"
+      ]
+    },
+    {
+      "buildsystem": "meson",
+      "name": "gokai",
+      "subdir": "packages/gokai_sdk",
+      "config-opts": ["-Dflutter-engine=/usr/lib/flutter"],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/ExpidusOS/gokai.git"
+        }
+      ],
+      "modules": [
+        {
+          "buildsystem": "simple",
+          "name": "flutter",
+          "sources": [
+            {
+              "only-arches": [
+                "x86_64"
+              ],
+              "type": "file",
+              "url": "https://github.com/ardera/flutter-ci/releases/download/engine%2Fcdbeda788a293fa29665dc3fa3d6e63bd221cb0d/x64-generic.tar.xz",
+              "dest-filename": "flutter.tar.xz",
+              "sha256": "fcfd3a35aef18bfd3e5a309798719aac2cd960e4f7c1d0c5d4696ead0bfd2415"
+            }
+          ],
+          "build-commands": [
+            "mkdir -p /usr/lib/flutter",
+            "tar xf flutter.tar.xz -C /usr/lib/flutter",
+            "mv /usr/lib/flutter/libflutter_engine.so.release /usr/lib/flutter/libflutter_engine.so",
+            "mv /usr/lib/flutter/gen_snapshot_linux_*_release /usr/lib/flutter/gen_snapshot",
+            "rm /usr/lib/flutter/gen_snapshot_linux_*_profile /usr/lib/flutter/libflutter_engine.so.{debug{,_unopt},profile}"
+          ]
+        },
+        {
+          "name": "spdlog",
+          "buildsystem": "cmake",
+          "config-opts": [
+            "-DSPDLOG_FMT_EXTERNAL=ON",
+            "-DSPDLOG_BUILD_SHARED=ON"
+          ],
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://github.com/gabime/spdlog/archive/refs/tags/v1.12.0.tar.gz",
+              "sha256": "4dccf2d10f410c1e2feaff89966bfc49a1abb29ef6f08246335b110e001e09a9"
+            }
+          ],
+          "modules": [
+            {
+              "name": "fmt",
+              "buildsystem": "cmake",
+              "config-opts": [
+                "-DFMT_DOC=OFF",
+                "-DBUILD_SHARED_LIBS=ON"
+              ],
+              "sources": [
+                {
+                  "type": "archive",
+                  "url": "https://github.com/fmtlib/fmt/releases/download/10.1.1/fmt-10.1.1.zip",
+                  "sha256": "b84e58a310c9b50196cda48d5678d5fa0849bca19e5fdba6b684f0ee93ed9d1b"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "wlroots",
+          "buildsystem": "meson",
+          "config-opts": ["-Dexamples=false"],
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.16.2/wlroots-0.16.2.tar.gz",
+              "sha256": "f502959db8bc029e32f10a837b37257bb8c5ed269bceddf9492f0bb381bebf76"
+            }
+          ],
+          "modules": [
+            {
+              "name": "hwdata",
+              "buildsystem": "autotools",
+              "sources": [
+                {
+                  "type": "archive",
+                  "url": "https://github.com/vcrhonek/hwdata/archive/refs/tags/v0.373.tar.gz",
+                  "sha256": "0db28dc635d5059ad23d068d2e56ef5dc540f95bc813ea5a3c0f5d63b03d20d6"
+                }
+              ]
+            },
+            {
+              "name": "libseat",
+              "buildsystem": "meson",
+              "sources": [
+                {
+                  "type": "archive",
+                  "url": "https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz",
+                  "sha256": "a562a44ee33ccb20954a1c1ec9a90ecb2db7a07ad6b18d0ac904328efbcf65a0"
+                }
+              ]
+            },
+            {
+              "name": "libinput",
+              "buildsystem": "meson",
+              "config-opts": ["-Dtests=false", "-Dlibwacom=false"],
+              "sources": [
+                {
+                  "type": "archive",
+                  "url": "https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.24.0/libinput-1.24.0.tar.gz",
+                  "sha256": "7413c3733b8c39dc38b8687950e0e0d9d38a73394539f9efa2a7c84a412cb505"
+                }
+              ],
+              "modules": [
+                {
+                  "name": "mtdev",
+                  "buildsystem": "autotools",
+                  "sources": [
+                    {
+                      "type": "archive",
+                      "url": "https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2",
+                      "sha256": "15d7b28da8ac71d8bc8c9287c2045fd174267bc740bec10cfda332dc1204e0e0"
+                    }
+                  ]
+                },
+                {
+                  "name": "libevdev",
+                  "buildsystem": "meson",
+                  "config-opts": [
+                    "-Dtests=disabled",
+                    "-Ddocumentation=disabled"
+                  ],
+                  "sources": [
+                    {
+                      "type": "archive",
+                      "url": "https://gitlab.freedesktop.org/libevdev/libevdev/-/archive/libevdev-1.13.1/libevdev-libevdev-1.13.1.tar.gz",
+                      "sha256": "438a9060dca43a305f75a590624412d1f858a908d4807433c67c58770f676a47"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "libuv",
+          "buildsystem": "autotools",
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://dist.libuv.org/dist/v1.9.1/libuv-v1.9.1.tar.gz",
+              "sha256": "e83953782c916d7822ef0b94e8115ce5756fab5300cca173f0de5f5b0e0ae928"
+            }
+          ]
+        },
+        {
+          "name": "yaml-cpp",
+          "buildsystem": "cmake",
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz",
+              "sha256": "fbe74bbdcee21d656715688706da3c8becfd946d92cd44705cc6098bb23b3a16"
+            }
+          ]
+        },
+        {
+          "name": "jsoncpp",
+          "buildsystem": "cmake",
+          "builddir": true,
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.5.tar.gz",
+              "sha256": "f409856e5920c18d0c2fb85276e24ee607d2a09b5e7d5f0a371368903c275da2"
+            }
+          ]
+        },
+        {
+          "name": "glm",
+          "buildsystem": "cmake",
+          "config-opts": [
+            "-DBUILD_SHARED_LIBS=OFF",
+            "-DBUILD_STATIC_LIBS=OFF"
+          ],
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip",
+              "sha256": "37e2a3d62ea3322e43593c34bae29f57e3e251ea89f4067506c94043769ade4c"
+            },
+            {
+              "type": "inline",
+              "dest-filename": "glm.pc",
+              "contents": "cHJlZml4PS91c3IKaW5jbHVkZWRpcj0vdXNyL2luY2x1ZGUKCk5hbWU6IEdMTQpEZXNjcmlwdGlvbjogT3BlbkdMIE1hdGhlbWF0aWNzClZlcnNpb246IDAuOS45LjgKQ2ZsYWdzOiAtSSR7aW5jbHVkZWRpcn0K",
+              "base64": true
+            }
+          ],
+          "no-make-install": true,
+          "post-install": [
+            "cp -r glm /usr/include/glm",
+            "cp glm.pc /usr/lib/$FLATPAK_ARCH-linux-gnu*/pkgconfig/",
+            "rm /usr/include/glm/CMakeLists.txt",
+            "rm /usr/include/glm/detail/*.cpp"
+          ]
+        },
+        {
+          "name": "crossguid",
+          "buildsystem": "cmake",
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://github.com/graeme-hill/crossguid/archive/ca1bf4b810e2d188d04cb6286f957008ee1b7681.tar.gz",
+              "sha256": "6be27e0b3a4907f0cd3cfadec255ee1b925569e1bd06e67a4d2f4267299b69c4"
+            },
+            {
+              "type": "file",
+              "url": "https://github.com/graeme-hill/crossguid/raw/1eb9bea38c320b2b588635cffceaaa2a8d434780/include/crossguid/guid.hpp",
+              "dest": "include/crossguid",
+              "dest-filename": "guid.hpp",
+              "sha256": "d67490b28710c59d08c66daaa092d4b1bc536c7b823c3ed326c9c52bcac446b2"
+            }
+          ]
+        },
+        {
+          "name": "accountsservice",
+          "buildsystem": "meson",
+          "config-opts": [
+            "-Dintrospection=false",
+            "-Dvapi=false",
+            "-Dsystemdsystemunitdir=/usr/lib/systemd/system"
+          ],
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://gitlab.freedesktop.org/accountsservice/accountsservice/-/archive/23.13.9/accountsservice-23.13.9.tar.gz",
+              "sha256": "15354c7f0457afdc0b9f7cc86bb2b8b90b7f6cfc09a80402bd685b56a4012c54"
+            },
+            {
+              "type": "script",
+              "dest-filename": "generate-version.sh",
+              "commands": [
+                "echo 23.13.9"
+              ]
+            }
+          ],
+          "post-install": [
+            "rm -rf /usr/lib/systemd/system"
+          ],
+          "modules": [
+            {
+              "name": "polkit",
+              "buildsystem": "meson",
+              "config-opts": [
+                "-Dsession_tracking=libsystemd-login",
+                "-Dsystemdsystemunitdir=/usr/lib/systemd/system",
+                "-Dlibs-only=true"
+              ],
+              "sources": [
+                {
+                  "type": "archive",
+                  "url": "https://gitlab.freedesktop.org/polkit/polkit/-/archive/123/polkit-123.tar.gz",
+                  "sha256": "b69278f6ea0eac406350c45f5720e2fe5e4beaf9f53c16d9902e025965418864"
+                }
+              ],
+              "post-install": [
+                "rm -rf /usr/lib/systemd/system"
+              ],
+              "modules": [
+                {
+                  "name": "duktape",
+                  "buildsystem": "simple",
+                  "sources": [
+                    {
+                      "type": "archive",
+                      "url": "https://github.com/svaarala/duktape/releases/download/v2.7.0/duktape-2.7.0.tar.xz",
+                      "sha256": "90f8d2fa8b5567c6899830ddef2c03f3c27960b11aca222fa17aa7ac613c2890"
+                    }
+                  ],
+                  "build-commands": [
+                    "make -f Makefile.sharedlibrary install INSTALL_PREFIX=/usr"
+                  ]
+                },
+                {
+                  "name": "pam",
+                  "buildsystem": "autotools",
+                  "config-opts": [
+                    "--disable-doc"
+                  ],
+                  "sources": [
+                    {
+                      "type": "archive",
+                      "url": "https://github.com/linux-pam/linux-pam/releases/download/v1.5.3/Linux-PAM-1.5.3.tar.xz",
+                      "sha256": "7ac4b50feee004a9fa88f1dfd2d2fa738a82896763050cd773b3c54b0a818283"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "libxdg-basedir",
+          "buildsystem": "autotools",
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://github.com/devnev/libxdg-basedir/archive/refs/tags/libxdg-basedir-1.2.3.tar.gz",
+              "sha256": "ff30c60161f7043df4dcc6e7cdea8e064e382aa06c73dcc3d1885c7d2c77451d"
+            }
+          ]
+        },
+        {
+          "name": "packagekit",
+          "buildsystem": "meson",
+          "config-opts": [
+            "-Dsystemd=false",
+            "-Doffline_update=false",
+            "-Dbash_completion=false",
+            "-Dbash_command_not_found=false"
+          ],
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://github.com/PackageKit/PackageKit/archive/refs/tags/v1.2.7.tar.gz",
+              "sha256": "7ac79cda1f289d5ad0944a576668f50bcc52ea39470d338558cacbbb88d222ed"
+            }
+          ]
+        },
+        {
+          "name": "upower",
+          "buildsystem": "meson",
+          "config-opts": [
+            "-Dudevrulesdir=/usr/lib/udev/rules.d",
+            "-Dudevhwdbdir=/usr/lib/udev/hwdb.d",
+            "-Dsystemdsystemunitdir=no",
+            "-Dgtk-doc=false"
+          ],
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://gitlab.freedesktop.org/upower/upower/-/archive/v1.90.2/upower-v1.90.2.tar.gz",
+              "sha256": "5c4e736648f0c89d2368fbbe1e6fc0598a1565c4b435bade1d65e890259fb759"
+            }
+          ],
+          "modules": [
+            {
+              "name": "gudev",
+              "buildsystem": "meson",
+              "sources": [
+                {
+                  "type": "archive",
+                  "url": "https://gitlab.gnome.org/GNOME/libgudev/-/archive/238/libgudev-238.tar.gz",
+                  "sha256": "443c702c6339775f413f45d13309b2c641a94530bb27981142a2605eedb0aafd"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

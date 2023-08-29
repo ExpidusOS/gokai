@@ -107,6 +107,13 @@
             find ${pkgs.flutter-engine.src}/src -maxdepth 1 -mindepth 1 -exec ln -sf {} $out/src \;
             ln -s ${pkgs.flutter-engine}/out $out/src/out
           '';
+
+          flatpakRuntimeJson = branch: path: pkgs.runCommand "gokai-0.1.0-git+${self.shortRev or "dirty"}.json" {} ''
+            cp ${packages/gokai_sdk/data/com.expidusos.gokai.Sdk.json.in} $out
+            substituteInPlace $out \
+              --replace "@branch@" "${branch}" \
+              --replace "@path@" "${path}"
+          '';
       in {
         packages = {
           sdk = pkgs.expidus.gokai.overrideAttrs (f: p: {
@@ -209,6 +216,16 @@
             LIBGL_DRIVERS_PATH = "${pkgs.mesa.drivers}/lib/dri";
             VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
             FLUTTER_ENGINE = "${flutter-engine}/src";
+          };
+
+          flatpak = pkgs.mkShell {
+            name = "gokai";
+
+            RUNTIME_JSON = flatpakRuntimeJson "master" ./packages/gokai_sdk;
+
+            packages = with pkgs; [
+              flatpak-builder
+            ];
           };
 
           sdk = pkgs.mkShell {
