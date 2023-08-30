@@ -15,7 +15,7 @@ jobs:
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: ${{ matix.arch }}
+          platforms: ${{ matrix.arch }}
       - name: Install dependencies
         run: sudo apt install -y flatpak flatpak-builder
       - name: Set up Flatpak repositories
