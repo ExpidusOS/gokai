@@ -57,7 +57,7 @@
               "type": "file",
               "url": "https://github.com/ardera/flutter-ci/releases/download/engine%2Fcdbeda788a293fa29665dc3fa3d6e63bd221cb0d/aarch64-generic.tar.xz",
               "dest-filename": "flutter.tar.xz",
-              "sha256sum": "e05ef866f1b4e6feacfe16ade9fd0e85169118f212a923bc5a4fbcc541287f81"
+              "sha256": "e05ef866f1b4e6feacfe16ade9fd0e85169118f212a923bc5a4fbcc541287f81"
             },
             {
               "only-arches": [
