@@ -25,9 +25,9 @@ jobs:
       - name: Build
         run: |
           cp packages/gokai_sdk/data/com.expidusos.gokai.Sdk.json.in com.expidusos.gokai.Sdk.json
-          sed -i -e \
-            "s|@branch@|${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}|g" \
-            "s|@path@|$(pwd)|g" \
+          sed -i \
+            -e "s|@branch@|${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}|g" \
+            -e "s|@path@|$(pwd)|g" \
             com.expidusos.gokai.Sdk.json
           flatpak-builder --install-deps-from=flathub --install-deps-from=flathub-beta --user --arch=${{ matrix.arch }} --repo=repo builddir com.expidusos.gokai.Sdk.json
       - name: Upload artifact
