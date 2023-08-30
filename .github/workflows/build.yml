@@ -6,7 +6,7 @@ jobs:
   flatpak:
     strategy:
       matrix:
-        arch: [x86_64]
+        arch: [aarch64, x86_64]
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -14,8 +14,6 @@ jobs:
       - if: ${{ matrix.arch != 'x86_64' }}
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-        with:
-          platforms: ${{ matrix.arch }}
       - name: Install dependencies
         run: sudo apt install -y flatpak flatpak-builder
       - name: Set up Flatpak repositories
