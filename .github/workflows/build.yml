@@ -20,13 +20,13 @@ jobs:
         run: sudo apt install -y flatpak flatpak-builder
       - name: Set up Flatpak repositories
         run: |
-          flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
       - name: Build
         run: |
           cp packages/gokai_sdk/data/com.expidusos.gokai.Sdk.json.in com.expidusos.gokai.Sdk.json
           sed -i "s|@branch@|${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}|g" com.expidusos.gokai.Sdk.json
-          flatpak-builder --install-deps-from=flathub --install-deps-from=flathub-beta --arch=${{ matrix.arch }} --repo=repo builddir com.expidusos.gokai.Sdk.json
+          flatpak-builder --install-deps-from=flathub --install-deps-from=flathub-beta --user --arch=${{ matrix.arch }} --repo=repo builddir com.expidusos.gokai.Sdk.json
   linux:
     strategy:
       matrix:
