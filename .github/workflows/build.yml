@@ -11,6 +11,8 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
       - if: ${{ matrix.arch != 'x86_64' }}
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -23,8 +25,16 @@ jobs:
       - name: Build
         run: |
           cp packages/gokai_sdk/data/com.expidusos.gokai.Sdk.json.in com.expidusos.gokai.Sdk.json
-          sed -i "s|@branch@|${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}|g" com.expidusos.gokai.Sdk.json
+          sed -i -e \
+            "s|@branch@|${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}|g" \
+            "s|@path@|$(pwd)|g" \
+            com.expidusos.gokai.Sdk.json
           flatpak-builder --install-deps-from=flathub --install-deps-from=flathub-beta --user --arch=${{ matrix.arch }} --repo=repo builddir com.expidusos.gokai.Sdk.json
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: flatpak-${{ matrix.arch }}
+          path: repo/*
   linux:
     strategy:
       matrix:
@@ -90,5 +100,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: ${{ matrix.engine }}-${{ matrix.target }}-${{ matrix.mode }}-${{ matrix.buildtype }}
+          name: linux-${{ matrix.engine }}-${{ matrix.target }}-${{ matrix.mode }}-${{ matrix.buildtype }}
           path: installdir/*
