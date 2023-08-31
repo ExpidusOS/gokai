@@ -42,7 +42,8 @@
       "sources": [
         {
           "type": "git",
-          "path": "@path@"
+          "path": "@path@",
+          "disable-submodules": true
         }
       ],
       "modules": [
