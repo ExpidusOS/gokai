@@ -102,12 +102,6 @@
             ];
           };
 
-          flutter-engine = pkgs.runCommand pkgs.flutter-engine.name {} ''
-            mkdir -p $out/src
-            find ${pkgs.flutter-engine.src}/src -maxdepth 1 -mindepth 1 -exec ln -sf {} $out/src \;
-            ln -s ${pkgs.flutter-engine}/out $out/src/out
-          '';
-
           flatpakRuntimeJson = branch: path: pkgs.runCommand "gokai-0.1.0-git+${self.shortRev or "dirty"}.json" {} ''
             cp ${packages/gokai_sdk/data/com.expidusos.gokai.Sdk.json.in} $out
             substituteInPlace $out \
@@ -127,7 +121,7 @@
 
           sdk-debug = self.packages.${system}.sdk.overrideAttrs (_: _: {
             mesonFlags = [
-              "-Dflutter-engine=${pkgs.flutter-engine}/out/host_debug"
+              "-Dflutter-engine=${self.packages.${system}.sdk.flutter-engine}/out/host_debug"
             ];
           });
 
@@ -215,7 +209,7 @@
 
             LIBGL_DRIVERS_PATH = "${pkgs.mesa.drivers}/lib/dri";
             VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
-            FLUTTER_ENGINE = "${flutter-engine}/src";
+            FLUTTER_ENGINE = self.packages.${system}.sdk.flutter-engine;
           };
 
           flatpak = pkgs.mkShell {
