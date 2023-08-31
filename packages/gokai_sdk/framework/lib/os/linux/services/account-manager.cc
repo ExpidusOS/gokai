@@ -67,7 +67,6 @@ void AccountManager::user_changed(ActUser* user, gpointer user_data) {
   for (const auto& entry : self->cache) {
     auto find = std::find(ids.begin(), ids.end(), entry.first);
     if (find == ids.end()) {
-      delete entry.second;
       self->cache.erase(entry.first);
     }
   }
