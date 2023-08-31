@@ -164,6 +164,12 @@
                       "type": "archive",
                       "url": "https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2",
                       "sha256": "15d7b28da8ac71d8bc8c9287c2045fd174267bc740bec10cfda332dc1204e0e0"
+                    },
+                    {
+                      "type": "file",
+                      "url": "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD",
+                      "dest-filename": "config.guess",
+                      "sha256": "810df8ff01d768a5f3dba7dc3c484f95b8e0d340a339f49ecfdd06b6ecfd2ca4"
                     }
                   ]
                 },
