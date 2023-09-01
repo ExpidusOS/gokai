@@ -101,13 +101,6 @@
               "${pkgs.flutter}/bin/cache"
             ];
           };
-
-          flatpakRuntimeJson = branch: path: pkgs.runCommand "gokai-0.1.0-git+${self.shortRev or "dirty"}.json" {} ''
-            cp ${packages/gokai_sdk/data/com.expidusos.gokai.Sdk.json.in} $out
-            substituteInPlace $out \
-              --replace "@branch@" "${branch}" \
-              --replace "@path@" "${path}"
-          '';
       in {
         packages = {
           sdk = pkgs.expidus.gokai.overrideAttrs (f: p: {
@@ -215,11 +208,15 @@
           flatpak = pkgs.mkShell {
             name = "gokai";
 
-            RUNTIME_JSON = flatpakRuntimeJson "master" ./packages/gokai_sdk;
-
             packages = with pkgs; [
+              meson
+              ninja
               flatpak-builder
             ];
+
+            shellHook = ''
+              cd packages/gokai_runtime
+            '';
           };
 
           sdk = pkgs.mkShell {

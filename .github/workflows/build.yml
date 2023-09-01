@@ -24,7 +24,7 @@ jobs:
           flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
       - name: Build
         run: |
-          cp packages/gokai_sdk/data/com.expidusos.gokai.Sdk.json.in com.expidusos.gokai.Sdk.json
+          cp packages/gokai_runtime/data/com.expidusos.gokai.Sdk.json.in com.expidusos.gokai.Sdk.json
           sed -i \
             -e "s|@branch@|${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}|g" \
             -e "s|@path@|$(pwd)|g" \

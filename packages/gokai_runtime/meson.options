@@ -1,0 +1,1 @@
+option('branch', type: 'string', value: 'master', description: 'Git branch')
