@@ -62,7 +62,7 @@
           lndir -silent ${artifact} $out/artifacts/engine/${artifactDirectory}
         '';
 
-        flutterEngineArtifactDirectory = pkgs.runCommandLocal "flutter-engine-artifacts-${pkgs.flutter.version}" {
+        flutterEngineArtifactDirectory = pkgs.runCommandLocal "flutter-engine-artifacts-${pkgs.flutter.unwrapped.version}" {
           nativeBuildInputs = with pkgs; [ xorg.lndir ];
         } (
             builtins.concatStringsSep "\n"
