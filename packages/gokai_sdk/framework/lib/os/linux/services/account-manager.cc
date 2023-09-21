@@ -64,12 +64,6 @@ void AccountManager::user_changed(ActUser* user, gpointer user_data) {
   auto self = reinterpret_cast<AccountManager*>(user_data);
   auto ids = self->getIds();
 
-  for (const auto& entry : self->cache) {
-    auto find = std::find(ids.begin(), ids.end(), entry.first);
-    if (find == ids.end()) {
-      self->cache.erase(entry.first);
-    }
-  }
-
+  self->cache.clear();
   for (const auto& func : self->changed) func();
 }
