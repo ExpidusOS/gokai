@@ -21,6 +21,7 @@ namespace Gokai {
               std::locale getLanguage() override;
               std::string getDisplayName() override;
               std::string getPicture() override;
+              std::string getHome() override;
               bool isSystem() override;
               bool isAdministrator() override;
 

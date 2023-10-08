@@ -20,6 +20,7 @@ namespace Gokai {
         virtual std::locale getLanguage();
         virtual std::string getDisplayName();
         virtual std::string getPicture();
+        virtual std::string getHome();
         virtual bool isSystem();
         virtual bool isAdministrator();
       protected:

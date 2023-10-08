@@ -61,6 +61,17 @@ AccountManager::AccountManager(Gokai::ObjectArguments arguments) : Service(argum
         return this->method_codec.encodeSuccessEnvelope(value.length() == 0 ? std::any(nullptr) : std::any(value));
       }
 
+      if (call.method.compare("getHome") == 0) {
+        auto id = Gokai::User::ID(call.arguments);
+        auto user = this->get(id);
+        if (user == nullptr) {
+          return this->method_codec.encodeErrorEnvelope(TAG, fmt::format("User does not exist"), std::make_any<void*>(nullptr));
+        }
+
+        auto value = user->getHome();
+        return this->method_codec.encodeSuccessEnvelope(value.length() == 0 ? std::any(nullptr) : std::any(value));
+      }
+
       if (call.method.compare("isSystem") == 0) {
         auto id = Gokai::User::ID(call.arguments);
         auto user = this->get(id);

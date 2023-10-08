@@ -34,6 +34,11 @@ std::string Account::getPicture() {
   return std::string(value == nullptr ? "" : value);
 }
 
+std::string Account::getHome() {
+  auto value = act_user_get_home_dir(this->value);
+  return std::string(value == nullptr ? "" : value);
+}
+
 bool Account::isSystem() {
   return act_user_is_system_account(this->value);
 }

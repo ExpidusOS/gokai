@@ -34,6 +34,10 @@ std::string Account::getPicture() {
   return std::string();
 }
 
+std::string Account::getHome() {
+  return std::string();
+}
+
 bool Account::isSystem() {
   return false;
 }
