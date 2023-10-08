@@ -35,6 +35,7 @@ class GokaiNativeAccountManager extends GokaiAccountManager {
     final language = (await methodChannel.invokeMethod<String>('getLanguage', id.value))!;
     final displayName = (await methodChannel.invokeMethod<String>('getDisplayName', id.value))!;
     final picture = await methodChannel.invokeMethod<String>('getPicture', id.value);
+    final home = await methodChannel.invokeMethod<String>('getHome', id.value);
     final isSystem = (await methodChannel.invokeMethod<bool>('isSystem', id.value))!;
     final isAdministrator = (await methodChannel.invokeMethod<bool>('isAdministrator', id.value))!;
 
@@ -43,6 +44,7 @@ class GokaiNativeAccountManager extends GokaiAccountManager {
       language: language,
       displayName: displayName,
       picture: picture,
+      home: home,
       isSystem: isSystem,
       isAdministrator: isAdministrator,
     );

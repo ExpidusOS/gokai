@@ -6,6 +6,7 @@ class GokaiUserAccount {
     required this.language,
     required this.displayName,
     this.picture,
+    this.home,
     required this.isSystem,
     required this.isAdministrator,
   });
@@ -14,6 +15,7 @@ class GokaiUserAccount {
   final String language;
   final String displayName;
   final String? picture;
+  final String? home;
   final bool isSystem;
   final bool isAdministrator;
 }
