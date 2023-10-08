@@ -47,6 +47,7 @@
 
         engineArtifacts = pkgs.callPackage "${nixpkgs.outPath}/pkgs/development/compilers/flutter/engine-artifacts" {
           inherit (pkgs.flutter.unwrapped) engineVersion;
+          flutterVersion = pkgs.flutter.unwrapped.version;
         };
 
         mkCommonArtifactLinkCommand = { artifact }: ''
@@ -175,7 +176,7 @@
             };
 
             pubspecLockFile = ./packages/gokai_tools/pubspec.lock;
-            vendorHash = "sha256-mhlwNd3DYBtCtdl6nhCibY9GzFUngFpsv+utVVkpikw=";
+            vendorHash = "sha256-4dNkiQ3r2lAnU5j+PqGO2v7s5eOGEXZ4tDWcpxYF6So=";
           };
         };
 
